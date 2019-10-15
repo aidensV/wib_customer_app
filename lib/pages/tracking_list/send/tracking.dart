@@ -73,57 +73,6 @@ class _TrackingState extends State<Tracking> {
 
   String noresi, price;
 
-  FetchJSON() async {
-    final Response = await http.post(url('api/trackingPosisiPengiriman'),
-        headers: requestHeaders, body: {'nota': '$notas'});
-
-    if (Response.statusCode == 200) {
-      String responseBody = Response.body;
-      var responseJSON = json.decode(responseBody);
-      var trackingNota = responseJSON['nota'];
-      noresi = trackingNota['s_resi'];
-      price = responseJSON['s_payexpedition'];
-      setState(() {
-        print('Success get tracking nota!');
-      });
-    } else {
-      print('Something went wrong. \nResponse Code : ${Response.statusCode}');
-    }
-
-    try {
-      final item = await http.post(url('api/trackingPosisiPengiriman'),
-          headers: requestHeaders, body: {'nota': '$notas'});
-
-      if (item.statusCode == 200) {
-
-        String responseBody = Response.body;
-        var responseJSON = json.decode(responseBody);
-        var trackingNota = responseJSON['nota'];
-        noresi = trackingNota['s_resi'];
-        price = responseJSON['s_payexpedition'];
-        setState(() {
-          print('Success get tracking nota!');
-        });
-
-      } else {
-        showInSnackBar('Request failed with status: ${item.statusCode}');
-        setState(() {
-          isLoading = false;
-        });
-      }
-    } on TimeoutException catch (_) {
-      showInSnackBar('Timed out, Try again');
-      setState(() {
-        isLoading = false;
-      });
-    } catch (e) {
-      print(e);
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
-
   Future<List<ListTracking>> listTrackingNotaAndroid() async {
     setState(() {
       isLoading = true;
@@ -144,6 +93,10 @@ class _TrackingState extends State<Tracking> {
           );
           listTracking.add(notax);
         }
+
+        var trackinNota = itemJson['nota'];
+        noresi = trackinNota['s_resi'];
+        price = trackinNota['s_payexpedition'];
 
         print('listTracking $listTracking');
         print('length listTracking ${listTracking.length}');
@@ -184,7 +137,6 @@ class _TrackingState extends State<Tracking> {
     statuss = status;
     totals = total;
 
-    FetchJSON();
     getHeaderHTTP();
     super.initState();
   }
@@ -267,7 +219,30 @@ class _TrackingState extends State<Tracking> {
                         Expanded(
                           flex: 5,
                           child: Text(
-                            noresi,
+                            noresi == null ? "Tunggu Sebentar" : noresi,
+                            style: TextStyle(
+                              color: Colors.black54,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Divider(),
+                    Row(
+                      children: <Widget>[
+                        Expanded(
+                          flex: 5,
+                          child: Text(
+                            'Biaya Pengiriman',
+                            style: TextStyle(
+                              fontSize: 16.0,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 5,
+                          child: Text(
+                            price == null ? "Tunggu Sebentar" : "Rp. $price",
                             style: TextStyle(
                               color: Colors.black54,
                             ),
