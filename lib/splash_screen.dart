@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'utils/Navigator.dart';
-
+import 'storage/storage.dart';
 import 'dart:async';
 
 class SplashScreen extends StatefulWidget {
@@ -9,11 +9,28 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+
+  String _username;
+
+  Future<Null> getSharedPrefs() async {
+    DataStore dataStore = new DataStore();
+    _username = await dataStore.getDataString("username");
+    print(_username);
+
+    if (_username == 'Tidak ditemukan') {
+      Timer(Duration(seconds: 2),
+              () => Navigator.pushReplacementNamed(context, "/login"));
+    } else {
+      Timer(Duration(seconds: 2),
+              () => Navigator.pushReplacementNamed(context, "/dashboard"));
+    }
+  }
+
   @override
   void initState() {
     // TODO: implement initState
+    getSharedPrefs();
     super.initState();
-    Timer(Duration(seconds: 5), () => Navigator.pushReplacementNamed(context, "/login"));
   }
 
   @override

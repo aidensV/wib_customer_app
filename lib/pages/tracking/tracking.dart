@@ -14,13 +14,13 @@ class _TrackingState extends State<Tracking> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: Text(
-            "Tracking",
+          "Tracking",
           style: TextStyle(
-            color: Color(0xff25282b)
+              color: Color(0xff25282b)
           ),
         ),
         iconTheme: IconThemeData(
-          color: Color(0xff25282b)
+            color: Color(0xff25282b)
         ),
         elevation: 0.0,
       ),
@@ -52,14 +52,15 @@ class _TrackingState extends State<Tracking> {
                         width: 200.0,
                         height: 200.0,
                         child: Image.asset("images/truck.gif"),
-                      // Gif jangan dipakai setelah aplikasi release, karna mengandung unsur copyright
-                      // Jika tetap dipakai maka tanggung jawab sendiri atau programmer setelah david
+                        // Gif jangan dipakai setelah aplikasi release, karna mengandung unsur copyright
+                        // Jika tetap dipakai maka tanggung jawab sendiri atau programmer setelah david
                       ),
                     ],
                   ),
                 ),
                 Container(
                   child: CheckPoint(),
+                  // Check file in widget/checkpoint if you wanna know
                 ),
                 SizedBox(
                   height: 80.0,
@@ -69,6 +70,7 @@ class _TrackingState extends State<Tracking> {
           ),
         ),
       ),
+      // Whit this syntax you can create sticky button on bottom of the screen
       floatingActionButton: InkWell(
         onTap: () => print('Confirm Brayy'),
         child: Container(

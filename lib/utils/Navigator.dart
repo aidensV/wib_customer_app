@@ -10,5 +10,11 @@ class MyNavigator {
   static void goToTracking(BuildContext context) {
     Navigator.pushNamed(context, "/tracking");
   }
+  static void goToRepeatOrder(BuildContext context) {
+    Navigator.pushNamed(context, "/repeat_order");
+  }
+  static void goToListTracking(BuildContext context) {
+    Navigator.pushNamed(context, "/list_tracking");
+  }
 
 }
