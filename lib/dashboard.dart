@@ -38,8 +38,7 @@ class _DashboardPageState extends State<DashboardPage> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-          key: scaffoldKey,
-          // Drawer mean sidebar, remember
+          key: scaffoldKey,  
           drawer: Drawer(
             child: ListView(
               padding: EdgeInsets.zero,
@@ -99,6 +98,21 @@ class _DashboardPageState extends State<DashboardPage> {
                     RemoveSharedPrefs();
                     Navigator.pushReplacementNamed(context, "/login");
                   },
+                  
+                ),
+                ListTile(
+                  title: Text(
+                    'Barang Favorit',
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      fontFamily: 'TitilliumWeb',
+                      color: Color(0xff25282b),
+                    ),
+                  ),
+                  onTap: () {
+                    MyNavigator.goWishlist(context);
+                  },
+                  
                 ),
               ],
             ),

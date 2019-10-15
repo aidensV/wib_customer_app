@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'dashboard.dart';
 import 'login.dart';
 import 'splash_screen.dart';
+
 import 'pages/tracking/list.dart';
 import 'pages/tracking/tracking.dart';
 import 'pages/tracking_list/tracking.dart';
 import 'pages/repeat_order/repeat_order.dart';
+import 'wishlist/wishlist.dart';
 
 // This route for identifi when you use navigator
 var routes = <String, WidgetBuilder>{
@@ -14,8 +16,10 @@ var routes = <String, WidgetBuilder>{
   "/dashboard": (BuildContext context) => DashboardPage(),
   "/list_tracking" : (BuildContext context) => ListNotaTracking(),
   "/tracking" : (BuildContext context) => Tracking(),
+  "/wishlist" : (BuildContext context) => Wishlist(),
   "/tracking_list" : (BuildContext context) => TrackingList(),
   "/repeat_order" : (BuildContext context) => RepeatOrder(),
+
 };
 
 void main() {
