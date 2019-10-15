@@ -14,7 +14,7 @@ class _DashboardPageState extends State<DashboardPage> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-          key: scaffoldKey,
+          key: scaffoldKey,  
           drawer: Drawer(
             child: ListView(
               padding: EdgeInsets.zero,
@@ -41,6 +41,21 @@ class _DashboardPageState extends State<DashboardPage> {
                   onTap: () {
                     MyNavigator.goToTracking(context);
                   },
+                  
+                ),
+                ListTile(
+                  title: Text(
+                    'Barang Favorit',
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      fontFamily: 'TitilliumWeb',
+                      color: Color(0xff25282b),
+                    ),
+                  ),
+                  onTap: () {
+                    MyNavigator.goWishlist(context);
+                  },
+                  
                 ),
               ],
             ),

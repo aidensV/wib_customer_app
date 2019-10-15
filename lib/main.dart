@@ -3,12 +3,14 @@ import 'dashboard.dart';
 import 'login.dart';
 import 'splash_screen.dart';
 import 'tracking/tracking.dart';
+import 'wishlist/wishlist.dart';
 
 
 var routes = <String, WidgetBuilder>{
   "/login": (BuildContext context) => LoginPage(),
   "/dashboard": (BuildContext context) => DashboardPage(),
   "/tracking" : (BuildContext context) => Tracking(),
+  "/wishlist" : (BuildContext context) => Wishlist(),
 };
 
 void main() {
