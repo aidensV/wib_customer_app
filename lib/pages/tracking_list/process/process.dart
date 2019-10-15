@@ -50,7 +50,7 @@ Future<List<ListNota>> listNotaAndroid() async {
       print('listnota length ${listNota.length}');
       return listNota;
     } else {
-      showInSnackBar('Request failed with status: ${nota.statusCode}');
+//      showInSnackBar('Request failed with status: ${nota.statusCode}');
       return null;
     }
   } on TimeoutException catch (_) {
