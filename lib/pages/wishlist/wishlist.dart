@@ -192,15 +192,16 @@ class _WishlistState extends State<Wishlist> {
                                 padding: const EdgeInsets.only(
                                     top: 40.0, bottom: 10.0),
                                 child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: <Widget>[
                                     Text("Rp. " + snapshot.data[index].harga,
                                         style: TextStyle(color: Colors.black)),
                                     Padding(
                                       padding:
-                                          const EdgeInsets.only(left: 30.0),
+                                          const EdgeInsets.only(left: 0.0),
                                       child: Text(snapshot.data[index].type,
                                           style:
-                                              TextStyle(color: Colors.green)),
+                                              TextStyle(color: Colors.green,)),
                                     )
                                   ],
                                 ),
