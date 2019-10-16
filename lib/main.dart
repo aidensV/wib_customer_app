@@ -8,7 +8,7 @@ import 'pages/tracking/list.dart';
 import 'pages/tracking/tracking.dart';
 import 'pages/tracking_list/tracking.dart';
 import 'pages/repeat_order/repeat_order.dart';
-import 'wishlist/wishlist.dart';
+import 'pages/wishlist/wishlist.dart';
 
 // This route for identifi when you use navigator
 var routes = <String, WidgetBuilder>{
