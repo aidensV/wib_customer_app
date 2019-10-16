@@ -102,7 +102,6 @@ class _DetailState extends State<Detail> {
         });
         return listItem;
       } else {
-        showInSnackBar('Request failed with status: ${item.statusCode}');
         setState(() {
           isLoading = false;
         });
