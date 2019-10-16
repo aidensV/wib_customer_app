@@ -9,12 +9,11 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   var scaffoldKey = GlobalKey<ScaffoldState>();
-  PageController pageController;
 
   List<String> images = [
     'https://ecs7.tokopedia.net/img/cache/1242/banner/2019/10/11/20723472/20723472_8b4beedc-68ba-454c-a4dd-8ce1011f1694.jpg'
-    'https://ecs7.tokopedia.net/img/cache/1242/banner/2019/10/13/20723472/20723472_98150dcf-3d99-4b36-b359-f75b4349398d.jpg'
-    'https://ecs7.tokopedia.net/img/cache/1242/banner/2019/10/13/20723472/20723472_dd4457b2-4599-4d6c-9400-753fc5357323.jpg'
+        'https://ecs7.tokopedia.net/img/cache/1242/banner/2019/10/13/20723472/20723472_98150dcf-3d99-4b36-b359-f75b4349398d.jpg'
+        'https://ecs7.tokopedia.net/img/cache/1242/banner/2019/10/13/20723472/20723472_dd4457b2-4599-4d6c-9400-753fc5357323.jpg'
   ];
 
   String _username;
@@ -38,7 +37,7 @@ class _DashboardPageState extends State<DashboardPage> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-          key: scaffoldKey,  
+          key: scaffoldKey,
           drawer: Drawer(
             child: ListView(
               padding: EdgeInsets.zero,
@@ -98,7 +97,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     RemoveSharedPrefs();
                     Navigator.pushReplacementNamed(context, "/login");
                   },
-                  
+
                 ),
                 ListTile(
                   title: Text(
@@ -112,12 +111,12 @@ class _DashboardPageState extends State<DashboardPage> {
                   onTap: () {
                     MyNavigator.goWishlist(context);
                   },
-                  
+
                 ),
               ],
             ),
           ),
-        // Body Section Here
+          // Body Section Here
         body: Stack(
           children: <Widget>[
             Positioned(
