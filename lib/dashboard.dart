@@ -50,7 +50,7 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
             IconButton(
               onPressed: () {
-                
+                MyNavigator.goKeranjang(context);
               },
               icon: Icon(Icons.shopping_cart),
             )

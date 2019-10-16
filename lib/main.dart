@@ -9,6 +9,7 @@ import 'pages/tracking/tracking.dart';
 import 'pages/tracking_list/tracking.dart';
 import 'pages/repeat_order/repeat_order.dart';
 import 'pages/wishlist/wishlist.dart';
+import 'pages/shopping_cart/shoppingcart.dart';
 
 // This route for identifi when you use navigator
 var routes = <String, WidgetBuilder>{
@@ -17,6 +18,7 @@ var routes = <String, WidgetBuilder>{
   "/list_tracking" : (BuildContext context) => ListNotaTracking(),
   "/tracking" : (BuildContext context) => Tracking(),
   "/wishlist" : (BuildContext context) => Wishlist(),
+  "/keranjangbelanja" : (BuildContext context) => ShoppingCart(),
   "/tracking_list" : (BuildContext context) => TrackingList(),
   "/repeat_order" : (BuildContext context) => RepeatOrder(),
 
