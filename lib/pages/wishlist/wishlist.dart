@@ -55,6 +55,7 @@ Future<List<ListWishlist>> listNotaAndroid() async {
   }
   return null;
 }
+
 class Wishlist extends StatefulWidget {
   Wishlist({Key key, this.title}) : super(key: key);
   final String title;
@@ -65,20 +66,20 @@ class Wishlist extends StatefulWidget {
 }
 
 class _WishlistState extends State<Wishlist> {
-  Future<Null> getHeaderHTTP() async {
+  Future<List<ListWishlist>> getHeaderHTTP() async {
     var storage = new DataStore();
 
     var tokenTypeStorage = await storage.getDataString('token_type');
     var accessTokenStorage = await storage.getDataString('access_token');
 
-    setState(() {
-      tokenType = tokenTypeStorage;
-      accessToken = accessTokenStorage;
+    tokenType = tokenTypeStorage;
+    accessToken = accessTokenStorage;
 
-      requestHeaders['Accept'] = 'application/json';
-      requestHeaders['Authorization'] = '$tokenType $accessToken';
-      print(requestHeaders);
-    });
+    requestHeaders['Accept'] = 'application/json';
+    requestHeaders['Authorization'] = '$tokenType $accessToken';
+    print(requestHeaders);
+
+    return listNotaAndroid();
   }
 
   int totalRefresh = 0;
@@ -90,7 +91,7 @@ class _WishlistState extends State<Wishlist> {
 
   @override
   void initState() {
-    getHeaderHTTP();
+    // getHeaderHTTP();
     print(requestHeaders);
     super.initState();
   }
@@ -117,7 +118,7 @@ class _WishlistState extends State<Wishlist> {
           onRefresh: () => refreshFunction(),
           child: Scrollbar(
             child: FutureBuilder(
-              future: listNotaAndroid(),
+              future: getHeaderHTTP(),
               builder: (BuildContext context, AsyncSnapshot snapshot) {
                 switch (snapshot.connectionState) {
                   case ConnectionState.none:
@@ -175,13 +176,14 @@ class _WishlistState extends State<Wishlist> {
                               //     'storage/image/master/produk/${snapshot.data[index].image}',
                               //   ),
                               // ),
-                              leading:
-                               Image.network(snapshot.data[index].image != null ?
-                                urladmin(
-                                  'storage/image/master/produk/${snapshot.data[index].image}',
-                                ) :url(
-                                  'assets/img/noimage.jpg',
-                                ) ,
+                              leading: Image.network(
+                                snapshot.data[index].image != null
+                                    ? urladmin(
+                                        'storage/image/master/produk/${snapshot.data[index].image}',
+                                      )
+                                    : url(
+                                        'assets/img/noimage.jpg',
+                                      ),
                                 width: 70.0,
                                 height: 100.0,
                               ),
@@ -192,16 +194,17 @@ class _WishlistState extends State<Wishlist> {
                                 padding: const EdgeInsets.only(
                                     top: 40.0, bottom: 10.0),
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: <Widget>[
                                     Text("Rp. " + snapshot.data[index].harga,
                                         style: TextStyle(color: Colors.black)),
                                     Padding(
-                                      padding:
-                                          const EdgeInsets.only(left: 0.0),
+                                      padding: const EdgeInsets.only(left: 0.0),
                                       child: Text(snapshot.data[index].type,
-                                          style:
-                                              TextStyle(color: Colors.green,)),
+                                          style: TextStyle(
+                                            color: Colors.green,
+                                          )),
                                     )
                                   ],
                                 ),
