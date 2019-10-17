@@ -1,6 +1,9 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'utils/Navigator.dart';
 import 'storage/storage.dart';
+import 'package:carousel_pro/carousel_pro.dart';
 
 class DashboardPage extends StatefulWidget {
   @override
@@ -9,12 +12,6 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   var scaffoldKey = GlobalKey<ScaffoldState>();
-
-  List<String> images = [
-    'https://ecs7.tokopedia.net/img/cache/1242/banner/2019/10/11/20723472/20723472_8b4beedc-68ba-454c-a4dd-8ce1011f1694.jpg'
-        'https://ecs7.tokopedia.net/img/cache/1242/banner/2019/10/13/20723472/20723472_98150dcf-3d99-4b36-b359-f75b4349398d.jpg'
-        'https://ecs7.tokopedia.net/img/cache/1242/banner/2019/10/13/20723472/20723472_dd4457b2-4599-4d6c-9400-753fc5357323.jpg'
-  ];
 
   String _username;
 
@@ -117,22 +114,51 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
           ),
           // Body Section Here
-        body: Stack(
-          children: <Widget>[
-            Positioned(
-              left: 2,
-              top: 23,
-              child: IconButton(
-                icon: Icon(Icons.menu),
-                color: Color(0xff25282b),
-                onPressed: () => scaffoldKey.currentState.openDrawer(),
+        body: SingleChildScrollView(
+          child: Column(
+            children: <Widget>[
+              Container(
+                width: 500.0,
+                height: 150.0,
+                decoration: BoxDecoration(
+                    image: DecorationImage(
+                        fit: BoxFit.cover,
+                        image: NetworkImage('https://ecs7.tokopedia.net/img/cache/1242/banner/2019/10/11/20723472/20723472_8b4beedc-68ba-454c-a4dd-8ce1011f1694.jpg')
+                    ),
+                    borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(100.0),
+                        bottomRight: Radius.circular(100.0)
+                    )
+                ),
+                child: new BackdropFilter(
+                  filter: new ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                  child: new Container(
+                    decoration: new BoxDecoration(color: Colors.white.withOpacity(0.0)),
+                  ),
+                ),
               ),
-            ),
-            Center(
-              child: Text("Dashboard"),
-            )
-          ],
-        ),
+              Padding(
+                padding: EdgeInsets.all(5.0),
+                child: SizedBox(
+                    height: 130.0,
+                    width: 350.0,
+                    child: Carousel(
+                      images: [
+                        Padding(padding: EdgeInsets.all(5.0), child: ClipRRect(borderRadius:BorderRadius.circular(8.0), child:Image.network('https://ecs7.tokopedia.net/img/cache/1242/banner/2019/10/11/20723472/20723472_8b4beedc-68ba-454c-a4dd-8ce1011f1694.jpg', fit:BoxFit.fill, ),)),
+                        Padding(padding: EdgeInsets.all(5.0), child: ClipRRect(borderRadius:BorderRadius.circular(8.0), child:Image.network('https://ecs7.tokopedia.net/img/cache/1242/banner/2019/10/13/20723472/20723472_98150dcf-3d99-4b36-b359-f75b4349398d.jpg', fit:BoxFit.fill, ),)),
+                        Padding(padding: EdgeInsets.all(5.0), child: ClipRRect(borderRadius:BorderRadius.circular(8.0), child:Image.network('https://ecs7.tokopedia.net/img/cache/1242/banner/2019/10/13/20723472/20723472_dd4457b2-4599-4d6c-9400-753fc5357323.jpg', fit:BoxFit.fill, ),)),
+                      ],
+                      showIndicator: false,
+                      borderRadius: true,
+                      moveIndicatorFromBottom: 180.0,
+                      noRadiusForIndicator: true,
+                      overlayShadow: false,
+                    )
+                ),
+              )
+            ],
+          ),
+        )
       ),
     );
   }
