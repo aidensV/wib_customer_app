@@ -15,7 +15,8 @@ class DashboardPage extends StatefulWidget {
   _DashboardPageState createState() => _DashboardPageState();
 }
 
-class _DashboardPageState extends State<DashboardPage> with SingleTickerProviderStateMixin {
+class _DashboardPageState extends State<DashboardPage>
+    with SingleTickerProviderStateMixin {
   TabController tabController;
 
   var scaffoldKey = GlobalKey<ScaffoldState>();
@@ -32,9 +33,9 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
 
   @override
   void initState() {
-    // TODO: implement initState
-    super.initState();
     tabController = TabController(vsync: this, length: 4);
+
+    super.initState();
   }
 
   CarouselSlider carouselSlider;
@@ -57,7 +58,6 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
   @override
   Widget build(BuildContext context) {
     var bloc = Provider.of<ShopBloc>(context);
-
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -154,10 +154,10 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
                   ),
                 ),
                 Container(
-                  width: double.infinity,
-                  height: 50.0,
-                  color: Colors.transparent,
-                  child: Padding(
+                    width: double.infinity,
+                    height: 50.0,
+                    color: Colors.transparent,
+                    child: Padding(
                       padding: EdgeInsets.all(10.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -180,7 +180,8 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
                                 border: InputBorder.none,
                                 contentPadding: EdgeInsets.only(top: 3.0),
                                 hintText: "Cari Sekarang!",
-                                hintStyle: TextStyle(fontFamily: 'TitilliumWeb'),
+                                hintStyle:
+                                    TextStyle(fontFamily: 'TitilliumWeb'),
                                 prefixIcon: Icon(
                                   CupertinoIcons.search,
                                   color: HexColor('#7f8c8d'),
@@ -204,56 +205,62 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
                                   },
                                   icon: Icon(Icons.shopping_cart),
                                   color: Colors.white,
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.print),
+                                  onPressed: () {
+                                    print(
+                                        'width ${MediaQuery.of(context).size.width}');
+                                    print(
+                                        'height ${MediaQuery.of(context).size.height}');
+                                  },
                                 )
                               ],
                             ),
                           ),
                         ],
                       ),
-                  )
-                ),
-
+                    )),
                 Padding(
-                    padding: EdgeInsets.only(top: 50.0),
-                    child: carouselSlider = CarouselSlider(
-                      height: 100.0,
-                      initialPage: 0,
-                      enlargeCenterPage: true,
-                      autoPlay: true,
-                      reverse: false,
-                      enableInfiniteScroll: true,
-                      autoPlayInterval: Duration(seconds: 5),
-                      autoPlayAnimationDuration: Duration(milliseconds: 2000),
-                      pauseAutoPlayOnTouch: Duration(seconds: 10),
-                      scrollDirection: Axis.horizontal,
-                      onPageChanged: (index) {
-                        setState(() {
-                          _current = index;
-                        });
-                      },
-                      items: imgList.map((imgUrl) {
-                        return Builder(
-                          builder: (BuildContext context) {
-                            return Container(
-                                width: MediaQuery.of(context).size.width,
-                                margin: EdgeInsets.symmetric(horizontal: 5.0),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[500],
-                                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                  padding: EdgeInsets.only(top: 50.0),
+                  child: carouselSlider = CarouselSlider(
+                    height: 100.0,
+                    initialPage: 0,
+                    enlargeCenterPage: true,
+                    autoPlay: true,
+                    reverse: false,
+                    enableInfiniteScroll: true,
+                    autoPlayInterval: Duration(seconds: 5),
+                    autoPlayAnimationDuration: Duration(milliseconds: 2000),
+                    pauseAutoPlayOnTouch: Duration(seconds: 10),
+                    scrollDirection: Axis.horizontal,
+                    onPageChanged: (index) {
+                      setState(() {
+                        _current = index;
+                      });
+                    },
+                    items: imgList.map((imgUrl) {
+                      return Builder(
+                        builder: (BuildContext context) {
+                          return Container(
+                              width: MediaQuery.of(context).size.width,
+                              margin: EdgeInsets.symmetric(horizontal: 5.0),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[500],
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(8.0)),
+                              ),
+                              child: new ClipRRect(
+                                borderRadius: new BorderRadius.circular(8.0),
+                                child: Image.network(
+                                  imgUrl,
+                                  fit: BoxFit.fill,
                                 ),
-                                child: new ClipRRect(
-                                  borderRadius: new BorderRadius.circular(8.0),
-                                  child: Image.network(
-                                    imgUrl,
-                                    fit: BoxFit.fill,
-                                  ),
-                                )
-                            );
-                          },
-                        );
-                      }).toList(),
-                    ),
-
+                              ));
+                        },
+                      );
+                    }).toList(),
+                  ),
                 ),
                 Padding(
                   padding: EdgeInsets.only(left: 38.0, top: 150.0),
@@ -263,19 +270,20 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
                       return Container(
                         width: 8.0,
                         height: 8.0,
-                        margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
+                        margin: EdgeInsets.symmetric(
+                            vertical: 10.0, horizontal: 2.0),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: _current == index ? Colors.yellowAccent : Colors.grey[300],
+                          color: _current == index
+                              ? Colors.yellowAccent
+                              : Colors.grey[300],
                         ),
                       );
                     }),
                   ),
                 ),
-
               ],
             ),
-
             Container(
               padding: EdgeInsets.only(top: 10, left: 20),
               height: 250,
@@ -285,7 +293,6 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
                 primary: false,
                 itemCount: items == null ? 0 : items.length,
                 itemBuilder: (BuildContext context, int index) {
-
                   Map item = items.reversed.toList()[index];
                   return Padding(
                     padding: const EdgeInsets.only(right: 20),
@@ -305,7 +312,6 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
                                   fit: BoxFit.cover,
                                 ),
                               ),
-
                               SizedBox(height: 7),
                               Container(
                                 alignment: Alignment.centerLeft,
@@ -319,7 +325,6 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
                                   textAlign: TextAlign.left,
                                 ),
                               ),
-
                               SizedBox(height: 3),
                               Container(
                                 alignment: Alignment.centerLeft,
@@ -334,121 +339,119 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
                                   textAlign: TextAlign.left,
                                 ),
                               ),
-
                             ],
                           ),
                         ),
                         onTap: () {
                           bloc.addToCart(index);
-                        }
-                    ),
+                        }),
                   );
                 },
               ),
             ),
-
             Padding(
-              padding: EdgeInsets.all(20),
-              child: ListView.builder(
+              padding: EdgeInsets.all(10.0),
+              child: GridView.count(
                 primary: false,
                 physics: NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
-                itemCount: items == null ? 0 : items.length,
-                itemBuilder: (BuildContext context, int index) {
-                  Map item = items[index];
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom:15.0),
-                    child: InkWell(
-                        child: Container(
-                          height: 85,
-//                    color: Colors.red,
-                          child: Row(
-                            children: <Widget>[
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(5),
-                                child: Image.asset(
-                                  "${item["img"]}",
-                                  height: 70,
-                                  width: 70,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-
-                              SizedBox(width: 15),
-
-                              Container(
-                                height: 80,
-                                width: MediaQuery.of(context).size.width-130,
-                                child: ListView(
-                                  primary: false,
-                                  physics: NeverScrollableScrollPhysics(),
-                                  shrinkWrap: true,
-                                  children: <Widget>[
-                                    Container(
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(
-                                        "${item["name"]}",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 16,
-                                        ),
-                                        maxLines: 2,
-                                        textAlign: TextAlign.left,
-                                      ),
-                                    ),
-
-                                    SizedBox(height: 3),
-                                    Container(
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(
-                                        "${item["desc"]}",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 12,
-                                          color: Colors.blueGrey[300],
-                                        ),
-                                        maxLines: 1,
-                                        textAlign: TextAlign.left,
-                                      ),
-                                    ),
-
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: <Widget>[
-                                        Container(
-                                          alignment: Alignment.centerLeft,
-                                          child: Text(
-                                            "${item["price"]}",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 14,
-                                            ),
-                                            maxLines: 1,
-                                            textAlign: TextAlign.left,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-
-                            ],
+                crossAxisCount: 2,
+                mainAxisSpacing: 10.0,
+                crossAxisSpacing: 10.0,
+                childAspectRatio: 0.7,
+                children: items
+                    .map(
+                      (item) => Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            width: 1.0,
+                            color: Colors.grey,
                           ),
                         ),
-                        onTap: () {
-                          bloc.detailView(index);
-                        }
-                    ),
-                  );
-                },
+                        // padding: const EdgeInsets.all(10.0),
+                        // margin: EdgeInsets.all(5.0),
+                        child: InkWell(
+                          child: Container(
+                            // color: Colors.red,
+                            child: Column(
+                              children: <Widget>[
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  // clipBehavior: Clip.antiAlias,
+                                  child: Image.asset(
+                                    "${item["img"]}",
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                // SizedBox(width: 15),
+                                Container(
+                                  height: 80,
+                                  width:
+                                      MediaQuery.of(context).size.width - 130,
+                                  child: Column(
+                                    children: <Widget>[
+                                      Container(
+                                        alignment: Alignment.centerLeft,
+                                        child: Text(
+                                          "${item["name"]}",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 16,
+                                          ),
+                                          maxLines: 2,
+                                          textAlign: TextAlign.left,
+                                        ),
+                                      ),
+                                      SizedBox(height: 3),
+                                      Container(
+                                        alignment: Alignment.centerLeft,
+                                        child: Text(
+                                          "${item["desc"]}",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 12,
+                                            color: Colors.blueGrey[300],
+                                          ),
+                                          maxLines: 1,
+                                          textAlign: TextAlign.left,
+                                        ),
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Container(
+                                            alignment: Alignment.centerLeft,
+                                            child: Text(
+                                              "${item["price"]}",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                              ),
+                                              maxLines: 1,
+                                              textAlign: TextAlign.left,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          onTap: () {
+                            // bloc.detailView(index);
+                          },
+                        ),
+                      ),
+                    )
+                    .toList(),
               ),
             ),
-
           ],
         ),
       ),
     );
   }
-
 }
