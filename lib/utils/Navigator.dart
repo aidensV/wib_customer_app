@@ -22,4 +22,7 @@ class MyNavigator {
   static void goKeranjang(BuildContext context){
     Navigator.pushNamed(context, "/keranjangbelanja");
   }
+  static void goCheckout(BuildContext context){
+    Navigator.pushNamed(context, "/checkout");
+  }
 }
