@@ -11,6 +11,7 @@ import 'pages/tracking_list/tracking.dart';
 import 'pages/repeat_order/repeat_order.dart';
 import 'pages/wishlist/wishlist.dart';
 import 'pages/shopping_cart/shoppingcart.dart';
+import 'pages/checkout/checkout.dart';
 import 'pages/shops/bloc.dart';
 import 'pages/shops/detail.dart';
 
@@ -22,9 +23,11 @@ var routes = <String, WidgetBuilder>{
   "/list_tracking" : (BuildContext context) => ListNotaTracking(),
   "/tracking" : (BuildContext context) => Tracking(),
   "/wishlist" : (BuildContext context) => Wishlist(),
-  "/keranjangbelanja" : (BuildContext context) => ShoppingCart(),
+  "/keranjangbelanja" : (BuildContext context) => Keranjang(),
   "/tracking_list" : (BuildContext context) => TrackingList(),
   "/repeat_order" : (BuildContext context) => RepeatOrder(),
+  "/repeat_order" : (BuildContext context) => RepeatOrder(),
+  "/checkout" : (BuildContext context) => Checkout(),
   "/details" : (BuildContext context) => DetailShop()
 };
 
