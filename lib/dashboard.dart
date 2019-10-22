@@ -18,6 +18,7 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage>
     with SingleTickerProviderStateMixin {
   TabController tabController;
+  Color _isPressed = Colors.grey;
 
   var scaffoldKey = GlobalKey<ScaffoldState>();
   PageController pageController;
@@ -62,6 +63,7 @@ class _DashboardPageState extends State<DashboardPage>
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
+        backgroundColor: Colors.white,
         key: scaffoldKey,
         drawer: Drawer(
           child: ListView(
@@ -88,7 +90,7 @@ class _DashboardPageState extends State<DashboardPage>
                   'Tracking',
                   style: TextStyle(
                     fontSize: 16.0,
-                    fontFamily: 'TitilliumWeb',
+                    fontFamily: 'Roboto',
                     color: Color(0xff25282b),
                   ),
                 ),
@@ -101,7 +103,7 @@ class _DashboardPageState extends State<DashboardPage>
                   'Repeat Order',
                   style: TextStyle(
                     fontSize: 16.0,
-                    fontFamily: 'TitilliumWeb',
+                    fontFamily: 'Roboto',
                     color: Color(0xff25282b),
                   ),
                 ),
@@ -114,7 +116,7 @@ class _DashboardPageState extends State<DashboardPage>
                   'Shop',
                   style: TextStyle(
                     fontSize: 16.0,
-                    fontFamily: 'TitilliumWeb',
+                    fontFamily: 'Roboto',
                     color: Color(0xff25282b),
                   ),
                 ),
@@ -127,7 +129,7 @@ class _DashboardPageState extends State<DashboardPage>
                   'Logout',
                   style: TextStyle(
                     fontSize: 16.0,
-                    fontFamily: 'TitilliumWeb',
+                    fontFamily: 'Roboto',
                     color: Color(0xff25282b),
                   ),
                 ),
@@ -145,7 +147,7 @@ class _DashboardPageState extends State<DashboardPage>
             Stack(
               children: <Widget>[
                 Container(
-                  height: 200.0,
+                  height: 230.0,
                   decoration: BoxDecoration(
                     image: DecorationImage(
                       image: AssetImage("images/background.png"),
@@ -155,7 +157,7 @@ class _DashboardPageState extends State<DashboardPage>
                 ),
                 Container(
                     width: double.infinity,
-                    height: 50.0,
+                    height: 60.0,
                     color: Colors.transparent,
                     child: Padding(
                       padding: EdgeInsets.all(10.0),
@@ -163,8 +165,8 @@ class _DashboardPageState extends State<DashboardPage>
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
                           Container(
-                            height: 30.0,
-                            width: 200.0,
+                            height: 60.0,
+                            width: 220.0,
                             decoration: BoxDecoration(
                               color: Colors.white.withOpacity(0.9),
                               borderRadius: BorderRadius.only(
@@ -175,13 +177,13 @@ class _DashboardPageState extends State<DashboardPage>
                               ),
                             ),
                             child: TextField(
-                              style: TextStyle(fontFamily: 'TitilliumWeb'),
+                              style: TextStyle(fontFamily: 'Roboto'),
                               decoration: InputDecoration(
                                 border: InputBorder.none,
-                                contentPadding: EdgeInsets.only(top: 3.0),
+                                contentPadding: EdgeInsets.only(top: 11.0),
                                 hintText: "Cari Sekarang!",
                                 hintStyle:
-                                    TextStyle(fontFamily: 'TitilliumWeb'),
+                                    TextStyle(fontFamily: 'Roboto'),
                                 prefixIcon: Icon(
                                   CupertinoIcons.search,
                                   color: HexColor('#7f8c8d'),
@@ -206,15 +208,6 @@ class _DashboardPageState extends State<DashboardPage>
                                   icon: Icon(Icons.shopping_cart),
                                   color: Colors.white,
                                 ),
-                                IconButton(
-                                  icon: Icon(Icons.print),
-                                  onPressed: () {
-                                    print(
-                                        'width ${MediaQuery.of(context).size.width}');
-                                    print(
-                                        'height ${MediaQuery.of(context).size.height}');
-                                  },
-                                )
                               ],
                             ),
                           ),
@@ -222,7 +215,7 @@ class _DashboardPageState extends State<DashboardPage>
                       ),
                     )),
                 Padding(
-                  padding: EdgeInsets.only(top: 50.0),
+                  padding: EdgeInsets.only(top: 60.0),
                   child: carouselSlider = CarouselSlider(
                     height: 100.0,
                     initialPage: 0,
@@ -263,7 +256,7 @@ class _DashboardPageState extends State<DashboardPage>
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(left: 38.0, top: 150.0),
+                  padding: EdgeInsets.only(left: 38.0, top: 158.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: map<Widget>(imgList, (index, url) {
@@ -284,9 +277,31 @@ class _DashboardPageState extends State<DashboardPage>
                 ),
               ],
             ),
+            Padding(
+              padding: EdgeInsets.only(left: 20.0, right: 20.0, top: 25.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text("Hot Item", style: TextStyle(fontSize: 21.0, fontFamily: 'Roboto'),),
+                  Text("Lihat Semua", style: TextStyle(fontSize: 16.0, fontFamily: 'Roboto', color: Color(0xff31B057)),)
+                ],
+              ),
+            ),
             Container(
-              padding: EdgeInsets.only(top: 10, left: 20),
-              height: 250,
+              padding: EdgeInsets.only(top: 10, left: 20, bottom: 10.0),
+              height: 175,
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      stops: [
+                        0.1,
+                        0.4,
+                        0.6,
+                        0.9
+                      ],
+                      colors: [Colors.white, Colors.white, Colors.white, Colors.grey[100]])
+              ),
               width: MediaQuery.of(context).size.width,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
@@ -295,138 +310,171 @@ class _DashboardPageState extends State<DashboardPage>
                 itemBuilder: (BuildContext context, int index) {
                   Map item = items.reversed.toList()[index];
                   return Padding(
-                    padding: const EdgeInsets.only(right: 20),
-                    child: InkWell(
-                        child: Container(
-                          height: 250,
-                          width: 140,
+                    padding: const EdgeInsets.only(right: 10),
+                    child: Container(
+                      height: 168.0,
+                      child: Card(
+                        elevation: 0.0,
+                        child: InkWell(
 //                      color: Colors.green,
-                          child: Column(
-                            children: <Widget>[
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: Image.asset(
-                                  "${item["img"]}",
-                                  height: 178,
-                                  width: 140,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              SizedBox(height: 7),
-                              Container(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  "${item["name"]}",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 15,
+                            child: Column(
+                              children: <Widget>[
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Image.asset(
+                                    "${item["img"]}",
+                                    height: 100,
+                                    width: 100,
+                                    fit: BoxFit.cover,
                                   ),
-                                  maxLines: 2,
-                                  textAlign: TextAlign.left,
                                 ),
-                              ),
-                              SizedBox(height: 3),
-                              Container(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  "${item["desc"]}",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 13,
-                                    color: Colors.blueGrey[300],
+                                SizedBox(height: 7),
+                                Container(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    "${item["name"]}",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                    ),
+                                    maxLines: 2,
+                                    textAlign: TextAlign.left,
                                   ),
-                                  maxLines: 1,
-                                  textAlign: TextAlign.left,
                                 ),
-                              ),
-                            ],
-                          ),
+                                SizedBox(height: 3),
+                                Container(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    "${item["desc"]}",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13,
+                                      color: Colors.grey[400],
+                                    ),
+                                    maxLines: 1,
+                                    textAlign: TextAlign.left,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            onTap: () {
+                              Navigator.pushNamed(context, "/details");
+                            }
                         ),
-                        onTap: () {
-                          bloc.addToCart(index);
-                        }),
+                      ),
+                    ),
                   );
                 },
               ),
             ),
-            Padding(
-              padding: EdgeInsets.all(10.0),
-              child: GridView.count(
-                primary: false,
-                physics: NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                crossAxisCount: 2,
-                mainAxisSpacing: 10.0,
-                crossAxisSpacing: 10.0,
-                childAspectRatio: 0.7,
-                children: items
-                    .map(
-                      (item) => Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            width: 1.0,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        // padding: const EdgeInsets.all(10.0),
-                        // margin: EdgeInsets.all(5.0),
-                        child: InkWell(
-                          child: Container(
-                            // color: Colors.red,
-                            child: Column(
-                              children: <Widget>[
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  // clipBehavior: Clip.antiAlias,
-                                  child: Image.asset(
-                                    "${item["img"]}",
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                                // SizedBox(width: 15),
-                                Container(
-                                  height: 80,
-                                  width:
-                                      MediaQuery.of(context).size.width - 130,
-                                  child: Column(
+            Container(
+              color: Colors.grey[100],
+              child: Column(
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.only(left: 20.0, right: 20.0, top: 25.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Text("Belanja Sekarang!", style: TextStyle(fontSize: 21.0, fontFamily: 'Roboto'),),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(10.0),
+                    child: GridView.count(
+                      primary: false,
+                      physics: NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 10.0,
+                      crossAxisSpacing: 5.0,
+                      childAspectRatio: 0.7,
+                      children: items
+                          .map(
+                            (item) => Card(
+                              elevation: 0.0,
+                          child: InkWell(
+                            child: Container(
+//                            color: Colors.red,
+                              child: Column(
+                                children: <Widget>[
+                                  Stack(
                                     children: <Widget>[
-                                      Container(
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                          "${item["name"]}",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 16,
-                                          ),
-                                          maxLines: 2,
-                                          textAlign: TextAlign.left,
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(10.0),
+//                                  clipBehavior: Clip.antiAlias,
+                                        child: Image.asset(
+                                          "${item["img"]}",
+                                          fit: BoxFit.cover,
+                                          height: 150.0,
+                                          width: MediaQuery.of(context).size.width,
                                         ),
                                       ),
-                                      SizedBox(height: 3),
-                                      Container(
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                          "${item["desc"]}",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 12,
-                                            color: Colors.blueGrey[300],
-                                          ),
-                                          maxLines: 1,
-                                          textAlign: TextAlign.left,
-                                        ),
+                                      Positioned(
+                                          top: 5.0,
+                                          left: 108.0,
+                                          child: Container(
+                                            width: 40.0,
+                                            height: 40.0,
+                                            decoration: new BoxDecoration(
+                                              color: Colors.grey[100],
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: new IconButton(
+                                              icon: Icon(Icons.favorite, color: _isPressed),
+                                              onPressed: () {
+                                                setState(() {
+                                                  _isPressed = Colors.pink[400];
+                                                });
+                                              },
+                                            ),
+                                          )
                                       ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
+                                    ],
+                                  ),
+                                  // SizedBox(width: 15),
+                                  Padding(
+                                    padding: EdgeInsets.only(right: 10.0, left: 10.0, top: 10.0),
+                                    child: Container(
+                                      width:
+                                      MediaQuery.of(context).size.width - 130,
+                                      child: Column(
                                         children: <Widget>[
+                                          Container(
+                                            alignment: Alignment.centerLeft,
+                                            child: Text(
+                                              "${item["name"]}",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 16,
+                                              ),
+                                              maxLines: 2,
+                                              textAlign: TextAlign.left,
+                                            ),
+                                          ),
                                           Container(
                                             alignment: Alignment.centerLeft,
                                             child: Text(
                                               "${item["price"]}",
                                               style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 14,
+                                                  color: Colors.deepOrange
+                                              ),
+                                              maxLines: 1,
+                                              textAlign: TextAlign.left,
+                                            ),
+                                          ),
+                                          SizedBox(height: 3),
+                                          Container(
+                                            alignment: Alignment.centerLeft,
+                                            child: Text(
+                                              "${item["desc"]}",
+                                              style: TextStyle(
                                                 fontWeight: FontWeight.bold,
-                                                fontSize: 14,
+                                                fontSize: 12,
+                                                color: Colors.grey[400],
                                               ),
                                               maxLines: 1,
                                               textAlign: TextAlign.left,
@@ -434,23 +482,48 @@ class _DashboardPageState extends State<DashboardPage>
                                           ),
                                         ],
                                       ),
-                                    ],
-                                  ),
-                                ),
-                              ],
+                                    ),
+                                  )
+                                ],
+                              ),
                             ),
+                            onTap: () {
+                              Navigator.pushNamed(context, "/details");
+                            },
                           ),
-                          onTap: () {
-                            // bloc.detailView(index);
-                          },
                         ),
-                      ),
-                    )
-                    .toList(),
+                      )
+                          .toList(),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
         ),
+          bottomNavigationBar:BottomNavigationBar(
+            type: BottomNavigationBarType.shifting ,
+            unselectedItemColor: Colors.grey,
+            selectedItemColor: Color(0xff31B057),
+            items: [
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.home,),
+                  title: new Text('Shop'),
+              ),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.repeat,),
+                  title: new Text('Repeat Order')
+              ),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.map,),
+                  title: new Text('Tracking')
+              ),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.person,),
+                  title: new Text('Profile')
+              )
+            ],
+          )
       ),
     );
   }

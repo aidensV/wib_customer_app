@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
           // this below syntax how you set default font for apps
           // Remember to add font first in pubspec.yaml
           // Remeber only use free fonts if you cant buy font dont force it mate :))
-          theme: new ThemeData(fontFamily: 'TitilliumWeb'),
+          theme: new ThemeData(fontFamily: 'Roboto'),
           debugShowCheckedModeBanner: false,
           // debungShowCheckedModeBanner: false, this syntax for remove dubugbanner on left top phone screem
           routes: routes,
