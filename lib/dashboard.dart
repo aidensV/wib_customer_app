@@ -42,10 +42,10 @@ class _DashboardPageState extends State<DashboardPage>
   CarouselSlider carouselSlider;
   int _current = 0;
   List imgList = [
-    'https://ecs7.tokopedia.net/img/cache/1242/banner/2019/10/17/20723472/20723472_c5be5e07-0069-4871-8ed3-07a76019551c.jpg',
-    'https://ecs7.tokopedia.net/img/cache/1242/banner/2019/10/17/20723472/20723472_eed9c68f-c758-40eb-966f-3f844a06e1c0.jpg',
-    'https://ecs7.tokopedia.net/img/cache/1242/banner/2019/10/17/20723472/20723472_cfa2e00c-2dba-4449-8e2e-024c00c5349f.jpg',
-    'https://ecs7.tokopedia.net/img/cache/1242/banner/2019/10/17/20723472/20723472_5965b5be-ec2f-4580-b304-2cb972bde3f0.jpg',
+    'https://ecs7.tokopedia.net/img/cache/1242/banner/2019/10/20/20723472/20723472_3d762d15-da3d-41df-a07e-d6c04e29fe74.jpg',
+    'https://ecs7.tokopedia.net/img/cache/1242/banner/2019/10/20/20723472/20723472_0fe98b01-15fd-4137-8f9b-733fd7c124d5.jpg',
+    'https://ecs7.tokopedia.net/img/cache/1242/banner/2019/10/20/20723472/20723472_74240718-338b-4684-9a8e-23ccf918d78a.jpg',
+    'https://ecs7.tokopedia.net/img/cache/1242/banner/2019/10/21/20723472/20723472_cb378008-4d45-4f88-a440-44ac7faf5a2b.jpg',
   ];
 
   List<T> map<T>(List list, Function handler) {

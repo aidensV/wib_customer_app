@@ -37,6 +37,61 @@ class _RepeatOrderState extends State<RepeatOrder> {
   }
 }
 
+void _confirmationModalBottomSheet(context){
+  showModalBottomSheet(
+      context: context,
+      builder: (BuildContext bc){
+        return Container(
+          height: 350.0,
+          color: Colors.transparent,
+          decoration: new BoxDecoration(
+              color: Colors.white,
+              borderRadius: new BorderRadius.only(
+                  topLeft: const Radius.circular(10.0),
+                  topRight: const Radius.circular(10.0))),
+          child: Column(
+            children: <Widget>[
+              Container(
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: Text("Apa anda yakin?", style: TextStyle(fontFamily: 'TitilliumWeb', fontSize: 20.0),),
+                ),
+              ),
+              SizedBox(height: 3.0,),
+              Container(
+                child: Text("Item pada transaksi ini akan langsung diarahkan ke checkout !", style: TextStyle(fontFamily: 'TitilliumWeb', fontSize: 16.0, color: Colors.grey[400]),),
+              ),
+              SizedBox(height: 3.0,),
+              Container(
+                child: Row(
+                  children: <Widget>[
+                    Container(
+                      height: 40.0,
+                      width: 80.0,
+                      child: RaisedButton(
+                        onPressed: null,
+                        color: Colors.grey[400],
+                        child: Text("Tidak!", style: TextStyle(fontFamily: 'TitilliumWeb', fontSize: 16.0, color: Color(0xff25282b))),),
+                    ),
+                    SizedBox(width: 10.0,),
+                    Container(
+                      height: 40.0,
+                      width: 80.0,
+                      child: RaisedButton(
+                        onPressed: null,
+                        color: Color(0xff31B057),
+                        child: Text("Ya", style: TextStyle(fontFamily: 'TitilliumWeb', fontSize: 16.0, color: Colors.white)),),
+                    )
+                  ],
+                ),
+              )
+            ],
+          ),
+        );
+      }
+  );
+}
+
 class CustomWidget extends StatelessWidget {
   String title;
   String content;
