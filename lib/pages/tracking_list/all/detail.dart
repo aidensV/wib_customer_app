@@ -140,7 +140,7 @@ class _DetailState extends State<Detail> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: Colors.grey[200],
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
         title: Text("Detail Nota"),
         backgroundColor: Color(0xff31B057),
@@ -305,16 +305,21 @@ void _confirmationModalBottomSheet(context){
                         height: 40.0,
                         width: 80.0,
                         child: RaisedButton(
-                          onPressed: null,
-                          color: Colors.grey[400],
-                          child: Text("Tidak!", style: TextStyle(fontFamily: 'TitilliumWeb', fontSize: 16.0, color: Color(0xff25282b))),),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          color: Colors.grey[100],
+                          child: Text("Tidak!", style: TextStyle(fontFamily: 'TitilliumWeb', fontSize: 16.0, color: Color(0xff31B057))),),
                       ),
                       SizedBox(width: 10.0,),
                       Container(
                         height: 40.0,
                         width: 80.0,
                         child: RaisedButton(
-                          onPressed: null,
+                          onPressed: () {
+                            Navigator.pop(context);
+                            print('Salin nota');
+                          },
                           color: Color(0xff31B057),
                           child: Text("Ya", style: TextStyle(fontFamily: 'TitilliumWeb', fontSize: 16.0, color: Colors.white)),),
                       )
