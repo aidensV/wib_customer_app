@@ -156,7 +156,7 @@ class _CategoryItemState extends State<CategoryItem> {
                                       Container(
                                         alignment: Alignment.centerLeft,
                                         child: Text(
-                                          category_item[index]["ipr_bunitprice"],
+                                          "Rp. " + category_item[index]["ipr_bunitprice"],
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 14,
