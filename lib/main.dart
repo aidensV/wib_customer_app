@@ -14,6 +14,7 @@ import 'pages/shopping_cart/shoppingcart.dart';
 import 'pages/checkout/checkout.dart';
 import 'pages/shops/bloc.dart';
 import 'pages/shops/detail.dart';
+import 'pages/test/test.dart';
 
 
 // This route for identifi when you use navigator
@@ -28,7 +29,8 @@ var routes = <String, WidgetBuilder>{
   "/repeat_order" : (BuildContext context) => RepeatOrder(),
   "/repeat_order" : (BuildContext context) => RepeatOrder(),
   "/checkout" : (BuildContext context) => Checkout(),
-  "/details" : (BuildContext context) => DetailShop()
+  "/details" : (BuildContext context) => DetailShop(),
+  "/test" : (BuildContext context) => TestCode()
 };
 
 void main() => runApp(MyApp());
