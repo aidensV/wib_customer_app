@@ -139,7 +139,7 @@ class _DetailState extends State<Detail> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: Colors.grey[300],
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
         title: Text("Detail Nota"),
         backgroundColor: Color(0xff31B057),
@@ -236,6 +236,24 @@ class _DetailState extends State<Detail> {
           ],
         ),
       ),
+      floatingActionButton: InkWell(
+        onTap: () {
+          _confirmationModalBottomSheet(context);
+        },
+        child: Container(
+          width: 200.0,
+          height: 50.0,
+          decoration: new BoxDecoration(
+            color: Color(0xff31B057),
+            border: new Border.all(color: Colors.transparent, width: 2.0),
+            borderRadius: new BorderRadius.circular(23.0),
+          ),
+          child: Center(child: Text('Salin Ke Nota Baru', style: new TextStyle(fontFamily: 'TitilliumWeb',fontSize: 18.0, color: Colors.white),
+          ),
+          ),
+        ),
+      ),
+
     );
   }
 }
@@ -252,4 +270,65 @@ class ListItem {
     this.qty,
     this.price,
   });
+}
+
+void _confirmationModalBottomSheet(context){
+  showModalBottomSheet(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(topLeft: Radius.circular(5.0), topRight: Radius.circular(5.0)),
+      ),
+      context: context,
+      builder: (BuildContext bc){
+        return Padding(
+          padding: EdgeInsets.all(10.0),
+          child: Container(
+            height: 130.0,
+            color: Colors.white,
+            child: Column(
+              children: <Widget>[
+                Container(
+                  child: Align(
+                    alignment: Alignment.topLeft,
+                    child: Text("Apa anda yakin?", style: TextStyle(fontFamily: 'TitilliumWeb', fontSize: 20.0),),
+                  ),
+                ),
+                SizedBox(height: 3.0,),
+                Container(
+                  child: Text("Item pada transaksi ini akan langsung diarahkan ke checkout !", style: TextStyle(fontFamily: 'TitilliumWeb', fontSize: 16.0, color: Colors.grey[400]),),
+                ),
+                SizedBox(height: 3.0,),
+                Container(
+                  child: Row(
+                    children: <Widget>[
+                      Container(
+                        height: 40.0,
+                        width: 80.0,
+                        child: RaisedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          color: Colors.grey[100],
+                          child: Text("Tidak!", style: TextStyle(fontFamily: 'TitilliumWeb', fontSize: 16.0, color: Color(0xff31B057))),),
+                      ),
+                      SizedBox(width: 10.0,),
+                      Container(
+                        height: 40.0,
+                        width: 80.0,
+                        child: RaisedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            print('Salin nota');
+                          },
+                          color: Color(0xff31B057),
+                          child: Text("Ya", style: TextStyle(fontFamily: 'TitilliumWeb', fontSize: 16.0, color: Colors.white)),),
+                      )
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ),
+        );
+      }
+  );
 }

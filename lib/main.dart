@@ -18,6 +18,9 @@ import 'pages/checkout/listprovinsi.dart';
 import 'pages/checkout/listkabupaten.dart';
 import 'pages/checkout/listkecamatan.dart';
 
+import 'pages/test/test.dart';
+
+
 
 // This route for identifi when you use navigator
 var routes = <String, WidgetBuilder>{
@@ -35,6 +38,9 @@ var routes = <String, WidgetBuilder>{
   '/listprovinsi': (BuildContext context) => ProvinsiSending(),
   '/listkabupaten': (BuildContext context) => KabupatenSending(),
   '/listkecamatan' : (BuildContext context) => KecamatanSending(),
+
+  "/test" : (BuildContext context) => TestCode()
+
 };
 
 void main() => runApp(MyApp());
@@ -50,7 +56,7 @@ class MyApp extends StatelessWidget {
           // this below syntax how you set default font for apps
           // Remember to add font first in pubspec.yaml
           // Remeber only use free fonts if you cant buy font dont force it mate :))
-          theme: new ThemeData(fontFamily: 'TitilliumWeb'),
+          theme: new ThemeData(fontFamily: 'Roboto'),
           debugShowCheckedModeBanner: false,
           // debungShowCheckedModeBanner: false, this syntax for remove dubugbanner on left top phone screem
           routes: routes,
