@@ -258,8 +258,17 @@ class _DashboardPageState extends State<DashboardPage>
                                     ),
                                   ],
                                 ),
-                              ),
-                            ],
+                                // IconButton(
+                                //   icon: Icon(Icons.print),
+                                //   onPressed: () {
+                                //     print(
+                                //         'width ${MediaQuery.of(context).size.width}');
+                                //     print(
+                                //         'height ${MediaQuery.of(context).size.height}');
+                                //   },
+                                // )
+                              ],
+                            ),
                           ),
                         )),
                     Padding(

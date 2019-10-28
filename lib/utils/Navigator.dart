@@ -25,4 +25,13 @@ class MyNavigator {
   static void goCheckout(BuildContext context){
     Navigator.pushNamed(context, "/checkout");
   }
+  static void goProvinsi(BuildContext context){
+    Navigator.pushNamed(context, "/listprovinsi");
+  }
+  static void goKabupaten(BuildContext context){
+    Navigator.pushNamed(context, "/listkabupaten");
+  }
+  static void goKecamatan(BuildContext context){
+    Navigator.pushNamed(context, "/listkecamatan");
+  }
 }
