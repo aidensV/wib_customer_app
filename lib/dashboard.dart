@@ -206,15 +206,15 @@ class _DashboardPageState extends State<DashboardPage>
                                   icon: Icon(Icons.shopping_cart),
                                   color: Colors.white,
                                 ),
-                                IconButton(
-                                  icon: Icon(Icons.print),
-                                  onPressed: () {
-                                    print(
-                                        'width ${MediaQuery.of(context).size.width}');
-                                    print(
-                                        'height ${MediaQuery.of(context).size.height}');
-                                  },
-                                )
+                                // IconButton(
+                                //   icon: Icon(Icons.print),
+                                //   onPressed: () {
+                                //     print(
+                                //         'width ${MediaQuery.of(context).size.width}');
+                                //     print(
+                                //         'height ${MediaQuery.of(context).size.height}');
+                                //   },
+                                // )
                               ],
                             ),
                           ),
