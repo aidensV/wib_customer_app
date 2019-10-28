@@ -62,7 +62,6 @@ class _TrackingState extends State<Tracking> {
     listTrackingNotaAndroid();
   }
 
-  bool _checkbox = false;
 
   GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
