@@ -258,17 +258,8 @@ class _DashboardPageState extends State<DashboardPage>
                                     ),
                                   ],
                                 ),
-                                // IconButton(
-                                //   icon: Icon(Icons.print),
-                                //   onPressed: () {
-                                //     print(
-                                //         'width ${MediaQuery.of(context).size.width}');
-                                //     print(
-                                //         'height ${MediaQuery.of(context).size.height}');
-                                //   },
-                                // )
-                              ],
-                            ),
+                              ),
+                            ]
                           ),
                         )),
                     Padding(
@@ -339,7 +330,7 @@ class _DashboardPageState extends State<DashboardPage>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      Text("Hot Item", style: TextStyle(fontSize: 21.0, fontFamily: 'Roboto'),),
+                      Text("Rekomendasi Produk", style: TextStyle(fontSize: 21.0, fontFamily: 'Roboto'),),
                       Text("Lihat Semua", style: TextStyle(fontSize: 16.0, fontFamily: 'Roboto', color: Color(0xff31B057)),)
                     ],
                   ),
@@ -536,7 +527,6 @@ class _DashboardPageState extends State<DashboardPage>
                 children: <Widget>[
                   ClipRRect(
                     borderRadius: BorderRadius.circular(10.0),
-//                                  clipBehavior: Clip.antiAlias,
                     child: Image.asset(
                       "images/botol.png",
                       fit: BoxFit.cover,
