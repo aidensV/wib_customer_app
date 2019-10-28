@@ -7,7 +7,6 @@ import 'utils/Navigator.dart';
 import 'storage/storage.dart';
 import 'env.dart';
 
-
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -87,34 +86,34 @@ class _LoginPageState extends State<LoginPage> {
         requestHeaders['Accept'] = 'application/json';
         requestHeaders['Authorization'] = '$tokenType $accessToken';
         try {
-          final getUser = await http.get(url("api/user"), headers: requestHeaders);
+          final getUser =
+              await http.get(url("api/user"), headers: requestHeaders);
           // print('getUser ' + getUser.body);
 
           if (getUser.statusCode == 200) {
             dynamic datauser = json.decode(getUser.body);
 
-            if (datauser['cm_id'] == null) {
-              msg = 'Username atau Password anda salah!';
-            } else {
-              DataStore store = new DataStore();
+            DataStore store = new DataStore();
 
-              // store.setDataInteger("user_id", int.parse(datajson['user']["u_id"]));
-              store.setDataInteger("id", datauser['cm_id']);
-              store.setDataString("username", datauser['cm_username']);
-              store.setDataString("name", datauser['cm_name']);
-              store.setDataString("email", datauser['cm_email']);
+            // store.setDataInteger("user_id", int.parse(datajson['user']["u_id"]));
+            store.setDataInteger("id", datauser['cm_id']);
+            store.setDataString("username", datauser['cm_username']);
+            store.setDataString("name", datauser['cm_name']);
+            store.setDataString("email", datauser['cm_email']);
 
-              print(datauser);
+            print(datauser);
 
-              Navigator.pushReplacementNamed(context, "/dashboard");
-              // print('statement else is true');
-              // print(datauser);
-              setState(() {
-                _isLoading = false;
-              });
-            }
+            Navigator.pushReplacementNamed(context, "/dashboard");
+            // print('statement else is true');
+            // print(datauser);
+            setState(() {
+              _isLoading = false;
+            });
           } else {
             showInSnackBar('Request failed with status: ${getUser.statusCode}');
+            setState(() {
+              _isLoading = false;
+            });
           }
         } on SocketException catch (_) {
           showInSnackBar('Connection Timed Out');
@@ -130,8 +129,14 @@ class _LoginPageState extends State<LoginPage> {
         }
       } else if (getToken.statusCode == 401) {
         showInSnackBar('Username atau Password Salah');
+        setState(() {
+          _isLoading = false;
+        });
       } else {
         showInSnackBar('Request failed with status: ${getToken.statusCode}');
+        setState(() {
+          _isLoading = false;
+        });
       }
       // print(datajson.toString());
 
@@ -161,6 +166,7 @@ class _LoginPageState extends State<LoginPage> {
 
     store.setDataBool('$menu (Akses)', boolean);
   }
+
   @override
   Widget build(BuildContext context) {
     //  Widget Input Username Here
@@ -178,24 +184,23 @@ class _LoginPageState extends State<LoginPage> {
         return null;
       },
       style: TextStyle(
-          fontFamily: 'TitilliumWeb',
-          fontSize: 16.0,
-          color: Color(0xff25282b),
+        fontFamily: 'TitilliumWeb',
+        fontSize: 16.0,
+        color: Color(0xff25282b),
       ),
       decoration: InputDecoration(
           contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
           hintText: "Nama Pengguna",
-          hintStyle: TextStyle(fontWeight: FontWeight.w300, color: Colors.grey[500]),
-          border:
-          OutlineInputBorder(
+          hintStyle:
+              TextStyle(fontWeight: FontWeight.w300, color: Colors.grey[500]),
+          border: OutlineInputBorder(
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(3.0),
               topRight: Radius.circular(3.0),
               bottomRight: Radius.circular(3.0),
               bottomLeft: Radius.circular(3.0),
             ),
-          )
-      ),
+          )),
     );
     // Widget Password Here
     final passwordField = TextFormField(
@@ -227,17 +232,16 @@ class _LoginPageState extends State<LoginPage> {
       decoration: InputDecoration(
           contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
           hintText: "Kata Sandi",
-          hintStyle: TextStyle(fontWeight: FontWeight.w300, color: Colors.grey[500]),
-          border:
-          OutlineInputBorder(
+          hintStyle:
+              TextStyle(fontWeight: FontWeight.w300, color: Colors.grey[500]),
+          border: OutlineInputBorder(
             borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(3.0),
-                topRight: Radius.circular(3.0),
-                bottomRight: Radius.circular(3.0),
-                bottomLeft: Radius.circular(3.0),
+              topLeft: Radius.circular(3.0),
+              topRight: Radius.circular(3.0),
+              bottomRight: Radius.circular(3.0),
+              bottomLeft: Radius.circular(3.0),
             ),
-          )
-      ),
+          )),
     );
     // Login Button Here
     final loginButton = Material(
@@ -287,7 +291,8 @@ class _LoginPageState extends State<LoginPage> {
             onPressed: () {
               MyNavigator.goToDashboard(context);
             },
-            child: Text("Hubungi Kami Segera",
+            child: Text(
+              "Hubungi Kami Segera",
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
@@ -301,11 +306,8 @@ class _LoginPageState extends State<LoginPage> {
     );
     final footer = Text(
       "Powered by Alamraya Software v.1.0 © 2019",
-      style: TextStyle(
-        color: Colors.grey,
-        fontFamily: 'Roboto',
-        fontSize: 12.0
-      ),
+      style:
+          TextStyle(color: Colors.grey, fontFamily: 'Roboto', fontSize: 12.0),
     );
 
     return Scaffold(
@@ -328,16 +330,16 @@ class _LoginPageState extends State<LoginPage> {
                     SizedBox(
                       height: 160.0,
                       child: Center(
-                          child: Text("Warung Islami Bogor",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'TitilliumWeb',
-                              fontSize: 30.0,
-                              color: Color(0xff31B057),
-                            ),
-                          )
-                      ),
+                          child: Text(
+                        "Warung Islami Bogor",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'TitilliumWeb',
+                          fontSize: 30.0,
+                          color: Color(0xff31B057),
+                        ),
+                      )),
                     ),
                     // Error Message Here
                     Text(
