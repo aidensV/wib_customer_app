@@ -1,7 +1,7 @@
 // The point below all this thing just for setting api, ty
 // Regard Previous Programmer
-   String host = 'http://warungislamibogor-store.alamraya.site/';
-   String hostadmin = 'http://warungislamibogor.alamraya.site/';
+   String host = 'https://warungislamibogor-store.alamraya.site/';
+   String hostadmin = 'https://warungislamibogor.alamraya.site/';
 
 
 //String host = 'http://192.168.43.115/warungislamibogor_shop/';
