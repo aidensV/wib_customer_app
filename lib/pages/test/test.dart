@@ -10,7 +10,7 @@ class TestCode extends StatefulWidget {
 }
 
 class _TestCodeState extends State<TestCode> {
-  int PAGE_SIZE = 6;
+  int PAGE_SIZE = 4;
 
   @override
   Widget build(BuildContext context) {
@@ -18,13 +18,11 @@ class _TestCodeState extends State<TestCode> {
       appBar: AppBar(
         title: Text("Test Area"),
       ),
-      body: PagewiseGridView.count(
+      body: PagewiseListView(
         pageSize: PAGE_SIZE,
-        crossAxisCount: 2,
-        mainAxisSpacing: 8.0,
-        crossAxisSpacing: 8.0,
-        childAspectRatio: 0.555,
         padding: EdgeInsets.all(15.0),
+        scrollDirection: Axis.horizontal,
+        primary: false,
         itemBuilder: this._itemBuilder,
         pageFuture: (pageIndex) =>
             BackendService.getData(pageIndex * PAGE_SIZE, PAGE_SIZE),
@@ -36,81 +34,50 @@ class _TestCodeState extends State<TestCode> {
     return Card(
       elevation: 0.0,
       child: InkWell(
-        child: Container(
-//                            color: Colors.red,
+//                      color: Colors.green,
           child: Column(
             children: <Widget>[
-              Stack(
-                children: <Widget>[
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(10.0),
-//                                  clipBehavior: Clip.antiAlias,
-                    child: Image.asset(
-                      "images/botol.png",
-                      fit: BoxFit.cover,
-                      height: 150.0,
-                      width: MediaQuery.of(context).size.width,
-                    ),
-                  ),
-                ],
-              ),
-              // SizedBox(width: 15),
-              Padding(
-                padding: EdgeInsets.only(right: 10.0, left: 10.0, top: 10.0),
-                child: Container(
-                  width:
-                  MediaQuery.of(context).size.width - 130,
-                  child: Column(
-                    children: <Widget>[
-                      Container(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          entry.title,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 16,
-                          ),
-                          maxLines: 2,
-                          textAlign: TextAlign.left,
-                        ),
-                      ),
-                      Container(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          entry.title,
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                              color: Colors.deepOrange
-                          ),
-                          maxLines: 1,
-                          textAlign: TextAlign.left,
-                        ),
-                      ),
-                      SizedBox(height: 3),
-                      Container(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          entry.id,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                            color: Colors.grey[400],
-                          ),
-                          maxLines: 1,
-                          textAlign: TextAlign.left,
-                        ),
-                      ),
-                    ],
-                  ),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.asset(
+                  "images/botol.png",
+                  height: 100,
+                  width: 100,
+                  fit: BoxFit.cover,
                 ),
-              )
+              ),
+              SizedBox(height: 7),
+              Container(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  entry.title,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
+                  maxLines: 2,
+                  textAlign: TextAlign.left,
+                ),
+              ),
+              SizedBox(height: 3),
+              Container(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  entry.id,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                    color: Colors.grey[400],
+                  ),
+                  maxLines: 1,
+                  textAlign: TextAlign.left,
+                ),
+              ),
             ],
           ),
-        ),
-        onTap: () {
-          Navigator.pushNamed(context, "/details");
-        },
+          onTap: () {
+            Navigator.pushNamed(context, "/details");
+          }
       ),
     );
   }
@@ -129,14 +96,14 @@ class BackendService {
 
   static Future<List<ProductModel>> getData(offset, limit) async {
     final responseBody = await http.get(
-        Uri.encodeFull("http://192.168.100.27/warungislamibogor_shop/api/produk_beranda_android?_limit=$limit"),
+        Uri.encodeFull("http://192.168.100.27/warungislamibogor_shop/api/produk_beranda_android?_limit=0&_recLimit=$limit"),
         headers: {
           "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjY1MTFjYmNlM2I4Nzg1ZGNkNmU3NDY4OTAxYThhYWUwMTNjM2UxZmY0YjhkNDAyMDFkM2JiODZmYWFhMjQ4ZTA5NDdkOWE3YTVmYjZhNmI1In0.eyJhdWQiOiIyIiwianRpIjoiNjUxMWNiY2UzYjg3ODVkY2Q2ZTc0Njg5MDFhOGFhZTAxM2MzZTFmZjRiOGQ0MDIwMWQzYmI4NmZhYWEyNDhlMDk0N2Q5YTdhNWZiNmE2YjUiLCJpYXQiOjE1NzE3OTc2NTksIm5iZiI6MTU3MTc5NzY1OSwiZXhwIjoxNjAzNDIwMDU4LCJzdWIiOiIzIiwic2NvcGVzIjpbXX0.TfBOgh4nwlEw3UGADLn02mlB-BmX-k8_s1iGiCR809iD1iMFYOf7RTHQc5SrghM7XCK51tS-6lGZ2IaMQ41RGBvqSpylwibuZTiktcq1yPxT_TieGKRkdnx-CnOpgCFRct7mM3ylcWxzK8jlm1EyAtaay4zYeSolRQlWoS9Vz050114ncAvQWmS0GJ9JF0Zjti6yd3tl9I69bnkB1B7I9YB24CSkJDxOR6C4pjiVW4Ew6RL0JYTMFgEUf0liz_twR2uULUUPPDaMB0uhAtPsG7-cAaeZv8BKmMGjVenyIDJyLVqT1-4lUTxDgJIUXSM_IfzgoMfgILznDhD6dKv1l9gm0kHJkgcdu9sKTEpxoR7lEs7UopeKzKFnHbNDkrECwlBudeyKdkMZ-TCLjDZOK5CfTXNmInPZY_fO9eFKvj52jGd9rH2TSdNLoiiGSPrZL3dCZhePPAyAJPCX2CGO3vY6bRv91O2hDAsmqHakQjS7oRiwd9CE-MpR_K11noP0vqlgq26alKNfOtH74MVayF0Os_2PVtmrfaBcbaKw7bQlBhaT08SWQBS3W5Yxt4lYquc04l9upMjgkZ4cwl-mle86DA-6PZNT7AOnql4sTVSxcd9i-8SfPBbIMS0jS33Gb03Cpb72y90fVMiMAWx2v1lk0f-ndjWogdujw_dGEjs"
         }
     );
 
     var data = json.decode(responseBody.body);
-    var product = data['semuaitem'];
+    var product = data['itemslider'];
 
     return ProductModel.fromJsonList(product);
   }

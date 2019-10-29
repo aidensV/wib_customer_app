@@ -351,68 +351,14 @@ class _DashboardPageState extends State<DashboardPage>
                           colors: [Colors.white, Colors.white, Colors.white, Colors.grey[100]])
                   ),
                   width: MediaQuery.of(context).size.width,
-                  child: ListView.builder(
+                  child: PagewiseListView(
+                    pageSize: 4,
+                    padding: EdgeInsets.all(2.0),
                     scrollDirection: Axis.horizontal,
                     primary: false,
-                    itemCount: items == null ? 0 : items.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      Map item = items.reversed.toList()[index];
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 10),
-                        child: Container(
-                          height: 168.0,
-                          child: Card(
-                            elevation: 0.0,
-                            child: InkWell(
-//                      color: Colors.green,
-                                child: Column(
-                                  children: <Widget>[
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(10),
-                                      child: Image.asset(
-                                        "${item["img"]}",
-                                        height: 100,
-                                        width: 100,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                    SizedBox(height: 7),
-                                    Container(
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(
-                                        "${item["name"]}",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 15,
-                                        ),
-                                        maxLines: 2,
-                                        textAlign: TextAlign.left,
-                                      ),
-                                    ),
-                                    SizedBox(height: 3),
-                                    Container(
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(
-                                        "${item["desc"]}",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 13,
-                                          color: Colors.grey[400],
-                                        ),
-                                        maxLines: 1,
-                                        textAlign: TextAlign.left,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                onTap: () {
-                                  Navigator.pushNamed(context, "/details");
-                                }
-                            ),
-                          ),
-                        ),
-                      );
-                    },
+                    itemBuilder: this._recItemBuilder,
+                    pageFuture: (pageIndex) =>
+                        BackendService.getDataRecom(pageIndex, 4),
                   ),
                 ),
                 Container(
@@ -441,7 +387,11 @@ class _DashboardPageState extends State<DashboardPage>
                               padding: const EdgeInsets.only(right: 10 ,bottom: 5.0),
                               child: Container(
                                   height: 50.0,
-                                  child: OutlineButton(
+                                  child: RaisedButton(
+                                    color: Colors.transparent,
+                                    elevation: 0.0,
+                                    highlightColor: Colors.transparent,
+                                    highlightElevation: 0.0,
                                     onPressed: () {
                                       Navigator.push(
                                         context,
@@ -455,13 +405,9 @@ class _DashboardPageState extends State<DashboardPage>
                                       );
                                     },
                                     child: Text(category[index]["ity_name"], style: TextStyle(color: Color(0xff31B057)),),
-                                    borderSide: BorderSide(
-                                      color: Color(0xff31B057),
-                                      style: BorderStyle.solid,
-                                      width: 0.8,
-                                    ),
                                     shape: RoundedRectangleBorder(
                                         borderRadius: new BorderRadius.circular(18.0),
+                                        side: BorderSide(color: Color(0xff31B057))
                                     ),
                                   )
                               ),
@@ -511,6 +457,66 @@ class _DashboardPageState extends State<DashboardPage>
               )
             ],
           )
+      ),
+    );
+  }
+
+  Widget _recItemBuilder(context, RecomendationModel entry, _) {
+    return Card(
+      elevation: 0.0,
+      child: InkWell(
+//                      color: Colors.green,
+          child: Column(
+            children: <Widget>[
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.asset(
+                  "images/botol.png",
+                  height: 100,
+                  width: 100,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              SizedBox(height: 7),
+              Expanded(
+                  child: SingleChildScrollView(
+                      child: Container(
+                        width: 100.0,
+                        child: Center(
+                          child: Text(
+                            entry.item,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
+                            maxLines: 2,
+                            textAlign: TextAlign.left,
+                          ),
+                        )
+                      )
+                  ),
+              ),
+              SizedBox(height: 3),
+              Expanded(
+                  child: SingleChildScrollView(
+                    child: Text(
+                      "Rp." + entry.price,
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: Colors.deepOrange
+                      ),
+                      maxLines: 1,
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+              ),
+              SizedBox(height: 3),
+            ],
+          ),
+          onTap: () {
+            Navigator.pushNamed(context, "/details");
+          }
       ),
     );
   }
@@ -567,7 +573,7 @@ class _DashboardPageState extends State<DashboardPage>
                       Container(
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          entry.title,
+                          entry.item,
                           style: TextStyle(
                             fontWeight: FontWeight.w700,
                             fontSize: 16,
@@ -576,28 +582,15 @@ class _DashboardPageState extends State<DashboardPage>
                           textAlign: TextAlign.left,
                         ),
                       ),
-                      Container(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          entry.title,
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                              color: Colors.deepOrange
-                          ),
-                          maxLines: 1,
-                          textAlign: TextAlign.left,
-                        ),
-                      ),
                       SizedBox(height: 3),
                       Container(
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          entry.id,
+                          "Rp." + entry.price,
                           style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                            color: Colors.grey[400],
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                              color: Colors.deepOrange
                           ),
                           maxLines: 1,
                           textAlign: TextAlign.left,
@@ -632,15 +625,43 @@ class BackendService {
 
     return ProductModel.fromJsonList(product);
   }
+
+  static Future<List<RecomendationModel>> getDataRecom(index, limit) async {
+    final responseBody = await http.get(
+        Uri.encodeFull("http://192.168.100.27/warungislamibogor_shop/api/produk_beranda_android?_limit=0&_recLimit=$limit"),
+        headers: {
+          "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjY1MTFjYmNlM2I4Nzg1ZGNkNmU3NDY4OTAxYThhYWUwMTNjM2UxZmY0YjhkNDAyMDFkM2JiODZmYWFhMjQ4ZTA5NDdkOWE3YTVmYjZhNmI1In0.eyJhdWQiOiIyIiwianRpIjoiNjUxMWNiY2UzYjg3ODVkY2Q2ZTc0Njg5MDFhOGFhZTAxM2MzZTFmZjRiOGQ0MDIwMWQzYmI4NmZhYWEyNDhlMDk0N2Q5YTdhNWZiNmE2YjUiLCJpYXQiOjE1NzE3OTc2NTksIm5iZiI6MTU3MTc5NzY1OSwiZXhwIjoxNjAzNDIwMDU4LCJzdWIiOiIzIiwic2NvcGVzIjpbXX0.TfBOgh4nwlEw3UGADLn02mlB-BmX-k8_s1iGiCR809iD1iMFYOf7RTHQc5SrghM7XCK51tS-6lGZ2IaMQ41RGBvqSpylwibuZTiktcq1yPxT_TieGKRkdnx-CnOpgCFRct7mM3ylcWxzK8jlm1EyAtaay4zYeSolRQlWoS9Vz050114ncAvQWmS0GJ9JF0Zjti6yd3tl9I69bnkB1B7I9YB24CSkJDxOR6C4pjiVW4Ew6RL0JYTMFgEUf0liz_twR2uULUUPPDaMB0uhAtPsG7-cAaeZv8BKmMGjVenyIDJyLVqT1-4lUTxDgJIUXSM_IfzgoMfgILznDhD6dKv1l9gm0kHJkgcdu9sKTEpxoR7lEs7UopeKzKFnHbNDkrECwlBudeyKdkMZ-TCLjDZOK5CfTXNmInPZY_fO9eFKvj52jGd9rH2TSdNLoiiGSPrZL3dCZhePPAyAJPCX2CGO3vY6bRv91O2hDAsmqHakQjS7oRiwd9CE-MpR_K11noP0vqlgq26alKNfOtH74MVayF0Os_2PVtmrfaBcbaKw7bQlBhaT08SWQBS3W5Yxt4lYquc04l9upMjgkZ4cwl-mle86DA-6PZNT7AOnql4sTVSxcd9i-8SfPBbIMS0jS33Gb03Cpb72y90fVMiMAWx2v1lk0f-ndjWogdujw_dGEjs"
+        }
+    );
+
+    var data = json.decode(responseBody.body);
+    var product = data['itemslider'];
+
+    return RecomendationModel.fromJsonList(product);
+  }
+}
+
+class RecomendationModel {
+  String item;
+  String price;
+
+  RecomendationModel.fromJson(obj) {
+    this.item = obj['i_name'];
+    this.price = obj['ipr_sunitprice'];
+  }
+
+  static List<RecomendationModel> fromJsonList(jsonList) {
+    return jsonList.map<RecomendationModel>((obj) => RecomendationModel.fromJson(obj)).toList();
+  }
 }
 
 class ProductModel {
-  String title;
-  String id;
+  String item;
+  String price;
 
   ProductModel.fromJson(obj) {
-    this.title = obj['i_name'];
-    this.id = obj['ipr_sunitprice'];
+    this.item = obj['i_name'];
+    this.price = obj['ipr_sunitprice'];
   }
 
   static List<ProductModel> fromJsonList(jsonList) {
