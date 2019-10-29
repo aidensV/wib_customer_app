@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'utils/Navigator.dart';
-import 'storage/storage.dart';
+import 'package:wib_customer_app/storage/storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'utils/utils.dart';
 import 'utils/items.dart';
@@ -41,11 +41,18 @@ class _DashboardPageState extends State<DashboardPage>
 
   List category;
 
+
+
   Future<String> getCategory() async {
+    var storage = new DataStore();
+
+    var tokenTypeStorage = await storage.getDataString('token_type');
+    var accessTokenStorage = await storage.getDataString('access_token');
+
     var response = await http.get(
-        Uri.encodeFull("http://192.168.100.27/warungislamibogor_shop/api/listKategoriAndroid"),
+        url('api/listKategoriAndroid'),
         headers: {
-          "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjY1MTFjYmNlM2I4Nzg1ZGNkNmU3NDY4OTAxYThhYWUwMTNjM2UxZmY0YjhkNDAyMDFkM2JiODZmYWFhMjQ4ZTA5NDdkOWE3YTVmYjZhNmI1In0.eyJhdWQiOiIyIiwianRpIjoiNjUxMWNiY2UzYjg3ODVkY2Q2ZTc0Njg5MDFhOGFhZTAxM2MzZTFmZjRiOGQ0MDIwMWQzYmI4NmZhYWEyNDhlMDk0N2Q5YTdhNWZiNmE2YjUiLCJpYXQiOjE1NzE3OTc2NTksIm5iZiI6MTU3MTc5NzY1OSwiZXhwIjoxNjAzNDIwMDU4LCJzdWIiOiIzIiwic2NvcGVzIjpbXX0.TfBOgh4nwlEw3UGADLn02mlB-BmX-k8_s1iGiCR809iD1iMFYOf7RTHQc5SrghM7XCK51tS-6lGZ2IaMQ41RGBvqSpylwibuZTiktcq1yPxT_TieGKRkdnx-CnOpgCFRct7mM3ylcWxzK8jlm1EyAtaay4zYeSolRQlWoS9Vz050114ncAvQWmS0GJ9JF0Zjti6yd3tl9I69bnkB1B7I9YB24CSkJDxOR6C4pjiVW4Ew6RL0JYTMFgEUf0liz_twR2uULUUPPDaMB0uhAtPsG7-cAaeZv8BKmMGjVenyIDJyLVqT1-4lUTxDgJIUXSM_IfzgoMfgILznDhD6dKv1l9gm0kHJkgcdu9sKTEpxoR7lEs7UopeKzKFnHbNDkrECwlBudeyKdkMZ-TCLjDZOK5CfTXNmInPZY_fO9eFKvj52jGd9rH2TSdNLoiiGSPrZL3dCZhePPAyAJPCX2CGO3vY6bRv91O2hDAsmqHakQjS7oRiwd9CE-MpR_K11noP0vqlgq26alKNfOtH74MVayF0Os_2PVtmrfaBcbaKw7bQlBhaT08SWQBS3W5Yxt4lYquc04l9upMjgkZ4cwl-mle86DA-6PZNT7AOnql4sTVSxcd9i-8SfPBbIMS0jS33Gb03Cpb72y90fVMiMAWx2v1lk0f-ndjWogdujw_dGEjs"
+          "Authorization": "$tokenTypeStorage $accessTokenStorage"
         }
     );
 
@@ -613,10 +620,15 @@ class _DashboardPageState extends State<DashboardPage>
 
 class BackendService {
   static Future<List<ProductModel>> getData(index, limit) async {
+    var storage = new DataStore();
+
+    var tokenTypeStorage = await storage.getDataString('token_type');
+    var accessTokenStorage = await storage.getDataString('access_token');
+
     final responseBody = await http.get(
-        Uri.encodeFull("http://192.168.100.27/warungislamibogor_shop/api/produk_beranda_android?_limit=$limit"),
+        url('api/produk_beranda_android?_limit=$limit'),
         headers: {
-          "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjY1MTFjYmNlM2I4Nzg1ZGNkNmU3NDY4OTAxYThhYWUwMTNjM2UxZmY0YjhkNDAyMDFkM2JiODZmYWFhMjQ4ZTA5NDdkOWE3YTVmYjZhNmI1In0.eyJhdWQiOiIyIiwianRpIjoiNjUxMWNiY2UzYjg3ODVkY2Q2ZTc0Njg5MDFhOGFhZTAxM2MzZTFmZjRiOGQ0MDIwMWQzYmI4NmZhYWEyNDhlMDk0N2Q5YTdhNWZiNmE2YjUiLCJpYXQiOjE1NzE3OTc2NTksIm5iZiI6MTU3MTc5NzY1OSwiZXhwIjoxNjAzNDIwMDU4LCJzdWIiOiIzIiwic2NvcGVzIjpbXX0.TfBOgh4nwlEw3UGADLn02mlB-BmX-k8_s1iGiCR809iD1iMFYOf7RTHQc5SrghM7XCK51tS-6lGZ2IaMQ41RGBvqSpylwibuZTiktcq1yPxT_TieGKRkdnx-CnOpgCFRct7mM3ylcWxzK8jlm1EyAtaay4zYeSolRQlWoS9Vz050114ncAvQWmS0GJ9JF0Zjti6yd3tl9I69bnkB1B7I9YB24CSkJDxOR6C4pjiVW4Ew6RL0JYTMFgEUf0liz_twR2uULUUPPDaMB0uhAtPsG7-cAaeZv8BKmMGjVenyIDJyLVqT1-4lUTxDgJIUXSM_IfzgoMfgILznDhD6dKv1l9gm0kHJkgcdu9sKTEpxoR7lEs7UopeKzKFnHbNDkrECwlBudeyKdkMZ-TCLjDZOK5CfTXNmInPZY_fO9eFKvj52jGd9rH2TSdNLoiiGSPrZL3dCZhePPAyAJPCX2CGO3vY6bRv91O2hDAsmqHakQjS7oRiwd9CE-MpR_K11noP0vqlgq26alKNfOtH74MVayF0Os_2PVtmrfaBcbaKw7bQlBhaT08SWQBS3W5Yxt4lYquc04l9upMjgkZ4cwl-mle86DA-6PZNT7AOnql4sTVSxcd9i-8SfPBbIMS0jS33Gb03Cpb72y90fVMiMAWx2v1lk0f-ndjWogdujw_dGEjs"
+          "Authorization": "$tokenTypeStorage $accessTokenStorage"
         }
     );
 
@@ -627,11 +639,16 @@ class BackendService {
   }
 
   static Future<List<RecomendationModel>> getDataRecom(index, limit) async {
+    var storage = new DataStore();
+
+    var tokenTypeStorage = await storage.getDataString('token_type');
+    var accessTokenStorage = await storage.getDataString('access_token');
+
     final responseBody = await http.get(
-        Uri.encodeFull("http://192.168.100.27/warungislamibogor_shop/api/produk_beranda_android?_limit=0&_recLimit=$limit"),
-        headers: {
-          "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjY1MTFjYmNlM2I4Nzg1ZGNkNmU3NDY4OTAxYThhYWUwMTNjM2UxZmY0YjhkNDAyMDFkM2JiODZmYWFhMjQ4ZTA5NDdkOWE3YTVmYjZhNmI1In0.eyJhdWQiOiIyIiwianRpIjoiNjUxMWNiY2UzYjg3ODVkY2Q2ZTc0Njg5MDFhOGFhZTAxM2MzZTFmZjRiOGQ0MDIwMWQzYmI4NmZhYWEyNDhlMDk0N2Q5YTdhNWZiNmE2YjUiLCJpYXQiOjE1NzE3OTc2NTksIm5iZiI6MTU3MTc5NzY1OSwiZXhwIjoxNjAzNDIwMDU4LCJzdWIiOiIzIiwic2NvcGVzIjpbXX0.TfBOgh4nwlEw3UGADLn02mlB-BmX-k8_s1iGiCR809iD1iMFYOf7RTHQc5SrghM7XCK51tS-6lGZ2IaMQ41RGBvqSpylwibuZTiktcq1yPxT_TieGKRkdnx-CnOpgCFRct7mM3ylcWxzK8jlm1EyAtaay4zYeSolRQlWoS9Vz050114ncAvQWmS0GJ9JF0Zjti6yd3tl9I69bnkB1B7I9YB24CSkJDxOR6C4pjiVW4Ew6RL0JYTMFgEUf0liz_twR2uULUUPPDaMB0uhAtPsG7-cAaeZv8BKmMGjVenyIDJyLVqT1-4lUTxDgJIUXSM_IfzgoMfgILznDhD6dKv1l9gm0kHJkgcdu9sKTEpxoR7lEs7UopeKzKFnHbNDkrECwlBudeyKdkMZ-TCLjDZOK5CfTXNmInPZY_fO9eFKvj52jGd9rH2TSdNLoiiGSPrZL3dCZhePPAyAJPCX2CGO3vY6bRv91O2hDAsmqHakQjS7oRiwd9CE-MpR_K11noP0vqlgq26alKNfOtH74MVayF0Os_2PVtmrfaBcbaKw7bQlBhaT08SWQBS3W5Yxt4lYquc04l9upMjgkZ4cwl-mle86DA-6PZNT7AOnql4sTVSxcd9i-8SfPBbIMS0jS33Gb03Cpb72y90fVMiMAWx2v1lk0f-ndjWogdujw_dGEjs"
-        }
+      url('api/produk_beranda_android?_limit=0&_recLimit=$limit'),
+      headers: {
+        "Authorization": "$tokenTypeStorage $accessTokenStorage"
+      }
     );
 
     var data = json.decode(responseBody.body);
