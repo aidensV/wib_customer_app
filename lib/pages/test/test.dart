@@ -10,7 +10,7 @@ class TestCode extends StatefulWidget {
 }
 
 class _TestCodeState extends State<TestCode> {
-  int PAGE_SIZE = 4;
+  int PAGE_SIZE = 6;
 
   @override
   Widget build(BuildContext context) {
@@ -18,66 +18,88 @@ class _TestCodeState extends State<TestCode> {
       appBar: AppBar(
         title: Text("Test Area"),
       ),
-      body: PagewiseListView(
+      body: PagewiseGridView.count(
         pageSize: PAGE_SIZE,
-        padding: EdgeInsets.all(15.0),
-        scrollDirection: Axis.horizontal,
         primary: false,
+        shrinkWrap: true,
+        crossAxisCount: 2,
+        mainAxisSpacing: 10.0,
+        crossAxisSpacing: 5.0,
+        childAspectRatio: 0.7,
         itemBuilder: this._itemBuilder,
         pageFuture: (pageIndex) =>
-            BackendService.getData(pageIndex * PAGE_SIZE, PAGE_SIZE),
+            BackendService.getData(pageIndex, PAGE_SIZE),
       ),
     );
   }
 
   Widget _itemBuilder(context, ProductModel entry, _) {
-    return Card(
-      elevation: 0.0,
-      child: InkWell(
-//                      color: Colors.green,
-          child: Column(
-            children: <Widget>[
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Image.asset(
-                  "images/botol.png",
-                  height: 100,
-                  width: 100,
-                  fit: BoxFit.cover,
+    return SingleChildScrollView(
+      child: Card(
+        elevation: 0.0,
+        child: InkWell(
+          child: Container(
+//                            color: Colors.red,
+            child: Column(
+              children: <Widget>[
+                Stack(
+                  children: <Widget>[
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10.0),
+//                                  clipBehavior: Clip.antiAlias,
+                      child: Image.asset(
+                        "images/botol.png",
+                        fit: BoxFit.cover,
+                        height: 150.0,
+                        width: MediaQuery.of(context).size.width,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              SizedBox(height: 7),
-              Container(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  entry.title,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
+                // SizedBox(width: 15),
+                Padding(
+                  padding: EdgeInsets.only(right: 10.0, left: 10.0, top: 10.0),
+                  child: Container(
+                    width:
+                    MediaQuery.of(context).size.width - 130,
+                    child: Column(
+                      children: <Widget>[
+                        Container(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            entry.title,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 16,
+                            ),
+                            maxLines: 2,
+                            textAlign: TextAlign.left,
+                          ),
+                        ),
+                        Container(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            entry.id,
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                                color: Colors.deepOrange
+                            ),
+                            maxLines: 1,
+                            textAlign: TextAlign.left,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  maxLines: 2,
-                  textAlign: TextAlign.left,
-                ),
-              ),
-              SizedBox(height: 3),
-              Container(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  entry.id,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
-                    color: Colors.grey[400],
-                  ),
-                  maxLines: 1,
-                  textAlign: TextAlign.left,
-                ),
-              ),
-            ],
+                )
+              ],
+            ),
           ),
           onTap: () {
             Navigator.pushNamed(context, "/details");
-          }
+          },
+        ),
       ),
     );
   }
@@ -95,15 +117,18 @@ class BackendService {
   }
 
   static Future<List<ProductModel>> getData(offset, limit) async {
-    final responseBody = await http.get(
-        Uri.encodeFull("http://192.168.100.27/warungislamibogor_shop/api/produk_beranda_android?_limit=0&_recLimit=$limit"),
+    final responseBody = await http.post(
+        Uri.encodeFull("http://192.168.100.27/warungislamibogor_shop/api/listProdukKategoriAndroid?_limit=$limit"),
         headers: {
-          "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjY1MTFjYmNlM2I4Nzg1ZGNkNmU3NDY4OTAxYThhYWUwMTNjM2UxZmY0YjhkNDAyMDFkM2JiODZmYWFhMjQ4ZTA5NDdkOWE3YTVmYjZhNmI1In0.eyJhdWQiOiIyIiwianRpIjoiNjUxMWNiY2UzYjg3ODVkY2Q2ZTc0Njg5MDFhOGFhZTAxM2MzZTFmZjRiOGQ0MDIwMWQzYmI4NmZhYWEyNDhlMDk0N2Q5YTdhNWZiNmE2YjUiLCJpYXQiOjE1NzE3OTc2NTksIm5iZiI6MTU3MTc5NzY1OSwiZXhwIjoxNjAzNDIwMDU4LCJzdWIiOiIzIiwic2NvcGVzIjpbXX0.TfBOgh4nwlEw3UGADLn02mlB-BmX-k8_s1iGiCR809iD1iMFYOf7RTHQc5SrghM7XCK51tS-6lGZ2IaMQ41RGBvqSpylwibuZTiktcq1yPxT_TieGKRkdnx-CnOpgCFRct7mM3ylcWxzK8jlm1EyAtaay4zYeSolRQlWoS9Vz050114ncAvQWmS0GJ9JF0Zjti6yd3tl9I69bnkB1B7I9YB24CSkJDxOR6C4pjiVW4Ew6RL0JYTMFgEUf0liz_twR2uULUUPPDaMB0uhAtPsG7-cAaeZv8BKmMGjVenyIDJyLVqT1-4lUTxDgJIUXSM_IfzgoMfgILznDhD6dKv1l9gm0kHJkgcdu9sKTEpxoR7lEs7UopeKzKFnHbNDkrECwlBudeyKdkMZ-TCLjDZOK5CfTXNmInPZY_fO9eFKvj52jGd9rH2TSdNLoiiGSPrZL3dCZhePPAyAJPCX2CGO3vY6bRv91O2hDAsmqHakQjS7oRiwd9CE-MpR_K11noP0vqlgq26alKNfOtH74MVayF0Os_2PVtmrfaBcbaKw7bQlBhaT08SWQBS3W5Yxt4lYquc04l9upMjgkZ4cwl-mle86DA-6PZNT7AOnql4sTVSxcd9i-8SfPBbIMS0jS33Gb03Cpb72y90fVMiMAWx2v1lk0f-ndjWogdujw_dGEjs"
+          "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjM4MWVmMzU2ODIzYTg0NGE0M2U3N2FkNzAwODQwOGEyNGM2MTg1YTBlMTFmMjk5YTljNGE4Njk3YTRlMDgzY2JiN2VmMzM2NWVlNTc4MjM0In0.eyJhdWQiOiIyIiwianRpIjoiMzgxZWYzNTY4MjNhODQ0YTQzZTc3YWQ3MDA4NDA4YTI0YzYxODVhMGUxMWYyOTlhOWM0YTg2OTdhNGUwODNjYmI3ZWYzMzY1ZWU1NzgyMzQiLCJpYXQiOjE1NzI0MDI0MDksIm5iZiI6MTU3MjQwMjQwOSwiZXhwIjoxNjA0MDI0ODA5LCJzdWIiOiIzIiwic2NvcGVzIjpbXX0.ssAeZmljQ8UJxhROxefjsP-l-WpxsCKvQOUuVnRlzhUgBpngUzuh8CFkwceaNh6I3H72jL5Jko2UkJ_g262gf0E12wS3Pcwgzsq54MTerY1L6DKmeaLCydBjSUfr5l3n8fNQrLMrtDLNwzhFqb_Xq1ATYoBXCVw25ZQrPDIERmCtX_rhSWvXOHMJe6VxhZAgdeX-liEf5Oi53h57PeHnCS77UU2_vCS2-zCHzQ27k0X9V0WMtiDIGWUFxImKWBFFZJILeymsUFRb1mCCPGXWdUVL2K8EImiUVghNIFwENRSuPu8yB7MF39JpOCoNmEh2nMkulHF-KK6jotUfSNe1p2kaoMpg69bQrKror9I8aAdbeCn1t2YDEbOzLgVCxS9ggK2PsTxDzhvVYqhT6E_6zuXPKVfCYyH-ithskO1EDADNrCxIuFptAGKGsfoJhy-gIfGy6GbhG_iOLSToX33ImMZEZrodZdkaJ-4vWXTUh5ilc6J9yLBqW-tOK_l_gN2oQf0KxBCcc4HfrkEToNdZxyOVKS7iBVgrldf6QAqh-6FbhvFq-mxeTzLlTDariRle2HhgsfsnKeRN-Lov1Z_Unpu2ScnkOCsRE9mFFJDiInRQHeHM0eKQ5MjMjjyp_TFgNMMFjBblEnx9OL9vl1JHmdyqBISavo4jXY35yzZG3dM"
+        },
+        body: {
+          "kategori" : "1"
         }
     );
 
     var data = json.decode(responseBody.body);
-    var product = data['itemslider'];
+    var product = data['item'];
 
     return ProductModel.fromJsonList(product);
   }
