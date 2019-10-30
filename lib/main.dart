@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wib_customer_app/pages/wishlist/wishlistproduk.dart';
 // Remember import flutter/material package first
 import 'dashboard.dart';
 import 'login.dart';
@@ -29,6 +30,7 @@ var routes = <String, WidgetBuilder>{
   "/list_tracking" : (BuildContext context) => ListNotaTracking(),
   "/tracking" : (BuildContext context) => Tracking(),
   "/wishlist" : (BuildContext context) => Wishlist(),
+  "/wishlistproduk" : (BuildContext context) => WishlistProduk(),
   "/keranjangbelanja" : (BuildContext context) => Keranjang(),
   "/tracking_list" : (BuildContext context) => TrackingList(),
   "/repeat_order" : (BuildContext context) => RepeatOrder(),

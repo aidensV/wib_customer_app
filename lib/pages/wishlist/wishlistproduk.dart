@@ -1,273 +1,208 @@
 import 'package:flutter/material.dart';
-import 'package:wib_customer_app/storage/storage.dart';
 import 'package:http/http.dart' as http;
-import 'package:wib_customer_app/env.dart';
 import 'dart:async';
 import 'dart:convert';
+import 'package:wib_customer_app/env.dart';
+import 'package:wib_customer_app/storage/storage.dart';
 
-GlobalKey<ScaffoldState> _scaffoldKeyX = new GlobalKey<ScaffoldState>();
-List<ListWishlist> listNota = [];
-String tokenType, accessToken;
+var ids, wishlistproduks, wishlistprodukids;
+String accessToken, tokenType;
 Map<String, String> requestHeaders = Map();
+bool isLoading;
 
-void showInSnackBar(String value) {
-  _scaffoldKeyX.currentState
-      .showSnackBar(new SnackBar(content: new Text(value)));
-}
+class WishlistProduk extends StatefulWidget {
+  final String id, wishlistproduk, wishlistproduk_id;
+  WishlistProduk({
+    Key key,
+    @required this.id,
+    @required this.wishlistproduk,
+    @required this.wishlistproduk_id,
+  }) : super(key: key);
 
-Future<List<ListWishlist>> listNotaAndroid() async {
-  try {
-    final nota = await http.get(
-      url('api/ActionWishlistAndroid'),
-      headers: requestHeaders,
-    );
-
-    if (nota.statusCode == 200) {
-      // return nota;
-      var notaJson = json.decode(nota.body);
-      var notas = notaJson['item'];
-
-      print('notaJson $notaJson');
-
-      listNota = [];
-      for (var i in notas) {
-        ListWishlist notax = ListWishlist(
-          id: '${i['wl_id']}',
-          item: i['i_name'],
-          harga: i['ipr_sunitprice'],
-          type: i['ity_name'],
-          image: i['ip_path'],
-        );
-        listNota.add(notax);
-      }
-
-      print('listnota $listNota');
-      print('listnota length ${listNota.length}');
-      return listNota;
-    } else {
-      showInSnackBar('Request failed with status: ${nota.statusCode}');
-      return null;
-    }
-  } on TimeoutException catch (_) {
-    showInSnackBar('Timed out, Try again');
-  } catch (e) {
-    debugPrint('$e');
-  }
-  return null;
-}
-
-class Wishlist extends StatefulWidget {
-  Wishlist({Key key, this.title}) : super(key: key);
-  final String title;
   @override
   State<StatefulWidget> createState() {
-    return _WishlistState();
+    return _WishlistProdukState(
+      id: id,
+      wishlistproduk: wishlistproduk,
+      wishlistproduk_id: wishlistproduk_id,
+    );
   }
 }
 
-class _WishlistState extends State<Wishlist> {
-  Future<List<ListWishlist>> getHeaderHTTP() async {
+class _WishlistProdukState extends State<WishlistProduk> {
+  Color _isPressed = Colors.grey;
+
+  final String id, wishlistproduk, wishlistproduk_id;
+  _WishlistProdukState({
+    Key key,
+    @required this.id,
+    @required this.wishlistproduk,
+    @required this.wishlistproduk_id,
+  });
+
+  List wishlistproduk_item = [];
+
+  Future<String> getWishlistProduk() async {
     var storage = new DataStore();
 
     var tokenTypeStorage = await storage.getDataString('token_type');
     var accessTokenStorage = await storage.getDataString('access_token');
 
-    tokenType = tokenTypeStorage;
-    accessToken = accessTokenStorage;
+    var response = await http.post(url('api/ActionWishlistAndroid'),
+        headers: {"Authorization": "$tokenTypeStorage $accessTokenStorage"},
+        body: {"produk": "BRG0203"});
 
-    requestHeaders['Accept'] = 'application/json';
-    requestHeaders['Authorization'] = '$tokenType $accessToken';
-    print(requestHeaders);
-
-    return listNotaAndroid();
-  }
-
-  int totalRefresh = 0;
-  refreshFunction() async {
-    setState(() {
-      totalRefresh += 1;
+    this.setState(() {
+      var data = json.decode(response.body);
+      wishlistproduk_item = data['status'];
     });
+
+    return "Success!";
   }
 
   @override
   void initState() {
-    // getHeaderHTTP();
-    print(requestHeaders);
+    getWishlistProduk();
+    print(wishlistproduk_id);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      key: _scaffoldKeyX,
-      appBar: new AppBar(
-          iconTheme: IconThemeData(
-            color: Color(0xff25282b),
+        backgroundColor: Colors.grey[100],
+        appBar: AppBar(
+          iconTheme: IconThemeData(color: Color(0xff25282b)),
+          title: Text(
+            "Menampilkan kategori $wishlistproduk",
+            style: TextStyle(color: Color(0xff25282b)),
           ),
-          title: new Text(
-            "Barang Favorit",
-            style: TextStyle(
-              color: Color(0xff25282b),
-            ),
-          ),
-          backgroundColor: Colors.white),
-      body: Padding(
-        padding: const EdgeInsets.only(top: 20.0),
-        child: RefreshIndicator(
-          onRefresh: () => refreshFunction(),
-          child: Scrollbar(
-            child: FutureBuilder(
-              future: getHeaderHTTP(),
-              builder: (BuildContext context, AsyncSnapshot snapshot) {
-                switch (snapshot.connectionState) {
-                  case ConnectionState.none:
-                    return ListTile(
-                      title: Text('Tekan Tombol Mulai.'),
-                    );
-                  case ConnectionState.active:
-                  case ConnectionState.waiting:
-                    return Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  case ConnectionState.done:
-                    if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
-                    }
-                    if (snapshot.data == null ||
-                        snapshot.data == 0 ||
-                        snapshot.data.length == null ||
-                        snapshot.data.length == 0) {
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 20.0),
-                        child: ListView(
-                          children: <Widget>[
-                            new Container(
-                              width: 100.0,
-                              height: 100.0,
-                              child: Image.asset("images/wishlist.png"),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 20.0),
-                              child: Center(
-                                child: Text("Barang Favorit Anda Kosong",
-                                    style: TextStyle(fontSize: 18)),
-                              ),
-                            ),
-                            // ListTile(
-                            //   title: Text(
-                            //     'Tidak ada data',
-                            //     textAlign: TextAlign.center,
-                            //   ),
-                            // ),
-                          ],
-                        ),
-                      );
-                    } else if (snapshot.data != null || snapshot.data != 0) {
-                      return ListView.builder(
-                        itemCount: snapshot.data.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return Card(
-                            color: Colors.white,
-                            child: ListTile(
-                              // leading:
-                              //  Image.network(
-                              //   urladmin(
-                              //     'storage/image/master/produk/${snapshot.data[index].image}',
-                              //   ),
-                              // ),
-                              leading: Image.network(
-                                snapshot.data[index].image != null
-                                    ? urladmin(
-                                        'storage/image/master/produk/${snapshot.data[index].image}',
-                                      )
-                                    : url(
-                                        'assets/img/noimage.jpg',
-                                      ),
-                                width: 70.0,
-                                height: 100.0,
-                              ),
-
-                              // leading: FlutterLogo(size: 72.0),
-                              title: Text(snapshot.data[index].item),
-                              subtitle: Padding(
-                                padding: const EdgeInsets.only(
-                                    top: 40.0, bottom: 10.0),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+          backgroundColor: Colors.white,
+          elevation: 0.0,
+        ),
+        body: SingleChildScrollView(
+          child: Column(
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.all(10.0),
+                child: GridView.count(
+                    primary: false,
+                    physics: NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 10.0,
+                    crossAxisSpacing: 5.0,
+                    childAspectRatio: 0.7,
+                    children: List.generate(
+                        wishlistproduk_item.length == 0 ? 0 : wishlistproduk_item.length,
+                        (index) {
+                      return Card(
+                        elevation: 0.0,
+                        child: InkWell(
+                          child: Container(
+//                            color: Colors.red,
+                            child: Column(
+                              children: <Widget>[
+                                Stack(
                                   children: <Widget>[
-                                    Text("Rp. " + snapshot.data[index].harga,
-                                        style: TextStyle(color: Colors.black)),
-                                    Padding(
-                                      padding: const EdgeInsets.only(left: 0.0),
-                                      child: Text(snapshot.data[index].type,
-                                          style: TextStyle(
-                                            color: Colors.green,
-                                          )),
-                                    )
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(10.0),
+//                                  clipBehavior: Clip.antiAlias,
+                                      child: Image.asset(
+                                        "images/botol.png",
+                                        fit: BoxFit.cover,
+                                        height: 150.0,
+                                        width:
+                                            MediaQuery.of(context).size.width,
+                                      ),
+                                    ),
+                                    Positioned(
+                                        top: 5.0,
+                                        left: 108.0,
+                                        child: Container(
+                                          width: 40.0,
+                                          height: 40.0,
+                                          decoration: new BoxDecoration(
+                                            color: Colors.grey[100],
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: new IconButton(
+                                            icon: Icon(Icons.favorite,
+                                                color: _isPressed),
+                                            onPressed: () {
+                                              setState(() {
+                                                _isPressed = Colors.pink[400];
+                                              });
+                                            },
+                                          ),
+                                        )),
                                   ],
                                 ),
-                              ),
-                              // trailing: Icon(Icons.favorite, color: Colors.pink),
-                              trailing: new FlatButton(
-                                child: new Icon(Icons.favorite,
-                                    color: Colors.pink),
-                                color: Colors.white,
-                                onPressed: () async {
-                                  var idX = snapshot.data[index].id;
-                                  try {
-                                    final hapuswishlist = await http.post(
-                                        url('api/removeWishlistAndrouid'),
-                                        headers: requestHeaders,
-                                        body: {'id_wishlist': idX});
-
-                                    if (hapuswishlist.statusCode == 200) {
-                                      var hapuswishlistJson =
-                                          json.decode(hapuswishlist.body);
-                                      if (hapuswishlistJson['status'] ==
-                                          'success') {
-                                        setState(() {
-                                          totalRefresh += 1;
-                                        });
-                                      } else if (hapuswishlistJson['status'] ==
-                                          'Error') {
-                                        showInSnackBar(
-                                            'Gagal! Hubungi pengembang software!');
-                                      }
-                                    } else {
-                                      showInSnackBar(
-                                          'Request failed with status: ${hapuswishlist.statusCode}');
-                                    }
-                                  } on TimeoutException catch (_) {
-                                    showInSnackBar('Timed out, Try again');
-                                  } catch (e) {
-                                    print(e);
-                                  }
-                                },
-                              ),
+                                // SizedBox(width: 15),
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      right: 10.0, left: 10.0, top: 10.0),
+                                  child: Container(
+                                    width:
+                                        MediaQuery.of(context).size.width - 130,
+                                    child: Column(
+                                      children: <Widget>[
+                                        Container(
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            wishlistproduk_item[index]["i_name"],
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 16,
+                                            ),
+                                            maxLines: 2,
+                                            textAlign: TextAlign.left,
+                                          ),
+                                        ),
+                                        Container(
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            "Rp. " +
+                                                wishlistproduk_item[index]
+                                                    ["ipr_bunitprice"],
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                                color: Colors.deepOrange),
+                                            maxLines: 1,
+                                            textAlign: TextAlign.left,
+                                          ),
+                                        ),
+                                        SizedBox(height: 3),
+                                        Container(
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            wishlistproduk_item[index]["i_code"],
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 12,
+                                              color: Colors.grey[400],
+                                            ),
+                                            maxLines: 1,
+                                            textAlign: TextAlign.left,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                )
+                              ],
                             ),
-                          );
-                        },
+                          ),
+                          onTap: () {
+                            Navigator.pushNamed(context, "/wislishproduk");
+                          },
+                        ),
                       );
-                    }
-                }
-                return null; // unreachable
-              },
-            ),
+                    })),
+              ),
+            ],
           ),
-        ),
-      ),
-    );
+        ));
   }
-}
-
-class ListWishlist {
-  final String id;
-  final String item;
-  final String harga;
-  final String type;
-  final String image;
-
-  ListWishlist({this.id, this.item, this.harga, this.type, this.image});
 }
