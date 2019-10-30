@@ -12,11 +12,15 @@ class ListKabupaten {
   final String id;
   final String nama;
   final String ongkir;
+  final String totalbelanja;
+  final String textongkir;
 
   ListKabupaten({
     this.id,
     this.nama,
     this.ongkir,
+    this.totalbelanja,
+    this.textongkir,
   });
 }
 

@@ -7,7 +7,7 @@ import 'package:wib_customer_app/env.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'checkout.dart';
-import'model.dart';
+import 'model.dart';
 
 List<ListKabupaten> listNota = [];
 List<ListKabupaten> filteredlistNota = [];
@@ -24,8 +24,7 @@ class KabupatenSending extends StatefulWidget {
   }) : super(key: key);
   @override
   State<StatefulWidget> createState() {
-    return _KabupatenState(
-    );
+    return _KabupatenState();
   }
 }
 
@@ -208,14 +207,25 @@ class _KabupatenState extends State<KabupatenSending> {
                                             body: {'kota': idX});
 
                                         if (tambahqty.statusCode == 200) {
-                                          var ongkirJson = json.decode(tambahqty.body);
-                                          var ongkir = ongkirJson['total'].toString();
-                                          Navigator.pop(context, ListKabupaten(
-                                            id : filteredlistNota[index].id,
-                                            nama: filteredlistNota[index].nama,
-                                            ongkir : ongkir,
-                                          ));
+
+                                          var ongkirJson =
+                                              json.decode(tambahqty.body);
+                                          var ongkir =
+                                              ongkirJson['total'].toString();
+                                              var textongkir = ongkirJson['textongkir'].toString();
+                                              var totalbelanja = ongkirJson['totalbelanja'].toString();
+                                          Navigator.pop(
+                                              context,
+                                              ListKabupaten(
+                                                id: filteredlistNota[index].id,
+                                                nama: filteredlistNota[index]
+                                                    .nama,
+                                                ongkir: ongkir,
+                                                textongkir: textongkir,
+                                                totalbelanja: totalbelanja,
+                                              ));
                                         } else {
+                                          print('${tambahqty.body}');
                                           showInSnackBar(
                                               'Request failed with status: ${tambahqty.statusCode}');
                                         }
@@ -238,5 +248,3 @@ class _KabupatenState extends State<KabupatenSending> {
     );
   }
 }
-
-
