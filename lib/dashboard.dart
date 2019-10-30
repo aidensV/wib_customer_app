@@ -1,13 +1,10 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import 'utils/Navigator.dart';
 import 'package:wib_customer_app/storage/storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'utils/utils.dart';
-import 'utils/items.dart';
-import 'pages/shops/bloc.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:http/http.dart' as http;
 import 'package:wib_customer_app/env.dart';
@@ -25,7 +22,7 @@ class _DashboardPageState extends State<DashboardPage>
     with SingleTickerProviderStateMixin {
   TabController tabController;
   Color _isPressed = Colors.grey;
-  int PAGE_SIZE = 6;
+  int PAGE_SIZE = 4;
 
   var scaffoldKey = GlobalKey<ScaffoldState>();
   PageController pageController;
@@ -98,7 +95,6 @@ class _DashboardPageState extends State<DashboardPage>
 
   @override
   Widget build(BuildContext context) {
-    var bloc = Provider.of<ShopBloc>(context);
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
