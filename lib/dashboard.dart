@@ -593,11 +593,11 @@ class _DashboardPageState extends State<DashboardPage>
                         child: new IconButton(
                           icon: Icon(
                             Icons.favorite,
-                            color: _isPressed,
+                            // color: _isPressed,
                           ),
                           onPressed: () async {
                             var idX = entry.code;
-                            // var warna = entry.color;
+                            var color = entry.color;
                             try {
                               final hapuswishlist = await http.post(
                                   url('api/ActionWishlistAndroid'),
@@ -611,6 +611,12 @@ class _DashboardPageState extends State<DashboardPage>
                                   setState(() {
                                     totalRefresh += 1;
                                   });
+                                  // if(_isPressed['warna'] == 'success'){
+                                  //   setState(() {
+                                  //   color = Colors.pink[400];
+                                  // });
+                                  //   print('red');
+                                  // }
                                 } else if (hapuswishlistJson['status'] ==
                                     'Error') {}
                               } else {
@@ -620,7 +626,7 @@ class _DashboardPageState extends State<DashboardPage>
                               print(e);
                             }
                             setState(() {
-                              _isPressed = Colors.pink[400];
+                              // color = Colors.pink[400];
                             });
                           },
                         ),

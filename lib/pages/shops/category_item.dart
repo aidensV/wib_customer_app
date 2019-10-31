@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:wib_customer_app/env.dart';
 import 'package:wib_customer_app/storage/storage.dart';
+import 'package:flutter_pagewise/flutter_pagewise.dart';
 
 
 var ids, categorys, categoryids;
@@ -31,6 +32,7 @@ class CategoryItem extends StatefulWidget {
 
 class _CategoryItemState extends State<CategoryItem> {
   Color _isPressed = Colors.grey;
+  int PAGE_SIZE = 6;
 
   final String id, category, category_id;
   _CategoryItemState({
@@ -42,14 +44,14 @@ class _CategoryItemState extends State<CategoryItem> {
 
   List category_item = [];
 
-  Future<String> getCategoryItem() async {
+  Future<List<ItemKategori>> getData(index, limit) async {
     var storage = new DataStore();
 
     var tokenTypeStorage = await storage.getDataString('token_type');
     var accessTokenStorage = await storage.getDataString('access_token');
 
-    var response = await http.post(
-        url('api/listProdukKategoriAndroid'),
+    final responseBody = await http.post(
+        url('api/listProdukKategoriAndroid?_limit=$limit'),
         headers: {
           "Authorization": "$tokenTypeStorage $accessTokenStorage"
         },
@@ -58,19 +60,18 @@ class _CategoryItemState extends State<CategoryItem> {
         }
     );
 
-    this.setState(() {
-      var data = json.decode(response.body);
-      category_item = data['item'];
-    });
+    var data = json.decode(responseBody.body);
+    var product = data['item'];
 
-    return "Success!";
+    return ItemKategori.fromJsonList(product);
   }
 
   @override
   void initState() {
-    getCategoryItem();
     print(category_id);
     super.initState();
+
+    categoryids = category_id;
   }
 
   @override
@@ -90,121 +91,126 @@ class _CategoryItemState extends State<CategoryItem> {
           children: <Widget>[
             Padding(
               padding: EdgeInsets.all(10.0),
-              child: GridView.count(
-                  primary: false,
-                  physics: NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 10.0,
-                  crossAxisSpacing: 5.0,
-                  childAspectRatio: 0.7,
-                  children: List.generate(category_item.length == 0 ? 0 : category_item.length, (index) {
-                    return Card(
-                      elevation: 0.0,
-                      child: InkWell(
-                        child: Container(
-//                            color: Colors.red,
-                          child: Column(
-                            children: <Widget>[
-                              Stack(
-                                children: <Widget>[
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(10.0),
-//                                  clipBehavior: Clip.antiAlias,
-                                    child: Image.asset(
-                                      "images/botol.png",
-                                      fit: BoxFit.cover,
-                                      height: 150.0,
-                                      width: MediaQuery.of(context).size.width,
-                                    ),
-                                  ),
-                                  Positioned(
-                                      top: 5.0,
-                                      left: 108.0,
-                                      child: Container(
-                                        width: 40.0,
-                                        height: 40.0,
-                                        decoration: new BoxDecoration(
-                                          color: Colors.grey[100],
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: new IconButton(
-                                          icon: Icon(Icons.favorite, color: _isPressed),
-                                          onPressed: () {
-                                            setState(() {
-                                              _isPressed = Colors.pink[400];
-                                            });
-                                          },
-                                        ),
-                                      )
-                                  ),
-                                ],
-                              ),
-                              // SizedBox(width: 15),
-                              Padding(
-                                padding: EdgeInsets.only(right: 10.0, left: 10.0, top: 10.0),
-                                child: Container(
-                                  width:
-                                  MediaQuery.of(context).size.width - 130,
-                                  child: Column(
-                                    children: <Widget>[
-                                      Container(
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                          category_item[index]["i_name"],
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 16,
-                                          ),
-                                          maxLines: 2,
-                                          textAlign: TextAlign.left,
-                                        ),
-                                      ),
-                                      Container(
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                          "Rp. " + category_item[index]["ipr_bunitprice"],
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 14,
-                                              color: Colors.deepOrange
-                                          ),
-                                          maxLines: 1,
-                                          textAlign: TextAlign.left,
-                                        ),
-                                      ),
-                                      SizedBox(height: 3),
-                                      Container(
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                          category_item[index]["i_code"],
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 12,
-                                            color: Colors.grey[400],
-                                          ),
-                                          maxLines: 1,
-                                          textAlign: TextAlign.left,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                        onTap: () {
-                          Navigator.pushNamed(context, "/details");
-                        },
-                      ),
-                    );
-                  })
+              child:  PagewiseGridView.count(
+                pageSize: PAGE_SIZE,
+                primary: false,
+                shrinkWrap: true,
+                crossAxisCount: 2,
+                mainAxisSpacing: 10.0,
+                crossAxisSpacing: 5.0,
+                childAspectRatio: 0.7,
+                itemBuilder: this._itemBuilder,
+                pageFuture: (pageIndex) => getData(pageIndex, PAGE_SIZE),
               ),
             ),
           ],
         ),
       )
     );
+  }
+
+  Widget _itemBuilder(context, ItemKategori entry, _) {
+    return SingleChildScrollView(
+      child: Card(
+        elevation: 0.0,
+        child: InkWell(
+          child: Container(
+//                            color: Colors.red,
+            child: Column(
+              children: <Widget>[
+                Stack(
+                  children: <Widget>[
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10.0),
+//                                  clipBehavior: Clip.antiAlias,
+                      child: Image.asset(
+                        "images/botol.png",
+                        fit: BoxFit.cover,
+                        height: 150.0,
+                        width: MediaQuery.of(context).size.width,
+                      ),
+                    ),
+                    Positioned(
+                        top: 5.0,
+                        left: 108.0,
+                        child: Container(
+                          width: 40.0,
+                          height: 40.0,
+                          decoration: new BoxDecoration(
+                            color: Colors.grey[100],
+                            shape: BoxShape.circle,
+                          ),
+                          child: new IconButton(
+                            icon: Icon(Icons.favorite, color: _isPressed),
+                            onPressed: () {
+                              setState(() {
+                                _isPressed = Colors.pink[400];
+                              });
+                            },
+                          ),
+                        )
+                    ),
+                  ],
+                ),
+                // SizedBox(width: 15),
+                Padding(
+                  padding: EdgeInsets.only(right: 10.0, left: 10.0, top: 10.0),
+                  child: Container(
+                    width:
+                    MediaQuery.of(context).size.width - 130,
+                    child: Column(
+                      children: <Widget>[
+                        Container(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            entry.item,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 16,
+                            ),
+                            maxLines: 2,
+                            textAlign: TextAlign.left,
+                          ),
+                        ),
+                        Container(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            entry.price,
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                                color: Colors.deepOrange
+                            ),
+                            maxLines: 1,
+                            textAlign: TextAlign.left,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+          onTap: () {
+            Navigator.pushNamed(context, "/details");
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class ItemKategori {
+  String item;
+  String price;
+
+  ItemKategori.fromJson(obj) {
+    this.item = obj['i_name'];
+    this.price = obj['ipr_sunitprice'];
+  }
+
+  static List<ItemKategori> fromJsonList(jsonList) {
+    return jsonList.map<ItemKategori>((obj) => ItemKategori.fromJson(obj)).toList();
   }
 }
