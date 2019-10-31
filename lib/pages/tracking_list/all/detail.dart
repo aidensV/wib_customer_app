@@ -296,21 +296,10 @@ void _confirmationModalBottomSheet(context){
                 Container(
                   child: Text("Item pada transaksi ini akan langsung diarahkan ke checkout !", style: TextStyle(fontFamily: 'TitilliumWeb', fontSize: 16.0, color: Colors.grey[400]),),
                 ),
-                SizedBox(height: 3.0,),
+                SizedBox(height: 5.0,),
                 Container(
                   child: Row(
                     children: <Widget>[
-                      Container(
-                        height: 40.0,
-                        width: 80.0,
-                        child: RaisedButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          color: Colors.grey[100],
-                          child: Text("Tidak!", style: TextStyle(fontFamily: 'TitilliumWeb', fontSize: 16.0, color: Color(0xff31B057))),),
-                      ),
-                      SizedBox(width: 10.0,),
                       Container(
                         height: 40.0,
                         width: 80.0,
@@ -321,7 +310,24 @@ void _confirmationModalBottomSheet(context){
                           },
                           color: Color(0xff31B057),
                           child: Text("Ya", style: TextStyle(fontFamily: 'TitilliumWeb', fontSize: 16.0, color: Colors.white)),),
-                      )
+                      ),
+                      SizedBox(width: 10.0,),
+                      Container(
+                        height: 40.0,
+                        width: 80.0,
+                        child: RaisedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          color: Colors.transparent,
+                          elevation: 0.0,
+                          child: Text("Tidak!", style: TextStyle(fontFamily: 'TitilliumWeb', fontSize: 16.0, color: Color(0xff31B057))),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: new BorderRadius.circular(2.0),
+                              side: BorderSide(color: Color(0xff31B057))
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 )

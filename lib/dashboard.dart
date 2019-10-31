@@ -28,17 +28,24 @@ class _DashboardPageState extends State<DashboardPage>
   PageController pageController;
 
   String _username;
+  String _name;
+  String _email;
+
+  Future<Null> getSharedPrefs() async {
+    DataStore dataStore = new DataStore();
+    _username = await dataStore.getDataString("username");
+    _name = await dataStore.getDataString("name");
+    _email = await dataStore.getDataString("email");
+
+    print(_name);
+  }
 
   Future<Null> RemoveSharedPrefs() async {
     DataStore dataStore = new DataStore();
     dataStore.clearData();
-    _username = await dataStore.getDataString("username");
-    print(_username);
   }
 
   List category;
-
-
 
   Future<String> getCategory() async {
     var storage = new DataStore();
@@ -89,6 +96,7 @@ class _DashboardPageState extends State<DashboardPage>
   @override
   void initState() {
     tabController = TabController(vsync: this, length: 4);
+    getSharedPrefs();
     getCategory();
     super.initState();
   }
@@ -108,8 +116,8 @@ class _DashboardPageState extends State<DashboardPage>
               // Profil Drawer Here
               UserAccountsDrawerHeader(
                 // Below this my gf name :))))), jk
-                accountName: Text('Kim Jisoo'),
-                accountEmail: Text('Jisoocu@gmail.com'),
+                accountName: Text('$_name'),
+                accountEmail: Text('$_email'),
                 // This how you set profil image in sidebar
                 // Remeber to add image first in pubspec.yaml
                 currentAccountPicture: CircleAvatar(
@@ -132,45 +140,6 @@ class _DashboardPageState extends State<DashboardPage>
                 ),
                 onTap: () {
                   Navigator.pushNamed(context, "/tracking_list");
-                },
-              ),
-              ListTile(
-                title: Text(
-                  'Repeat Order',
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    fontFamily: 'Roboto',
-                    color: Color(0xff25282b),
-                  ),
-                ),
-                onTap: () {
-                  MyNavigator.goToRepeatOrder(context);
-                },
-              ),
-              ListTile(
-                title: Text(
-                  'Shop',
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    fontFamily: 'Roboto',
-                    color: Color(0xff25282b),
-                  ),
-                ),
-                onTap: () {
-                  Navigator.pushNamed(context, "/home");
-                },
-              ),
-              ListTile(
-                title: Text(
-                  'Test',
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    fontFamily: 'Roboto',
-                    color: Color(0xff25282b),
-                  ),
-                ),
-                onTap: () {
-                  Navigator.pushNamed(context, "/test");
                 },
               ),
               ListTile(
