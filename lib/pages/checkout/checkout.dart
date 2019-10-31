@@ -20,22 +20,33 @@ Map<String, dynamic> formSerialize;
 ListProvinsi selectedProvinsi;
 ListKabupaten selectedKabupaten;
 ListKecamatan selectedkecamatan;
-String totalbelanja = selectedKabupaten.ongkir + '200';
 
 
 class Checkout extends StatefulWidget {
+  final String totalharga;
   Checkout({
-    Key key,
+    Key key,  this.totalharga,
   }) : super(key: key);
   @override
   State<StatefulWidget> createState() {
-    return _CheckoutState();
+    return _CheckoutState(
+      totalharga : totalharga,
+      
+    );
   }
 }
 
 class _CheckoutState extends State<Checkout> {
   final kodeposController = TextEditingController();
   final alamatController = TextEditingController();
+  final String totalharga;
+  _CheckoutState({
+    Key key,
+    @required this.totalharga,
+    
+  });
+  
+
   List<T> map<T>(List list, Function handler) {
     List<T> result = [];
     for (var i = 0; i < list.length; i++) {
@@ -82,11 +93,9 @@ class _CheckoutState extends State<Checkout> {
         // return nota;
         var notaJson = json.decode(nota.body);
         var notas = notaJson['item'];
-        var totalhargax = notaJson['totalharga'];
-        var testing = 'sss';
+        
 
         print('notaJson $notaJson');
-        print('${totalhargax}');
         
 
         listNota = [];
@@ -429,24 +438,6 @@ class _CheckoutState extends State<Checkout> {
               ],
             ),
           ),
-          // Padding(
-          //   padding: const EdgeInsets.only(
-          //       top: 5.0, bottom: 5.0, left: 10.0, right: 10.0),
-          //   child: Row(
-          //     children: <Widget>[
-          //       Expanded(
-          //         flex: 5,
-          //         child: Text('Total Harga Semua Barang'),
-          //       ),
-          //       Expanded(
-          //         flex: 5,
-          //         child: Text("Rp. 10.000",
-          //             textAlign: TextAlign.end,
-          //             style: TextStyle(color: Colors.green)),
-          //       ),
-          //     ],
-          //   ),
-          // ),
           Padding(
             padding: const EdgeInsets.only(
                 top: 5.0, bottom: 5.0, left: 10.0, right: 10.0),
@@ -454,7 +445,25 @@ class _CheckoutState extends State<Checkout> {
               children: <Widget>[
                 Expanded(
                   flex: 5,
-                  child: Text('Ongkir'),
+                  child: Text('Total Harga Semua Barang'),
+                ),
+                Expanded(
+                  flex: 5,
+                  child: Text("Rp." + totalharga,
+                      textAlign: TextAlign.end,
+                      style: TextStyle(color: Colors.green)),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(
+                top: 5.0, bottom: 5.0, left: 10.0, right: 10.0),
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  flex: 5,
+                  child: Text('Biaya Ongkir'),
                 ),
                 Expanded(
                   flex: 5,
@@ -462,7 +471,7 @@ class _CheckoutState extends State<Checkout> {
                       _value2
                           ? "Rp. 0.00"
                           : selectedKabupaten != null
-                              ? 'Rp. ' + selectedKabupaten.ongkir
+                              ? 'Rp. ' + selectedKabupaten.textongkir
                               : 'Rp. 0.00',
                       textAlign: TextAlign.end,
                       style: TextStyle(color: Colors.green)),
@@ -470,25 +479,25 @@ class _CheckoutState extends State<Checkout> {
               ],
             ),
           ),
-          // Divider(),
-          // Padding(
-          //   padding: const EdgeInsets.only(
-          //       top: 5.0, bottom: 5.0, left: 10.0, right: 10.0),
-          //   child: Row(
-          //     children: <Widget>[
-          //       Expanded(
-          //         flex: 5,
-          //         child: Text('Belanja'),
-          //       ),
-          //       Expanded(
-          //         flex: 5,
-          //         child: Text(selectedKabupaten == null ? 'Rp. 42.000' : totalbelanja,
-          //             textAlign: TextAlign.end,
-          //             style: TextStyle(color: Colors.green)),
-          //       ),
-          //     ],
-          //   ),
-          // ),
+          Divider(),
+          Padding(
+            padding: const EdgeInsets.only(
+                top: 5.0, bottom: 5.0, left: 10.0, right: 10.0),
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  flex: 5,
+                  child: Text('Total Belanja'),
+                ),
+                Expanded(
+                  flex: 5,
+                  child: Text(_value2 == true ? 'Rp. ' + totalharga : selectedKabupaten == null ? totalharga : 'Rp. ' + selectedKabupaten.totalbelanja,
+                      textAlign: TextAlign.end,
+                      style: TextStyle(color: Colors.green)),
+                ),
+              ],
+            ),
+          ),
           new CheckboxListTile(
             value: _value1,
             controlAffinity: ListTileControlAffinity.leading,
@@ -727,9 +736,9 @@ class _CheckoutState extends State<Checkout> {
     formSerialize['discv'] = List();
     formSerialize['hargabarang'] = List();
 
-    formSerialize['provinsi'] = _value2 == true ? "-" : selectedProvinsi.id;
-    formSerialize['kota'] = _value2 == true ? "-" : selectedKabupaten.id;
-    formSerialize['kecamatan'] = _value2 == true ? "-" : selectedkecamatan.id;
+    formSerialize['provinsi'] = _value2 == true ? "0" : selectedProvinsi.id;
+    formSerialize['kota'] = _value2 == true ? "0" : selectedKabupaten.id;
+    formSerialize['kecamatan'] = _value2 == true ? "0" : selectedkecamatan.id;
     formSerialize['tunai'] = _value1 == true ? 'Y' : 'N';
     formSerialize['accongkir'] = _value2 == true ? 'Y' : 'N';
     formSerialize['ongkir'] = _value2 == true ? 0 : selectedKabupaten.ongkir;

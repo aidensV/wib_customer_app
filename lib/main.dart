@@ -30,7 +30,6 @@ var routes = <String, WidgetBuilder>{
   "/list_tracking" : (BuildContext context) => ListNotaTracking(),
   "/tracking" : (BuildContext context) => Tracking(),
   "/wishlist" : (BuildContext context) => Wishlist(),
-  "/wishlistproduk" : (BuildContext context) => WishlistProduk(),
   "/keranjangbelanja" : (BuildContext context) => Keranjang(),
   "/tracking_list" : (BuildContext context) => TrackingList(),
   "/repeat_order" : (BuildContext context) => RepeatOrder(),

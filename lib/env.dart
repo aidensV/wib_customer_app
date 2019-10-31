@@ -4,12 +4,12 @@
    String hostadmin = 'https://warungislamibogor.alamraya.site/';
 
 
-//String host = 'http://192.168.43.115/warungislamibogor_shop/';
-//String hostadmin = 'http://192.168.43.115/warungislamibogor
+// String host = 'http://192.168.43.115/warungislamibogor_shop/';
+// String hostadmin = 'http://192.168.43.115/warungislamibogor;
 
 //local bakhrul
-// String host = 'http://192.168.43.115/warungislamibogor_shop/';
-// String hostadmin = 'http://192.168.43.115/warungislamibogor/';
+// String host = 'http://192.168.100.15/warungislamibogor_shop/';
+// String hostadmin = 'http://192.168.100.15/warungislamibogor/';
 // String clientSecret = '0zxvmtgG2PkVw0NfQ0HwxjKYHVbhoaFBZyDlmJEp';
 
 

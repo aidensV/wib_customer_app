@@ -19,9 +19,7 @@ class MyNavigator {
   static void goWishlist(BuildContext context){
     Navigator.pushNamed(context, "/wishlist");
   }
-  static void goWishlistProduk(BuildContext context){
-    Navigator.pushNamed(context, "/wishlistproduk");
-  }
+  
   static void goKeranjang(BuildContext context){
     Navigator.pushNamed(context, "/keranjangbelanja");
   }

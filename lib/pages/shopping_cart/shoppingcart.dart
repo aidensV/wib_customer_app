@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:wib_customer_app/pages/checkout/checkout.dart';
 import 'package:wib_customer_app/storage/storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:wib_customer_app/env.dart';
@@ -166,29 +167,28 @@ class _KeranjangState extends State<Keranjang> {
                 : listNota.length == 0
                     ? RefreshIndicator(
                         onRefresh: () => listNotaAndroid(),
-                        child: Column(
-                          children : <Widget>[
-                              new Container(
-                              width: 100.0,
-                              height: 100.0,
-                              child: Image.asset("images/empty-cart.png"),
+                        child: Column(children: <Widget>[
+                          new Container(
+                            width: 100.0,
+                            height: 100.0,
+                            child: Image.asset("images/empty-cart.png"),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 30.0),
+                            child: Center(
+                              child: Text("Keranjang belanja anda kosong",
+                                  style: TextStyle(fontSize: 18)),
                             ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 30.0),
-                              child: Center(
-                                child: Text("Keranjang belanja anda kosong",
-                                    style: TextStyle(fontSize: 18)),
-                              ),
+                          ),
+                        ]
+
+                            // child: ListTile(
+                            //   title: Text(
+                            //     'Tidak ada data',
+                            //     textAlign: TextAlign.center,
+                            //   ),
+                            // ),
                             ),
-                            ]
-                          
-                          // child: ListTile(
-                          //   title: Text(
-                          //     'Tidak ada data',
-                          //     textAlign: TextAlign.center,
-                          //   ),
-                          // ),
-                        ),
                       )
                     : Expanded(
                         child: Scrollbar(
@@ -205,7 +205,7 @@ class _KeranjangState extends State<Keranjang> {
                                       Row(
                                         children: <Widget>[
                                           Expanded(
-                                            flex: 5,
+                                            flex: 8,
                                             child: Row(
                                               children: <Widget>[
                                                 Padding(
@@ -231,7 +231,7 @@ class _KeranjangState extends State<Keranjang> {
                                             ),
                                           ),
                                           Expanded(
-                                            flex: 5,
+                                            flex: 2,
                                             child: Column(
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.end,
@@ -264,7 +264,7 @@ class _KeranjangState extends State<Keranjang> {
                                                                   'status'] ==
                                                               'Success') {
                                                             setState(() {
-                                                               getHeaderHTTP();
+                                                              getHeaderHTTP();
                                                             });
                                                           } else if (removecartJson[
                                                                   'status'] ==
@@ -556,7 +556,6 @@ class _KeranjangState extends State<Keranjang> {
                                                     padding: EdgeInsets.only(
                                                         left: 0.0, top: 10.0),
                                                   ),
-                                                  
                                                   Container(
                                                     height: 10.0,
                                                   ),
@@ -600,7 +599,20 @@ class _KeranjangState extends State<Keranjang> {
                       if (tambahqty.statusCode == 200) {
                         var tambahqtyJson = json.decode(tambahqty.body);
                         if (tambahqtyJson['status'] == 'Success') {
-                          MyNavigator.goCheckout(context);
+                          final tambahqty = await http.post(
+                            url('api/get_totalharga'),
+                            headers: requestHeaders,
+                          );
+                          var ongkirJson = json.decode(tambahqty.body);
+                          var totalharga = ongkirJson['totalharga'].toString();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Checkout(
+                                  totalharga: totalharga,
+                            ),
+                          )
+                          );
                         } else if (tambahqtyJson['status'] == 'Error') {
                           showInSnackBar('Gagal! Hubungi pengembang software!');
                         } else if (tambahqtyJson['status'] == 'Kosong') {

@@ -17,6 +17,9 @@ import 'dart:convert';
 import 'package:wib_customer_app/pages/shops/category_item.dart';
 import 'package:flutter_pagewise/flutter_pagewise.dart';
 
+String tokenType, accessToken;
+Map<String, String> requestHeaders = Map();
+
 class DashboardPage extends StatefulWidget {
   @override
   _DashboardPageState createState() => _DashboardPageState();
@@ -42,20 +45,20 @@ class _DashboardPageState extends State<DashboardPage>
 
   List category;
 
-
-
   Future<String> getCategory() async {
     var storage = new DataStore();
 
     var tokenTypeStorage = await storage.getDataString('token_type');
     var accessTokenStorage = await storage.getDataString('access_token');
 
-    var response = await http.get(
-        url('api/listKategoriAndroid'),
-        headers: {
-          "Authorization": "$tokenTypeStorage $accessTokenStorage"
-        }
-    );
+    tokenType = tokenTypeStorage;
+    accessToken = accessTokenStorage;
+    requestHeaders['Accept'] = 'application/json';
+    requestHeaders['Authorization'] = '$tokenType $accessToken';
+    print(requestHeaders);
+
+    var response = await http.get(url('api/listKategoriAndroid'),
+        headers: {"Authorization": "$tokenTypeStorage $accessTokenStorage"});
 
     this.setState(() {
       category = json.decode(response.body);
@@ -94,6 +97,7 @@ class _DashboardPageState extends State<DashboardPage>
   void initState() {
     tabController = TabController(vsync: this, length: 4);
     getCategory();
+    print(requestHeaders);
     super.initState();
   }
 
@@ -104,100 +108,100 @@ class _DashboardPageState extends State<DashboardPage>
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        backgroundColor: Colors.white,
-        key: scaffoldKey,
-        drawer: Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: <Widget>[
-              // Profil Drawer Here
-              UserAccountsDrawerHeader(
-                // Below this my gf name :))))), jk
-                accountName: Text('Kim Jisoo'),
-                accountEmail: Text('Jisoocu@gmail.com'),
-                // This how you set profil image in sidebar
-                // Remeber to add image first in pubspec.yaml
-                currentAccountPicture: CircleAvatar(
-                  backgroundImage: AssetImage('images/jisoocu.jpg'),
-                ),
-                // This how you set color in top of sidebar
-                decoration: BoxDecoration(
-                  color: Color(0xff31B057),
-                ),
-              ),
-              //  Menu Section Here
-              ListTile(
-                title: Text(
-                  'Tracking',
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    fontFamily: 'Roboto',
-                    color: Color(0xff25282b),
+          backgroundColor: Colors.white,
+          key: scaffoldKey,
+          drawer: Drawer(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: <Widget>[
+                // Profil Drawer Here
+                UserAccountsDrawerHeader(
+                  // Below this my gf name :))))), jk
+                  accountName: Text('Kim Jisoo'),
+                  accountEmail: Text('Jisoocu@gmail.com'),
+                  // This how you set profil image in sidebar
+                  // Remeber to add image first in pubspec.yaml
+                  currentAccountPicture: CircleAvatar(
+                    backgroundImage: AssetImage('images/jisoocu.jpg'),
+                  ),
+                  // This how you set color in top of sidebar
+                  decoration: BoxDecoration(
+                    color: Color(0xff31B057),
                   ),
                 ),
-                onTap: () {
-                  Navigator.pushNamed(context, "/tracking_list");
-                },
-              ),
-              ListTile(
-                title: Text(
-                  'Repeat Order',
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    fontFamily: 'Roboto',
-                    color: Color(0xff25282b),
+                //  Menu Section Here
+                ListTile(
+                  title: Text(
+                    'Tracking',
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      fontFamily: 'Roboto',
+                      color: Color(0xff25282b),
+                    ),
                   ),
+                  onTap: () {
+                    Navigator.pushNamed(context, "/tracking_list");
+                  },
                 ),
-                onTap: () {
-                  MyNavigator.goToRepeatOrder(context);
-                },
-              ),
-              ListTile(
-                title: Text(
-                  'Shop',
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    fontFamily: 'Roboto',
-                    color: Color(0xff25282b),
+                ListTile(
+                  title: Text(
+                    'Repeat Order',
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      fontFamily: 'Roboto',
+                      color: Color(0xff25282b),
+                    ),
                   ),
+                  onTap: () {
+                    MyNavigator.goToRepeatOrder(context);
+                  },
                 ),
-                onTap: () {
-                  Navigator.pushNamed(context, "/home");
-                },
-              ),
-              ListTile(
-                title: Text(
-                  'Test',
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    fontFamily: 'Roboto',
-                    color: Color(0xff25282b),
+                ListTile(
+                  title: Text(
+                    'Shop',
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      fontFamily: 'Roboto',
+                      color: Color(0xff25282b),
+                    ),
                   ),
+                  onTap: () {
+                    Navigator.pushNamed(context, "/home");
+                  },
                 ),
-                onTap: () {
-                  Navigator.pushNamed(context, "/test");
-                },
-              ),
-              ListTile(
-                title: Text(
-                  'Logout',
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    fontFamily: 'Roboto',
-                    color: Color(0xff25282b),
+                ListTile(
+                  title: Text(
+                    'Test',
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      fontFamily: 'Roboto',
+                      color: Color(0xff25282b),
+                    ),
                   ),
+                  onTap: () {
+                    Navigator.pushNamed(context, "/test");
+                  },
                 ),
-                onTap: () {
-                  RemoveSharedPrefs();
-                  Navigator.pushReplacementNamed(context, "/login");
-                },
-              ),
-            ],
+                ListTile(
+                  title: Text(
+                    'Logout',
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      fontFamily: 'Roboto',
+                      color: Color(0xff25282b),
+                    ),
+                  ),
+                  onTap: () {
+                    RemoveSharedPrefs();
+                    Navigator.pushReplacementNamed(context, "/login");
+                  },
+                ),
+              ],
+            ),
           ),
-        ),
-        // Body Section Here
-        body: RefreshIndicator(
-          onRefresh: () => refreshFunction(),
+          // Body Section Here
+          body: RefreshIndicator(
+            onRefresh: () => refreshFunction(),
             child: ListView(
               children: <Widget>[
                 Stack(
@@ -218,57 +222,57 @@ class _DashboardPageState extends State<DashboardPage>
                         child: Padding(
                           padding: EdgeInsets.all(10.0),
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Container(
-                                height: 60.0,
-                                width: 220.0,
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.9),
-                                  borderRadius: BorderRadius.only(
-                                    bottomRight: Radius.circular(5.0),
-                                    bottomLeft: Radius.circular(5.0),
-                                    topRight: Radius.circular(5.0),
-                                    topLeft: Radius.circular(5.0),
-                                  ),
-                                ),
-                                child: TextField(
-                                  style: TextStyle(fontFamily: 'Roboto'),
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    contentPadding: EdgeInsets.only(top: 11.0),
-                                    hintText: "Cari Sekarang!",
-                                    hintStyle:
-                                    TextStyle(fontFamily: 'Roboto'),
-                                    prefixIcon: Icon(
-                                      CupertinoIcons.search,
-                                      color: HexColor('#7f8c8d'),
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Container(
+                                  height: 60.0,
+                                  width: 220.0,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.9),
+                                    borderRadius: BorderRadius.only(
+                                      bottomRight: Radius.circular(5.0),
+                                      bottomLeft: Radius.circular(5.0),
+                                      topRight: Radius.circular(5.0),
+                                      topLeft: Radius.circular(5.0),
                                     ),
                                   ),
-                                ),
-                              ),
-                              Container(
-                                child: Row(
-                                  children: <Widget>[
-                                    IconButton(
-                                      onPressed: () {
-                                        MyNavigator.goWishlist(context);
-                                      },
-                                      icon: Icon(Icons.favorite),
-                                      color: Colors.white,
+                                  child: TextField(
+                                    style: TextStyle(fontFamily: 'Roboto'),
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      contentPadding:
+                                          EdgeInsets.only(top: 11.0),
+                                      hintText: "Cari Sekarang!",
+                                      hintStyle:
+                                          TextStyle(fontFamily: 'Roboto'),
+                                      prefixIcon: Icon(
+                                        CupertinoIcons.search,
+                                        color: HexColor('#7f8c8d'),
+                                      ),
                                     ),
-                                    IconButton(
-                                      onPressed: () {
-                                        MyNavigator.goKeranjang(context);
-                                      },
-                                      icon: Icon(Icons.shopping_cart),
-                                      color: Colors.white,
-                                    ),
-                                  ],
+                                  ),
                                 ),
-                              ),
-                            ]
-                          ),
+                                Container(
+                                  child: Row(
+                                    children: <Widget>[
+                                      IconButton(
+                                        onPressed: () {
+                                          MyNavigator.goWishlist(context);
+                                        },
+                                        icon: Icon(Icons.favorite),
+                                        color: Colors.white,
+                                      ),
+                                      IconButton(
+                                        onPressed: () {
+                                          MyNavigator.goKeranjang(context);
+                                        },
+                                        icon: Icon(Icons.shopping_cart),
+                                        color: Colors.white,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ]),
                         )),
                     Padding(
                       padding: EdgeInsets.only(top: 60.0),
@@ -297,10 +301,11 @@ class _DashboardPageState extends State<DashboardPage>
                                   decoration: BoxDecoration(
                                     color: Colors.grey[500],
                                     borderRadius:
-                                    BorderRadius.all(Radius.circular(8.0)),
+                                        BorderRadius.all(Radius.circular(8.0)),
                                   ),
                                   child: new ClipRRect(
-                                    borderRadius: new BorderRadius.circular(8.0),
+                                    borderRadius:
+                                        new BorderRadius.circular(8.0),
                                     child: Image.network(
                                       imgUrl,
                                       fit: BoxFit.fill,
@@ -338,8 +343,17 @@ class _DashboardPageState extends State<DashboardPage>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      Text("Rekomendasi Produk", style: TextStyle(fontSize: 21.0, fontFamily: 'Roboto'),),
-                      Text("Lihat Semua", style: TextStyle(fontSize: 16.0, fontFamily: 'Roboto', color: Color(0xff31B057)),)
+                      Text(
+                        "Rekomendasi Produk",
+                        style: TextStyle(fontSize: 21.0, fontFamily: 'Roboto'),
+                      ),
+                      Text(
+                        "Lihat Semua",
+                        style: TextStyle(
+                            fontSize: 16.0,
+                            fontFamily: 'Roboto',
+                            color: Color(0xff31B057)),
+                      )
                     ],
                   ),
                 ),
@@ -351,13 +365,17 @@ class _DashboardPageState extends State<DashboardPage>
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           stops: [
-                            0.1,
-                            0.4,
-                            0.6,
-                            0.9
-                          ],
-                          colors: [Colors.white, Colors.white, Colors.white, Colors.grey[100]])
-                  ),
+                        0.1,
+                        0.4,
+                        0.6,
+                        0.9
+                      ],
+                          colors: [
+                        Colors.white,
+                        Colors.white,
+                        Colors.white,
+                        Colors.grey[100]
+                      ])),
                   width: MediaQuery.of(context).size.width,
                   child: PagewiseListView(
                     pageSize: 4,
@@ -374,16 +392,22 @@ class _DashboardPageState extends State<DashboardPage>
                   child: Column(
                     children: <Widget>[
                       Padding(
-                        padding: EdgeInsets.only(left: 20.0, right: 20.0, top: 25.0),
+                        padding:
+                            EdgeInsets.only(left: 20.0, right: 20.0, top: 25.0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
-                            Text("Belanja Sekarang!", style: TextStyle(fontSize: 21.0, fontFamily: 'Roboto'),),
+                            Text(
+                              "Belanja Sekarang!",
+                              style: TextStyle(
+                                  fontSize: 21.0, fontFamily: 'Roboto'),
+                            ),
                           ],
                         ),
                       ),
                       Container(
-                        padding: EdgeInsets.only(top: 10, left: 20, bottom: 10.0),
+                        padding:
+                            EdgeInsets.only(top: 10, left: 20, bottom: 10.0),
                         height: 50.0,
                         width: MediaQuery.of(context).size.width,
                         child: ListView.builder(
@@ -392,7 +416,8 @@ class _DashboardPageState extends State<DashboardPage>
                           itemCount: category == null ? 0 : category.length,
                           itemBuilder: (BuildContext context, int index) {
                             return Padding(
-                              padding: const EdgeInsets.only(right: 10 ,bottom: 5.0),
+                              padding:
+                                  const EdgeInsets.only(right: 10, bottom: 5.0),
                               child: Container(
                                   height: 50.0,
                                   child: RaisedButton(
@@ -402,23 +427,30 @@ class _DashboardPageState extends State<DashboardPage>
                                     highlightElevation: 0.0,
                                     onPressed: () {
                                       Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => CategoryItem(
-                                              id: category[index]["ity_id"].toString(),
-                                              category: category[index]["ity_name"],
-                                              category_id: category[index]["ity_code"].toString(),
-                                        ),
-                                        )
-                                      );
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => CategoryItem(
+                                              id: category[index]["ity_id"]
+                                                  .toString(),
+                                              category: category[index]
+                                                  ["ity_name"],
+                                              category_id: category[index]
+                                                      ["ity_code"]
+                                                  .toString(),
+                                            ),
+                                          ));
                                     },
-                                    child: Text(category[index]["ity_name"], style: TextStyle(color: Color(0xff31B057)),),
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: new BorderRadius.circular(18.0),
-                                        side: BorderSide(color: Color(0xff31B057))
+                                    child: Text(
+                                      category[index]["ity_name"],
+                                      style:
+                                          TextStyle(color: Color(0xff31B057)),
                                     ),
-                                  )
-                              ),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            new BorderRadius.circular(18.0),
+                                        side: BorderSide(
+                                            color: Color(0xff31B057))),
+                                  )),
                             );
                           },
                         ),
@@ -441,31 +473,35 @@ class _DashboardPageState extends State<DashboardPage>
                 ),
               ],
             ),
-        ),
-          bottomNavigationBar:BottomNavigationBar(
-            type: BottomNavigationBarType.shifting ,
+          ),
+          bottomNavigationBar: BottomNavigationBar(
+            type: BottomNavigationBarType.shifting,
             unselectedItemColor: Colors.grey,
             selectedItemColor: Color(0xff31B057),
             items: [
               BottomNavigationBarItem(
-                  icon: Icon(Icons.home,),
-                  title: new Text('Shop'),
+                icon: Icon(
+                  Icons.home,
+                ),
+                title: new Text('Shop'),
               ),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.repeat,),
-                  title: new Text('Repeat Order')
-              ),
+                  icon: Icon(
+                    Icons.repeat,
+                  ),
+                  title: new Text('Repeat Order')),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.map,),
-                  title: new Text('Tracking')
-              ),
+                  icon: Icon(
+                    Icons.map,
+                  ),
+                  title: new Text('Tracking')),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.person,),
-                  title: new Text('Profile')
-              )
+                  icon: Icon(
+                    Icons.person,
+                  ),
+                  title: new Text('Profile'))
             ],
-          )
-      ),
+          )),
     );
   }
 
@@ -487,8 +523,8 @@ class _DashboardPageState extends State<DashboardPage>
               ),
               SizedBox(height: 7),
               Expanded(
-                  child: SingleChildScrollView(
-                      child: Container(
+                child: SingleChildScrollView(
+                    child: Container(
                         width: 100.0,
                         child: Center(
                           child: Text(
@@ -500,32 +536,28 @@ class _DashboardPageState extends State<DashboardPage>
                             maxLines: 2,
                             textAlign: TextAlign.left,
                           ),
-                        )
-                      )
-                  ),
+                        ))),
               ),
               SizedBox(height: 3),
               Expanded(
-                  child: SingleChildScrollView(
-                    child: Text(
-                      "Rp." + entry.price,
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                          color: Colors.deepOrange
-                      ),
-                      maxLines: 1,
-                      textAlign: TextAlign.left,
-                    ),
+                child: SingleChildScrollView(
+                  child: Text(
+                    "Rp." + entry.price,
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        color: Colors.deepOrange),
+                    maxLines: 1,
+                    textAlign: TextAlign.left,
                   ),
+                ),
               ),
               SizedBox(height: 3),
             ],
           ),
           onTap: () {
             Navigator.pushNamed(context, "/details");
-          }
-      ),
+          }),
     );
   }
 
@@ -559,32 +591,47 @@ class _DashboardPageState extends State<DashboardPage>
                           shape: BoxShape.circle,
                         ),
                         child: new IconButton(
-                          icon: Icon(Icons.favorite, color: _isPressed),
-                          onPressed: () {
-                            // MyNavigator.goWishlistProduk(context);
-                            // setState(() {
-                            //   _isPressed = Colors.pink[400];
-                            // });
-                            // Navigator.push(
-                            //             context,
-                            //             MaterialPageRoute(
-                            //               builder: (context) => WishlistProduk(
-                            //                   id: category[index]["ity_id"].toString()
-                            //             ),
-                            //             )
-                            //           );
+                          icon: Icon(
+                            Icons.favorite,
+                            color: _isPressed,
+                          ),
+                          onPressed: () async {
+                            var idX = entry.code;
+                            // var warna = entry.color;
+                            try {
+                              final hapuswishlist = await http.post(
+                                  url('api/ActionWishlistAndroid'),
+                                  headers: requestHeaders,
+                                  body: {'produk': idX});
+
+                              if (hapuswishlist.statusCode == 200) {
+                                var hapuswishlistJson =
+                                    json.decode(hapuswishlist.body);
+                                if (hapuswishlistJson['status'] == 'success') {
+                                  setState(() {
+                                    totalRefresh += 1;
+                                  });
+                                } else if (hapuswishlistJson['status'] ==
+                                    'Error') {}
+                              } else {
+                                print('${hapuswishlist.body}');
+                              }
+                            } on TimeoutException catch (_) {} catch (e) {
+                              print(e);
+                            }
+                            setState(() {
+                              _isPressed = Colors.pink[400];
+                            });
                           },
                         ),
-                      )
-                  ),
+                      )),
                 ],
               ),
               // SizedBox(width: 15),
               Padding(
                 padding: EdgeInsets.only(right: 10.0, left: 10.0, top: 10.0),
                 child: Container(
-                  width:
-                  MediaQuery.of(context).size.width - 130,
+                  width: MediaQuery.of(context).size.width - 130,
                   child: Column(
                     children: <Widget>[
                       Container(
@@ -607,8 +654,7 @@ class _DashboardPageState extends State<DashboardPage>
                           style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 14,
-                              color: Colors.deepOrange
-                          ),
+                              color: Colors.deepOrange),
                           maxLines: 1,
                           textAlign: TextAlign.left,
                         ),
@@ -624,7 +670,7 @@ class _DashboardPageState extends State<DashboardPage>
           Navigator.pushNamed(context, "/details");
         },
       ),
-    );                                                                                                                    
+    );
   }
 }
 
@@ -637,10 +683,7 @@ class BackendService {
 
     final responseBody = await http.get(
         url('api/produk_beranda_android?_limit=$limit'),
-        headers: {
-          "Authorization": "$tokenTypeStorage $accessTokenStorage"
-        }
-    );
+        headers: {"Authorization": "$tokenTypeStorage $accessTokenStorage"});
 
     var data = json.decode(responseBody.body);
     var product = data['semuaitem'];
@@ -655,11 +698,8 @@ class BackendService {
     var accessTokenStorage = await storage.getDataString('access_token');
 
     final responseBody = await http.get(
-      url('api/produk_beranda_android?_limit=0&_recLimit=$limit'),
-      headers: {
-        "Authorization": "$tokenTypeStorage $accessTokenStorage"
-      }
-    );
+        url('api/produk_beranda_android?_limit=0&_recLimit=$limit'),
+        headers: {"Authorization": "$tokenTypeStorage $accessTokenStorage"});
 
     var data = json.decode(responseBody.body);
     var product = data['itemslider'];
@@ -678,21 +718,28 @@ class RecomendationModel {
   }
 
   static List<RecomendationModel> fromJsonList(jsonList) {
-    return jsonList.map<RecomendationModel>((obj) => RecomendationModel.fromJson(obj)).toList();
+    return jsonList
+        .map<RecomendationModel>((obj) => RecomendationModel.fromJson(obj))
+        .toList();
   }
 }
 
 class ProductModel {
   String item;
   String price;
+  String code;
+  String color;
 
   ProductModel.fromJson(obj) {
     this.item = obj['i_name'];
     this.price = obj['ipr_sunitprice'];
+    this.code = obj['i_code'];
+    this.color = obj['wlc_produk'];
   }
 
   static List<ProductModel> fromJsonList(jsonList) {
-    return jsonList.map<ProductModel>((obj) => ProductModel.fromJson(obj)).toList();
+    return jsonList
+        .map<ProductModel>((obj) => ProductModel.fromJson(obj))
+        .toList();
   }
 }
-
