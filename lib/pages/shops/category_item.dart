@@ -115,7 +115,6 @@ class _CategoryItemState extends State<CategoryItem> {
         elevation: 0.0,
         child: InkWell(
           child: Container(
-//                            color: Colors.red,
             child: Column(
               children: <Widget>[
                 Stack(

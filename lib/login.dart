@@ -78,8 +78,7 @@ class _LoginPageState extends State<LoginPage> {
             _isLoading = false;
           });
         } else if (getTokenDecode['token_type'] == 'Bearer') {
-          DataStore()
-              .setDataString('access_token', getTokenDecode['access_token']);
+          DataStore().setDataString('access_token', getTokenDecode['access_token']);
           DataStore().setDataString('token_type', getTokenDecode['token_type']);
         }
         dynamic tokenType = getTokenDecode['token_type'];
