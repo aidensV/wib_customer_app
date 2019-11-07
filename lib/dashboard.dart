@@ -1,8 +1,7 @@
 import 'dart:ui';
+import 'package:flutter/cupertino.dart' as prefix0;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wib_customer_app/pages/wishlist/wishlistproduk.dart';
-
 import 'utils/Navigator.dart';
 import 'package:wib_customer_app/storage/storage.dart';
 import 'package:flutter/cupertino.dart';
@@ -16,6 +15,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:wib_customer_app/pages/shops/category_item.dart';
 import 'package:flutter_pagewise/flutter_pagewise.dart';
+import 'pages/shops/product_detail.dart';
 
 String tokenType, accessToken;
 Map<String, String> requestHeaders = Map();
@@ -56,10 +56,10 @@ class _DashboardPageState extends State<DashboardPage>
     requestHeaders['Accept'] = 'application/json';
     requestHeaders['Authorization'] = '$tokenType $accessToken';
     print(requestHeaders);
-
-    var response = await http.get(url('api/listKategoriAndroid'),
-        headers: {"Authorization": "$tokenTypeStorage $accessTokenStorage"});
-
+    final response = await http.get(
+      url('api/listKategoriAndroid'),
+      headers: requestHeaders,
+    );
     this.setState(() {
       category = json.decode(response.body);
     });
@@ -207,7 +207,7 @@ class _DashboardPageState extends State<DashboardPage>
                 Stack(
                   children: <Widget>[
                     Container(
-                      height: 120.0,
+                      height: 150.0,
                       decoration: BoxDecoration(
                         image: DecorationImage(
                           image: AssetImage("images/background.png"),
@@ -316,6 +316,7 @@ class _DashboardPageState extends State<DashboardPage>
                         }).toList(),
                       ),
                     ),
+                    
                     Padding(
                       padding: EdgeInsets.only(left: 38.0, top: 158.0),
                       child: Row(
@@ -338,6 +339,7 @@ class _DashboardPageState extends State<DashboardPage>
                     ),
                   ],
                 ),
+                
                 Padding(
                   padding: EdgeInsets.only(left: 20.0, right: 20.0, top: 25.0),
                   child: Row(
@@ -359,7 +361,7 @@ class _DashboardPageState extends State<DashboardPage>
                 ),
                 Container(
                   padding: EdgeInsets.only(top: 10, left: 20, bottom: 10.0),
-                  height: 175,
+                  height: 200,
                   decoration: BoxDecoration(
                       gradient: LinearGradient(
                           begin: Alignment.topCenter,
@@ -461,7 +463,7 @@ class _DashboardPageState extends State<DashboardPage>
                         physics: NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
                         crossAxisCount: 2,
-                        mainAxisSpacing: 10.0,
+                        // mainAxisSpacing: 10.0,
                         crossAxisSpacing: 5.0,
                         childAspectRatio: 0.7,
                         itemBuilder: this._itemBuilder,
@@ -513,15 +515,21 @@ class _DashboardPageState extends State<DashboardPage>
           child: Column(
             children: <Widget>[
               ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Image.asset(
-                  "images/botol.png",
+                borderRadius: BorderRadius.circular(0),
+                child: Image.network(
+                  entry.gambar != null
+                      ? urladmin(
+                          'storage/image/master/produk/${entry.gambar}',
+                        )
+                      : url(
+                          'assets/img/noimage.jpg',
+                        ),
                   height: 100,
                   width: 100,
                   fit: BoxFit.cover,
                 ),
               ),
-              SizedBox(height: 7),
+              // SizedBox(height: 7),
               Expanded(
                 child: SingleChildScrollView(
                     child: Container(
@@ -533,12 +541,11 @@ class _DashboardPageState extends State<DashboardPage>
                               fontWeight: FontWeight.bold,
                               fontSize: 15,
                             ),
-                            maxLines: 2,
                             textAlign: TextAlign.left,
                           ),
                         ))),
               ),
-              SizedBox(height: 3),
+              // SizedBox(height: 3),
               Expanded(
                 child: SingleChildScrollView(
                   child: Text(
@@ -552,7 +559,7 @@ class _DashboardPageState extends State<DashboardPage>
                   ),
                 ),
               ),
-              SizedBox(height: 3),
+              // SizedBox(height: 3),
             ],
           ),
           onTap: () {
@@ -565,6 +572,7 @@ class _DashboardPageState extends State<DashboardPage>
     return Card(
       elevation: 0.0,
       child: InkWell(
+        
         child: Container(
 //                            color: Colors.red,
           child: Column(
@@ -572,20 +580,26 @@ class _DashboardPageState extends State<DashboardPage>
               Stack(
                 children: <Widget>[
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(10.0),
-                    child: Image.asset(
-                      "images/botol.png",
+                    borderRadius: BorderRadius.circular(0.0),
+                    child: Image.network(
+                      entry.gambar != null
+                          ? urladmin(
+                              'storage/image/master/produk/${entry.gambar}',
+                            )
+                          : url(
+                              'assets/img/noimage.jpg',
+                            ),
                       fit: BoxFit.cover,
-                      height: 150.0,
+                      height: 130.0,
                       width: MediaQuery.of(context).size.width,
                     ),
                   ),
                   Positioned(
                       top: 5.0,
-                      left: 108.0,
+                      right: 5.0,
                       child: Container(
-                        width: 40.0,
-                        height: 40.0,
+                        width: 35.0,
+                        height: 35.0,
                         decoration: new BoxDecoration(
                           color: Colors.grey[100],
                           shape: BoxShape.circle,
@@ -593,7 +607,8 @@ class _DashboardPageState extends State<DashboardPage>
                         child: new IconButton(
                           icon: Icon(
                             Icons.favorite,
-                            color: entry.warna == null ? Colors.grey[400] : Colors.pink,
+                            size: 16,
+                            color: entry.wishlist == null  ? Colors.grey[400]: Colors.pink,
                           ),
                           onPressed: () async {
                             var idX = entry.code;
@@ -607,18 +622,17 @@ class _DashboardPageState extends State<DashboardPage>
                               if (hapuswishlist.statusCode == 200) {
                                 var hapuswishlistJson =
                                     json.decode(hapuswishlist.body);
-                                if (hapuswishlistJson['status'] == 'success') {
+                                if (hapuswishlistJson['status'] ==
+                                    'tambahwishlist') {
                                   setState(() {
-                                    totalRefresh += 1;
+                                    entry.wishlist = entry.code;
                                   });
-                                  // if(_isPressed['status'] == 'success'){
-                                  //   setState(() {
-                                  //   color = Colors.pink[400];
-                                  // });
-                                  //   print('red');
-                                  // }
                                 } else if (hapuswishlistJson['status'] ==
-                                    'Error') {}
+                                    'hapuswishlist') {
+                                  setState(() {
+                                    entry.wishlist = null;
+                                  });
+                                }
                               } else {
                                 print('${hapuswishlist.body}');
                               }
@@ -641,30 +655,89 @@ class _DashboardPageState extends State<DashboardPage>
                   child: Column(
                     children: <Widget>[
                       Container(
-                        alignment: Alignment.centerLeft,
+                        alignment: Alignment.topLeft,
                         child: Text(
                           entry.item,
                           style: TextStyle(
                             fontWeight: FontWeight.w700,
                             fontSize: 16,
                           ),
-                          maxLines: 2,
                           textAlign: TextAlign.left,
                         ),
+                        height: 60,
                       ),
-                      SizedBox(height: 3),
-                      Container(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          "Rp." + entry.price,
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                              color: Colors.deepOrange),
-                          maxLines: 1,
-                          textAlign: TextAlign.left,
-                        ),
-                      ),
+                      entry.diskon == null
+                          ? Container(
+                              height: 20,
+                            )
+                          : Container(
+                            alignment: Alignment.topLeft,
+                              child: Text('Rp. ' + entry.price,
+                                  style: TextStyle(
+                                      decoration: TextDecoration.lineThrough,
+                                      color: Colors.grey[400],
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold),
+                                    textAlign: TextAlign.left,),
+                              height: 20,
+                            ),
+                      entry.diskon == null 
+                      ?
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Expanded(
+                            flex: 5,
+                            child: Text(
+                              "Rp. " + entry.price,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                  color: Colors.deepOrange),
+                              textAlign: TextAlign.left,
+                            ),
+                          ),
+                          Expanded(
+                            flex: 5,
+                            child: Text(
+                              'Botol',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                  color: Colors.green),
+                              textAlign: TextAlign.right,
+                            ),
+                          )
+                        ],
+                      )
+                       :
+                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Expanded(
+                            flex: 5,
+                            child: Text(
+                              "Rp. " + entry.diskon,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                  color: Colors.deepOrange),
+                              textAlign: TextAlign.left,
+                            ),
+                          ),
+                          Expanded(
+                            flex: 5,
+                            child: Text(
+                              'Botol',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                  color: Colors.green),
+                              textAlign: TextAlign.right,
+                            ),
+                          )
+                        ],
+                      ),   
                     ],
                   ),
                 ),
@@ -673,7 +746,19 @@ class _DashboardPageState extends State<DashboardPage>
           ),
         ),
         onTap: () {
-          Navigator.pushNamed(context, "/details");
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProductDetail(
+                item: entry.item,
+                price: entry.price,
+                code: entry.code,
+                diskon: entry.diskon,
+                desc: entry.desc,
+                tipe:entry.tipe,
+              ),
+            ),
+          );
         },
       ),
     );
@@ -709,6 +794,7 @@ class BackendService {
 
     var data = json.decode(responseBody.body);
     var product = data['itemslider'];
+    print('bbb');
 
     return RecomendationModel.fromJsonList(product);
   }
@@ -717,10 +803,12 @@ class BackendService {
 class RecomendationModel {
   String item;
   String price;
+  String gambar;
 
   RecomendationModel.fromJson(obj) {
     this.item = obj['i_name'];
     this.price = obj['ipr_sunitprice'];
+    this.gambar = obj['ip_path'];
   }
 
   static List<RecomendationModel> fromJsonList(jsonList) {
@@ -733,14 +821,22 @@ class RecomendationModel {
 class ProductModel {
   String item;
   String price;
+  String gambar;
   String code;
-  String warna;
+  String wishlist;
+  String desc;
+  String tipe;
+  String diskon;
 
   ProductModel.fromJson(obj) {
     this.item = obj['i_name'];
     this.price = obj['ipr_sunitprice'];
+    this.gambar = obj['ip_path'];
     this.code = obj['i_code'];
-    this.warna = obj['wl_ciproduct'];
+    this.wishlist = obj['wl_ciproduct'];
+    this.desc = obj['itp_tagdesc'];
+    this.tipe = obj['ity_name'];
+    this.diskon = obj['gpp_sellprice'];
   }
 
   static List<ProductModel> fromJsonList(jsonList) {

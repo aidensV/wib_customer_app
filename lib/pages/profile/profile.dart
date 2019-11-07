@@ -134,7 +134,35 @@ class _ProfilePageState extends State<ProfilePage> {
               )
             ],
           ),
-      )
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+            type: BottomNavigationBarType.shifting,
+            unselectedItemColor: Colors.grey,
+            selectedItemColor: Color(0xff31B057),
+            items: [
+              BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.home,
+                ),
+                title: new Text('Shop'),
+              ),
+              BottomNavigationBarItem(
+                  icon: Icon(
+                    Icons.repeat,
+                  ),
+                  title: new Text('Repeat Order'),),
+              BottomNavigationBarItem(
+                  icon: Icon(
+                    Icons.map,
+                  ),
+                  title: new Text('Tracking')),
+              BottomNavigationBarItem(
+                  icon: Icon(
+                    Icons.person,
+                  ),
+                  title: new Text('Profile'))
+            ],
+          ),
     );
   }
 }

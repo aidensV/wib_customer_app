@@ -13,7 +13,7 @@ import 'listprovinsi.dart';
 import 'model.dart';
 
 List<ListCheckout> listNota = [];
-String tokenType, accessToken;
+String tokenType, accessToken, checkboxnoongkir, checkboxongkirsaldo, checkboxtotalsaldo;
 Map<String, String> requestHeaders = Map();
 bool isLoading;
 Map<String, dynamic> formSerialize;
@@ -155,6 +155,9 @@ class _CheckoutState extends State<Checkout> {
   void initState() {
     getHeaderHTTP();
     isLoading = false;
+    checkboxnoongkir = 'aktif';
+    checkboxongkirsaldo = 'aktif';
+    checkboxtotalsaldo = 'aktif';
     selectedProvinsi = null;
     selectedKabupaten = null;
     selectedkecamatan = null;
@@ -291,11 +294,15 @@ class _CheckoutState extends State<Checkout> {
   String idprovinsilist = '';
   bool _value1 = false;
   bool _value2 = false;
+  bool _bayarongkirsaldo = false;
 
   //we omitted the brackets '{}' and are using fat arrow '=>' instead, this is dart syntax
   void _value1Changed(bool value) => setState(() => _value1 = value);
   void _value2Changed(bool value) => setState(
         () => _value2 = value,
+      );
+  void _bayarongkirsaldoChanged(bool value) => setState(
+        () => _bayarongkirsaldo = value,
       );
 
   void _showMaterialDialogKecamatan() {
@@ -491,7 +498,7 @@ class _CheckoutState extends State<Checkout> {
                 ),
                 Expanded(
                   flex: 5,
-                  child: Text(_value2 == true ? 'Rp. ' + totalharga : selectedKabupaten == null ? totalharga : 'Rp. ' + selectedKabupaten.totalbelanja,
+                  child: Text(_value2 == true ? 'Rp. ' + totalharga : selectedKabupaten == null ? 'Rp. ' + totalharga : 'Rp. ' + selectedKabupaten.totalbelanja,
                       textAlign: TextAlign.end,
                       style: TextStyle(color: Colors.green)),
                 ),
@@ -501,15 +508,42 @@ class _CheckoutState extends State<Checkout> {
           new CheckboxListTile(
             value: _value1,
             controlAffinity: ListTileControlAffinity.leading,
-            title: new Text('Bayar pakai saldo WIB store'),
-            onChanged: _value1Changed,
+            title: new Text('Bayar total belanja pakai saldo WIB store'),
+            onChanged: checkboxtotalsaldo == 'pasif' ? null : (value){
+                setState(() {
+                      _value1 = value;
+                      _bayarongkirsaldo = value == true ? false : false;
+                      checkboxongkirsaldo = value == true ? 'pasif' : 'aktif';
+                });
+            },
+          ),
+          new CheckboxListTile(
+            value: _bayarongkirsaldo,
+            controlAffinity: ListTileControlAffinity.leading,
+            title: new Text('Bayar ongkir menggunakan saldo WIB Store'),
+            onChanged: checkboxongkirsaldo == 'pasif' ? null : (value) {
+                    setState(() {
+                      _bayarongkirsaldo = value;
+                      _value2 = value == true ? false : false;
+                      _value1 = value == true ? false : false;
+                      checkboxnoongkir = value == true ? 'pasif' : 'aktif';
+                      checkboxtotalsaldo = value == true ? 'pasif' : 'aktif';
+                    });
+            },
           ),
           new CheckboxListTile(
             value: _value2,
             controlAffinity: ListTileControlAffinity.leading,
             title: new Text('Ambil barang ditempat'),
-            onChanged: _value2Changed,
+            onChanged: checkboxnoongkir == 'pasif' ? null : (value){
+                  setState(() {
+                    _value2 = value;
+                   checkboxongkirsaldo = value == true ? 'pasif' : 'aktif' ;
+                   _bayarongkirsaldo = value == true ? false : false;
+                  });
+            },
           ),
+          
           Padding(
             padding: const EdgeInsets.only(top: 25.0, left: 15.0),
             child: new Text('Daftar barang checkout'),
@@ -728,6 +762,7 @@ class _CheckoutState extends State<Checkout> {
     formSerialize['ongkir'] = null;
     formSerialize['kodepos'] = null;
     formSerialize['alamat'] = null;
+    formSerialize['paydeliver'] = null;
     formSerialize['gudang'] = List();
     formSerialize['id'] = List();
     formSerialize['ciproduct'] = List();
@@ -740,6 +775,7 @@ class _CheckoutState extends State<Checkout> {
     formSerialize['kota'] = _value2 == true ? "0" : selectedKabupaten.id;
     formSerialize['kecamatan'] = _value2 == true ? "0" : selectedkecamatan.id;
     formSerialize['tunai'] = _value1 == true ? 'Y' : 'N';
+    formSerialize['paydeliver'] = _bayarongkirsaldo == true ? 'Y' : 'N';
     formSerialize['accongkir'] = _value2 == true ? 'Y' : 'N';
     formSerialize['ongkir'] = _value2 == true ? 0 : selectedKabupaten.ongkir;
     formSerialize['kodepos'] = _value2 == true ? '-' : kodeposController.text;
@@ -775,6 +811,8 @@ class _CheckoutState extends State<Checkout> {
         if (responseJson['status'] == 'success') {
           Navigator.pushNamed(context, "/tracking_list");
         } else if (responseJson['status'] == 'saldokurang') {
+          showInSnackBar('Saldo anda tidak mencukupi');
+        }else if(responseJson['error'] == 'Saldo Anda Tidak Cukup'){
           showInSnackBar('Saldo anda tidak mencukupi');
         }else if(responseJson['status'] == 'kosong'){
           _showMaterialItemNull();

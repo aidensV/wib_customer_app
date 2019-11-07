@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wib_customer_app/pages/wishlist/wishlistproduk.dart';
+
 // Remember import flutter/material package first
 import 'dashboard.dart';
 import 'login.dart';
@@ -18,6 +18,7 @@ import 'pages/shops/detail.dart';
 import 'pages/checkout/listprovinsi.dart';
 import 'pages/checkout/listkabupaten.dart';
 import 'pages/checkout/listkecamatan.dart';
+import 'pages/profile/profile.dart';
 
 import 'pages/test/test.dart';
 
@@ -39,6 +40,7 @@ var routes = <String, WidgetBuilder>{
   '/listprovinsi': (BuildContext context) => ProvinsiSending(),
   '/listkabupaten': (BuildContext context) => KabupatenSending(),
   '/listkecamatan' : (BuildContext context) => KecamatanSending(),
+  '/profile' : (BuildContext context) => ProfilePage(),
 
   "/test" : (BuildContext context) => TestCode()
 

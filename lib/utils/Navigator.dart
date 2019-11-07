@@ -16,6 +16,7 @@ class MyNavigator {
   static void goToListTracking(BuildContext context) {
     Navigator.pushNamed(context, "/list_tracking");
   }
+
   static void goWishlist(BuildContext context){
     Navigator.pushNamed(context, "/wishlist");
   }
@@ -34,5 +35,8 @@ class MyNavigator {
   }
   static void goKecamatan(BuildContext context){
     Navigator.pushNamed(context, "/listkecamatan");
+  }
+  static void goProfile(BuildContext context){
+    Navigator.pushNamed(context, "/profile");
   }
 }
