@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'utils/Navigator.dart';
+// import 'utils/Navigator.dart';
 import 'storage/storage.dart';
 import 'dart:async';
 
@@ -28,7 +28,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
+    
     getSharedPrefs();
     super.initState();
   }

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:wib_customer_app/storage/storage.dart';
 import 'package:flutter/cupertino.dart';
-import 'dart:async';
+// import 'dart:async';
 
 
 class ProfilePage extends StatefulWidget {
@@ -29,7 +29,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void initState() {
-    // TODO: implement initState
+    
     super.initState();
     getSharedPrefs();
   }

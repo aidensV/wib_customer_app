@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:wib_customer_app/env.dart';
 import 'dart:async';
 import 'dart:convert';
-import 'checkout.dart';
+// import 'checkout.dart';
 import 'model.dart';
 
 List<ListProvinsi> listNota = [];
@@ -42,7 +42,7 @@ class Debouncer {
 class _ProvinsiState extends State<ProvinsiSending> {
   TextEditingController controllerfile = new TextEditingController();
   Future<List<ListProvinsi>> getHeaderHTTP() async {
-    listNotaAndroid();
+    return listNotaAndroid();
   }
 
   GlobalKey<ScaffoldState> _scaffoldKeyZ = new GlobalKey<ScaffoldState>();

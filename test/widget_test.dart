@@ -8,7 +8,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:wib_customer_app/main.dart';
+// import 'package:wib_customer_app/main.dart';
 import 'package:wib_customer_app/splash_screen.dart';
 
 void main() {

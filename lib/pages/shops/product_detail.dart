@@ -1,7 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:wib_customer_app/pages/wishlist/wishlist.dart';
+// import 'package:wib_customer_app/pages/wishlist/wishlist.dart';
 import 'package:wib_customer_app/storage/storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:wib_customer_app/env.dart';

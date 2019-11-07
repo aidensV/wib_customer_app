@@ -38,12 +38,12 @@ class _ListNotaTrackingState extends State<ListNotaTracking> {
 }
 
 class CustomWidget extends StatelessWidget {
-  String title;
-  String content;
+  final String title;
+  final String content;
 
-  Icon trailingIconOne;
+  final Icon trailingIconOne;
 
-  Icon trailingIconTwo;
+  final Icon trailingIconTwo;
 
   CustomWidget(
       {@required this.title, @required this.content, @required this.trailingIconOne, @required this.trailingIconTwo});

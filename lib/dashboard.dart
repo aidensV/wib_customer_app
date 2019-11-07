@@ -5,7 +5,7 @@ import 'utils/Navigator.dart';
 import 'package:wib_customer_app/storage/storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'utils/utils.dart';
-import 'utils/items.dart';
+// import 'utils/items.dart';
 import 'pages/shops/bloc.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:http/http.dart' as http;
@@ -18,7 +18,7 @@ import 'pages/shops/product_detail.dart';
 
 String tokenType, accessToken;
 Map<String, String> requestHeaders = Map();
-ScrollController scrollController;
+ScrollController scrollController = ScrollController(initialScrollOffset: 0.0);
 
 bool isScrolled;
 int red, green, blue;
@@ -97,14 +97,31 @@ class _DashboardPageState extends State<DashboardPage>
     });
   }
 
+  // Decoration appBarDecoration() {
+  //   if ( > 150) {
+  //     return BoxDecoration(
+  //       boxShadow: [
+  //         BoxShadow(
+  //           color: Color.fromRGBO(70, 70, 70, 0.7),
+  //           offset: Offset(0.0, 3.0),
+  //           blurRadius: 7.0,
+  //         ),
+  //       ],
+  //     );
+  //   }
+  //   return null;
+  // }
+
   scrollEvent() {
     // print(scrollController.offset);
     if (scrollController.offset == 0) {
-      red = 255;
-      green = 255;
-      blue = 255;
+      setState(() {
+        red = 255;
+        green = 255;
+        blue = 255;
 
-      opacity = 0.0;
+        opacity = 0.0;
+      });
     } else if (scrollController.offset + 100 > 255) {
       setState(() {
         red = 0;
@@ -141,7 +158,7 @@ class _DashboardPageState extends State<DashboardPage>
 
   @override
   void initState() {
-    scrollController = ScrollController();
+    scrollController = ScrollController(initialScrollOffset: 0.0);
     isScrolled = false;
 
     red = 255;
@@ -495,15 +512,7 @@ class _DashboardPageState extends State<DashboardPage>
                 Positioned(
                   // top: 10.0,
                   child: Container(
-                    decoration: scrollController.offset > 150 ? BoxDecoration(
-                      boxShadow: [
-                        BoxShadow(
-                          color: Color.fromRGBO(70, 70, 70, 0.7),
-                          offset: Offset(0.0,3.0),
-                          blurRadius: 7.0,
-                        ),
-                      ],
-                    ) : null,
+                    decoration: null,
                     height: 55.0,
                     child: AppBar(
                       backgroundColor: Color.fromRGBO(255, 255, 255, opacity),
