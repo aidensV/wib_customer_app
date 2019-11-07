@@ -1,5 +1,4 @@
 import 'dart:ui';
-import 'package:flutter/cupertino.dart' as prefix0;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'utils/Navigator.dart';
@@ -19,6 +18,11 @@ import 'pages/shops/product_detail.dart';
 
 String tokenType, accessToken;
 Map<String, String> requestHeaders = Map();
+ScrollController scrollController;
+
+bool isScrolled;
+int red, green, blue;
+double opacity;
 
 class DashboardPage extends StatefulWidget {
   @override
@@ -93,12 +97,71 @@ class _DashboardPageState extends State<DashboardPage>
     });
   }
 
+  scrollEvent() {
+    // print(scrollController.offset);
+    if (scrollController.offset == 0) {
+      red = 255;
+      green = 255;
+      blue = 255;
+
+      opacity = 0.0;
+    } else if (scrollController.offset + 100 > 255) {
+      setState(() {
+        red = 0;
+        green = 0;
+        blue = 0;
+
+        opacity = 1.0;
+      });
+    } else {
+      if (scrollController.offset.round() + 100 > 255) {
+        setState(() {
+          red = 255 - scrollController.offset.round();
+          green = 255 - scrollController.offset.round();
+          blue = 255 - scrollController.offset.round();
+
+          opacity = (scrollController.offset.round()) / 255;
+        });
+      } else {
+        setState(() {
+          red = 255 - scrollController.offset.round() + 100;
+          green = 255 - scrollController.offset.round() + 100;
+          blue = 255 - scrollController.offset.round() + 100;
+
+          opacity = (scrollController.offset.round() + 100) / 255;
+        });
+      }
+    }
+
+    // print('Red $red');
+    // print('green $green');
+    // print('blue $blue');
+    // print('opacity $opacity');
+  }
+
   @override
   void initState() {
+    scrollController = ScrollController();
+    isScrolled = false;
+
+    red = 255;
+    green = 255;
+    blue = 255;
+
+    opacity = 0.0;
+
+    scrollController.addListener(scrollEvent);
     tabController = TabController(vsync: this, length: 4);
     getCategory();
     print(requestHeaders);
+
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -200,199 +263,92 @@ class _DashboardPageState extends State<DashboardPage>
             ),
           ),
           // Body Section Here
-          body: RefreshIndicator(
-            onRefresh: () => refreshFunction(),
-            child: ListView(
+          body: SafeArea(
+            child: Stack(
               children: <Widget>[
-                Stack(
-                  children: <Widget>[
-                    Container(
-                      height: 150.0,
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: AssetImage("images/background.png"),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    Container(
-                        width: double.infinity,
-                        height: 60.0,
-                        color: Colors.transparent,
-                        child: Padding(
-                          padding: EdgeInsets.all(10.0),
-                          child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                Container(
-                                  height: 60.0,
-                                  width: 220.0,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.9),
-                                    borderRadius: BorderRadius.only(
-                                      bottomRight: Radius.circular(5.0),
-                                      bottomLeft: Radius.circular(5.0),
-                                      topRight: Radius.circular(5.0),
-                                      topLeft: Radius.circular(5.0),
-                                    ),
-                                  ),
-                                  child: TextField(
-                                    style: TextStyle(fontFamily: 'Roboto'),
-                                    decoration: InputDecoration(
-                                      border: InputBorder.none,
-                                      contentPadding:
-                                          EdgeInsets.only(top: 11.0),
-                                      hintText: "Cari Sekarang!",
-                                      hintStyle:
-                                          TextStyle(fontFamily: 'Roboto'),
-                                      prefixIcon: Icon(
-                                        CupertinoIcons.search,
-                                        color: HexColor('#7f8c8d'),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Container(
-                                  child: Row(
-                                    children: <Widget>[
-                                      IconButton(
-                                        onPressed: () {
-                                          MyNavigator.goWishlist(context);
-                                        },
-                                        icon: Icon(Icons.favorite),
-                                        color: Colors.white,
-                                      ),
-                                      IconButton(
-                                        onPressed: () {
-                                          MyNavigator.goKeranjang(context);
-                                        },
-                                        icon: Icon(Icons.shopping_cart),
-                                        color: Colors.white,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ]),
-                        )),
-                    Padding(
-                      padding: EdgeInsets.only(top: 60.0),
-                      child: carouselSlider = CarouselSlider(
-                        height: 100.0,
-                        initialPage: 0,
-                        enlargeCenterPage: true,
-                        autoPlay: true,
-                        reverse: false,
-                        enableInfiniteScroll: true,
-                        autoPlayInterval: Duration(seconds: 5),
-                        autoPlayAnimationDuration: Duration(milliseconds: 2000),
-                        pauseAutoPlayOnTouch: Duration(seconds: 10),
-                        scrollDirection: Axis.horizontal,
-                        onPageChanged: (index) {
-                          setState(() {
-                            _current = index;
-                          });
-                        },
-                        items: imgList.map((imgUrl) {
-                          return Builder(
-                            builder: (BuildContext context) {
-                              return Container(
-                                  width: MediaQuery.of(context).size.width,
-                                  margin: EdgeInsets.symmetric(horizontal: 5.0),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[500],
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(8.0)),
-                                  ),
-                                  child: new ClipRRect(
-                                    borderRadius:
-                                        new BorderRadius.circular(8.0),
-                                    child: Image.network(
-                                      imgUrl,
-                                      fit: BoxFit.fill,
-                                    ),
-                                  ));
-                            },
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                    
-                    Padding(
-                      padding: EdgeInsets.only(left: 38.0, top: 158.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: map<Widget>(imgList, (index, url) {
-                          return Container(
-                            width: 8.0,
-                            height: 8.0,
-                            margin: EdgeInsets.symmetric(
-                                vertical: 10.0, horizontal: 2.0),
+                RefreshIndicator(
+                  onRefresh: () => refreshFunction(),
+                  child: ListView(
+                    controller: scrollController,
+                    children: <Widget>[
+                      Stack(
+                        children: <Widget>[
+                          Container(
+                            height: 150.0,
                             decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: _current == index
-                                  ? Colors.yellowAccent
-                                  : Colors.grey[300],
+                              image: DecorationImage(
+                                image: AssetImage("images/background.png"),
+                                fit: BoxFit.cover,
+                              ),
                             ),
-                          );
-                        }),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(top: 60.0),
+                            child: carouselSlider = CarouselSlider(
+                              height: 100.0,
+                              initialPage: 0,
+                              enlargeCenterPage: true,
+                              autoPlay: true,
+                              reverse: false,
+                              enableInfiniteScroll: true,
+                              autoPlayInterval: Duration(seconds: 5),
+                              autoPlayAnimationDuration:
+                                  Duration(milliseconds: 2000),
+                              pauseAutoPlayOnTouch: Duration(seconds: 10),
+                              scrollDirection: Axis.horizontal,
+                              onPageChanged: (index) {
+                                setState(() {
+                                  _current = index;
+                                });
+                              },
+                              items: imgList.map((imgUrl) {
+                                return Builder(
+                                  builder: (BuildContext context) {
+                                    return Container(
+                                        width:
+                                            MediaQuery.of(context).size.width,
+                                        margin: EdgeInsets.symmetric(
+                                            horizontal: 5.0),
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey[500],
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(8.0)),
+                                        ),
+                                        child: new ClipRRect(
+                                          borderRadius:
+                                              new BorderRadius.circular(8.0),
+                                          child: Image.network(
+                                            imgUrl,
+                                            fit: BoxFit.fill,
+                                          ),
+                                        ));
+                                  },
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(left: 38.0, top: 158.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: map<Widget>(imgList, (index, url) {
+                                return Container(
+                                  width: 8.0,
+                                  height: 8.0,
+                                  margin: EdgeInsets.symmetric(
+                                      vertical: 10.0, horizontal: 2.0),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: _current == index
+                                        ? Colors.yellowAccent
+                                        : Colors.grey[300],
+                                  ),
+                                );
+                              }),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
-                
-                Padding(
-                  padding: EdgeInsets.only(left: 20.0, right: 20.0, top: 25.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Text(
-                        "Rekomendasi Produk",
-                        style: TextStyle(fontSize: 21.0, fontFamily: 'Roboto'),
-                      ),
-                      Text(
-                        "Lihat Semua",
-                        style: TextStyle(
-                            fontSize: 16.0,
-                            fontFamily: 'Roboto',
-                            color: Color(0xff31B057)),
-                      )
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.only(top: 10, left: 20, bottom: 10.0),
-                  height: 200,
-                  decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          stops: [
-                        0.1,
-                        0.4,
-                        0.6,
-                        0.9
-                      ],
-                          colors: [
-                        Colors.white,
-                        Colors.white,
-                        Colors.white,
-                        Colors.grey[100]
-                      ])),
-                  width: MediaQuery.of(context).size.width,
-                  child: PagewiseListView(
-                    pageSize: 4,
-                    padding: EdgeInsets.all(2.0),
-                    scrollDirection: Axis.horizontal,
-                    primary: false,
-                    itemBuilder: this._recItemBuilder,
-                    pageFuture: (pageIndex) =>
-                        BackendService.getDataRecom(pageIndex, 4),
-                  ),
-                ),
-                Container(
-                  color: Colors.grey[100],
-                  child: Column(
-                    children: <Widget>[
                       Padding(
                         padding:
                             EdgeInsets.only(left: 20.0, right: 20.0, top: 25.0),
@@ -400,77 +356,207 @@ class _DashboardPageState extends State<DashboardPage>
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             Text(
-                              "Belanja Sekarang!",
+                              "Rekomendasi Produk",
                               style: TextStyle(
                                   fontSize: 21.0, fontFamily: 'Roboto'),
                             ),
+                            Text(
+                              "Lihat Semua",
+                              style: TextStyle(
+                                  fontSize: 16.0,
+                                  fontFamily: 'Roboto',
+                                  color: Color(0xff31B057)),
+                            )
                           ],
                         ),
                       ),
                       Container(
                         padding:
                             EdgeInsets.only(top: 10, left: 20, bottom: 10.0),
-                        height: 50.0,
+                        height: 200,
+                        decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                stops: [
+                              0.1,
+                              0.4,
+                              0.6,
+                              0.9
+                            ],
+                                colors: [
+                              Colors.white,
+                              Colors.white,
+                              Colors.white,
+                              Colors.grey[100]
+                            ])),
                         width: MediaQuery.of(context).size.width,
-                        child: ListView.builder(
+                        child: PagewiseListView(
+                          pageSize: 4,
+                          padding: EdgeInsets.all(2.0),
                           scrollDirection: Axis.horizontal,
                           primary: false,
-                          itemCount: category == null ? 0 : category.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            return Padding(
-                              padding:
-                                  const EdgeInsets.only(right: 10, bottom: 5.0),
-                              child: Container(
-                                  height: 50.0,
-                                  child: RaisedButton(
-                                    color: Colors.transparent,
-                                    elevation: 0.0,
-                                    highlightColor: Colors.transparent,
-                                    highlightElevation: 0.0,
-                                    onPressed: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => CategoryItem(
-                                              id: category[index]["ity_id"]
-                                                  .toString(),
-                                              category: category[index]
-                                                  ["ity_name"],
-                                              category_id: category[index]
-                                                      ["ity_code"]
-                                                  .toString(),
-                                            ),
-                                          ));
-                                    },
-                                    child: Text(
-                                      category[index]["ity_name"],
-                                      style:
-                                          TextStyle(color: Color(0xff31B057)),
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            new BorderRadius.circular(18.0),
-                                        side: BorderSide(
-                                            color: Color(0xff31B057))),
-                                  )),
-                            );
-                          },
+                          itemBuilder: this._recItemBuilder,
+                          pageFuture: (pageIndex) =>
+                              BackendService.getDataRecom(pageIndex, 4),
                         ),
                       ),
-                      PagewiseGridView.count(
-                        pageSize: PAGE_SIZE,
-                        primary: false,
-                        physics: NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        crossAxisCount: 2,
-                        // mainAxisSpacing: 10.0,
-                        crossAxisSpacing: 5.0,
-                        childAspectRatio: 0.7,
-                        itemBuilder: this._itemBuilder,
-                        pageFuture: (pageIndex) =>
-                            BackendService.getData(pageIndex, PAGE_SIZE),
+                      Container(
+                        color: Colors.grey[100],
+                        child: Column(
+                          children: <Widget>[
+                            Padding(
+                              padding: EdgeInsets.only(
+                                  left: 20.0, right: 20.0, top: 25.0),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  Text(
+                                    "Belanja Sekarang!",
+                                    style: TextStyle(
+                                        fontSize: 21.0, fontFamily: 'Roboto'),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: EdgeInsets.only(
+                                  top: 10, left: 20, bottom: 10.0),
+                              height: 50.0,
+                              width: MediaQuery.of(context).size.width,
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                primary: false,
+                                itemCount:
+                                    category == null ? 0 : category.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(
+                                        right: 10, bottom: 5.0),
+                                    child: Container(
+                                      height: 50.0,
+                                      child: RaisedButton(
+                                        color: Colors.transparent,
+                                        elevation: 0.0,
+                                        highlightColor: Colors.transparent,
+                                        highlightElevation: 0.0,
+                                        onPressed: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    CategoryItem(
+                                                  id: category[index]["ity_id"]
+                                                      .toString(),
+                                                  category: category[index]
+                                                      ["ity_name"],
+                                                  category_id: category[index]
+                                                          ["ity_code"]
+                                                      .toString(),
+                                                ),
+                                              ));
+                                        },
+                                        child: Text(
+                                          category[index]["ity_name"],
+                                          style: TextStyle(
+                                              color: Color(0xff31B057)),
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                new BorderRadius.circular(18.0),
+                                            side: BorderSide(
+                                                color: Color(0xff31B057))),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            PagewiseGridView.count(
+                              pageSize: PAGE_SIZE,
+                              primary: false,
+                              physics: NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              crossAxisCount: 2,
+                              // mainAxisSpacing: 10.0,
+                              crossAxisSpacing: 5.0,
+                              childAspectRatio: 0.7,
+                              itemBuilder: this._itemBuilder,
+                              pageFuture: (pageIndex) =>
+                                  BackendService.getData(pageIndex, PAGE_SIZE),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
+                  ),
+                ),
+                Positioned(
+                  // top: 10.0,
+                  child: Container(
+                    decoration: scrollController.offset > 150 ? BoxDecoration(
+                      boxShadow: [
+                        BoxShadow(
+                          color: Color.fromRGBO(70, 70, 70, 0.7),
+                          offset: Offset(0.0,3.0),
+                          blurRadius: 7.0,
+                        ),
+                      ],
+                    ) : null,
+                    height: 55.0,
+                    child: AppBar(
+                      backgroundColor: Color.fromRGBO(255, 255, 255, opacity),
+                      iconTheme: IconThemeData(
+                          color: Color.fromRGBO(red, green, blue, 1)),
+                      textTheme: TextTheme(
+                          title: TextStyle(
+                        color: Colors.white,
+                      )),
+                      title: Container(
+                        height: 40.0,
+                        width: 220.0,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.9),
+                          borderRadius: BorderRadius.only(
+                            bottomRight: Radius.circular(5.0),
+                            bottomLeft: Radius.circular(5.0),
+                            topRight: Radius.circular(5.0),
+                            topLeft: Radius.circular(5.0),
+                          ),
+                        ),
+                        child: TextField(
+                          style: TextStyle(fontFamily: 'Roboto'),
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.only(top: 11.0),
+                            hintText: "Cari Sekarang!",
+                            hintStyle: TextStyle(fontFamily: 'Roboto'),
+                            prefixIcon: Icon(
+                              CupertinoIcons.search,
+                              color: HexColor('#7f8c8d'),
+                            ),
+                          ),
+                        ),
+                      ),
+                      elevation: 0.0,
+                      actions: <Widget>[
+                        IconButton(
+                          onPressed: () {
+                            MyNavigator.goWishlist(context);
+                          },
+                          icon: Icon(Icons.favorite),
+                          // color: Colors.white,
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            MyNavigator.goKeranjang(context);
+                          },
+                          icon: Icon(Icons.shopping_cart),
+                          // color: Colors.white,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -572,7 +658,6 @@ class _DashboardPageState extends State<DashboardPage>
     return Card(
       elevation: 0.0,
       child: InkWell(
-        
         child: Container(
 //                            color: Colors.red,
           child: Column(
@@ -608,7 +693,9 @@ class _DashboardPageState extends State<DashboardPage>
                           icon: Icon(
                             Icons.favorite,
                             size: 16,
-                            color: entry.wishlist == null  ? Colors.grey[400]: Colors.pink,
+                            color: entry.wishlist == null
+                                ? Colors.grey[400]
+                                : Colors.pink,
                           ),
                           onPressed: () async {
                             var idX = entry.code;
@@ -671,73 +758,73 @@ class _DashboardPageState extends State<DashboardPage>
                               height: 20,
                             )
                           : Container(
-                            alignment: Alignment.topLeft,
-                              child: Text('Rp. ' + entry.price,
-                                  style: TextStyle(
-                                      decoration: TextDecoration.lineThrough,
-                                      color: Colors.grey[400],
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold),
-                                    textAlign: TextAlign.left,),
+                              alignment: Alignment.topLeft,
+                              child: Text(
+                                'Rp. ' + entry.price,
+                                style: TextStyle(
+                                    decoration: TextDecoration.lineThrough,
+                                    color: Colors.grey[400],
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold),
+                                textAlign: TextAlign.left,
+                              ),
                               height: 20,
                             ),
-                      entry.diskon == null 
-                      ?
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Expanded(
-                            flex: 5,
-                            child: Text(
-                              "Rp. " + entry.price,
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                  color: Colors.deepOrange),
-                              textAlign: TextAlign.left,
+                      entry.diskon == null
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Expanded(
+                                  flex: 5,
+                                  child: Text(
+                                    "Rp. " + entry.price,
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                        color: Colors.deepOrange),
+                                    textAlign: TextAlign.left,
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 5,
+                                  child: Text(
+                                    'Botol',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                        color: Colors.green),
+                                    textAlign: TextAlign.right,
+                                  ),
+                                )
+                              ],
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Expanded(
+                                  flex: 5,
+                                  child: Text(
+                                    "Rp. " + entry.diskon,
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                        color: Colors.deepOrange),
+                                    textAlign: TextAlign.left,
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 5,
+                                  child: Text(
+                                    'Botol',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                        color: Colors.green),
+                                    textAlign: TextAlign.right,
+                                  ),
+                                )
+                              ],
                             ),
-                          ),
-                          Expanded(
-                            flex: 5,
-                            child: Text(
-                              'Botol',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                  color: Colors.green),
-                              textAlign: TextAlign.right,
-                            ),
-                          )
-                        ],
-                      )
-                       :
-                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Expanded(
-                            flex: 5,
-                            child: Text(
-                              "Rp. " + entry.diskon,
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                  color: Colors.deepOrange),
-                              textAlign: TextAlign.left,
-                            ),
-                          ),
-                          Expanded(
-                            flex: 5,
-                            child: Text(
-                              'Botol',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                  color: Colors.green),
-                              textAlign: TextAlign.right,
-                            ),
-                          )
-                        ],
-                      ),   
                     ],
                   ),
                 ),
@@ -755,7 +842,7 @@ class _DashboardPageState extends State<DashboardPage>
                 code: entry.code,
                 diskon: entry.diskon,
                 desc: entry.desc,
-                tipe:entry.tipe,
+                tipe: entry.tipe,
               ),
             ),
           );
