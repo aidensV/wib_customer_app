@@ -645,14 +645,14 @@ class _DashboardPageState extends State<DashboardPage>
               ),
               BottomNavigationBarItem(
                   icon: Icon(
-                    Icons.repeat,
+                    Icons.attach_money,
                   ),
-                  title: new Text('Repeat Order')),
-              BottomNavigationBarItem(
-                  icon: Icon(
-                    Icons.map,
-                  ),
-                  title: new Text('Tracking')),
+                  title: new Text('Saldo')),
+              // BottomNavigationBarItem(
+              //     icon: Icon(
+              //       Icons.map,
+              //     ),
+              //     title: new Text('Tracking')),
               BottomNavigationBarItem(
                   icon: Icon(
                     Icons.person,
