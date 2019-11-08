@@ -37,6 +37,7 @@ class ListKecamatan {
 class ListCheckout {
   final String id;
   final String item;
+  final String code;
   final String harga;
   final String type;
   final String image;
@@ -51,6 +52,7 @@ class ListCheckout {
       this.harga,
       this.type,
       this.image,
+      this.code,
       this.jumlah,
       this.satuan,
       this.total,

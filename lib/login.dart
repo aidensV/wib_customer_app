@@ -100,6 +100,7 @@ class _LoginPageState extends State<LoginPage> {
             store.setDataString("username", datauser['cm_username']);
             store.setDataString("name", datauser['cm_name']);
             store.setDataString("email", datauser['cm_email']);
+            store.setDataString("image", datauser['cm_path']);
 
             print(datauser);
 

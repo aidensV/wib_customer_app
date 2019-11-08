@@ -599,20 +599,7 @@ class _KeranjangState extends State<Keranjang> {
                       if (tambahqty.statusCode == 200) {
                         var tambahqtyJson = json.decode(tambahqty.body);
                         if (tambahqtyJson['status'] == 'Success') {
-                          final tambahqty = await http.post(
-                            url('api/get_totalharga'),
-                            headers: requestHeaders,
-                          );
-                          var ongkirJson = json.decode(tambahqty.body);
-                          var totalharga = ongkirJson['totalharga'].toString();
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => Checkout(
-                                  totalharga: totalharga,
-                            ),
-                          )
-                          );
+                          MyNavigator.goCheckout(context);
                         } else if (tambahqtyJson['status'] == 'Error') {
                           showInSnackBar('Gagal! Hubungi pengembang software!');
                         } else if (tambahqtyJson['status'] == 'Kosong') {

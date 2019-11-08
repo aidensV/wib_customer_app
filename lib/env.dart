@@ -7,9 +7,9 @@
 // String host = 'http://192.168.43.115/warungislamibogor_shop/';
 // String hostadmin = 'http://192.168.43.115/warungislamibogor;
 
-// local bakhrul
-String host = 'http://192.168.100.25/warungislamibogor_shop/';
-String hostadmin = 'http://192.168.100.25/warungislamibogor/';
+// local ipipc
+String host = 'http://192.168.43.115/warungislamibogor_shop/';
+String hostadmin = 'http://192.168.43.115/warungislamibogor/';
 String clientSecret = '0zxvmtgG2PkVw0NfQ0HwxjKYHVbhoaFBZyDlmJEp';
 
 

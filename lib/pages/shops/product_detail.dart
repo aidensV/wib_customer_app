@@ -194,7 +194,8 @@ class ProductDetailState extends State<ProductDetail> {
                           url(
                             'assets/img/noimage.jpg',
                           ),
-                          fit: BoxFit.fitWidth),
+                          ),
+                          width: MediaQuery.of(context).size.width,
                     )
                   : Padding(
                       padding: EdgeInsets.only(

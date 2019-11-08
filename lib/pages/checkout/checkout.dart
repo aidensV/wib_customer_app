@@ -13,8 +13,9 @@ import 'listprovinsi.dart';
 import 'model.dart';
 
 List<ListCheckout> listNota = [];
-String tokenType, accessToken, checkboxnoongkir, checkboxongkirsaldo, checkboxtotalsaldo;
+String tokenType, accessToken, checkboxnoongkir, checkboxongkirsaldo, checkboxtotalsaldo, hargatotalX;
 Map<String, String> requestHeaders = Map();
+GlobalKey<ScaffoldState> _scaffoldKeyX = new GlobalKey<ScaffoldState>();
 bool isLoading;
 Map<String, dynamic> formSerialize;
 ListProvinsi selectedProvinsi;
@@ -23,26 +24,22 @@ ListKecamatan selectedkecamatan;
 
 
 class Checkout extends StatefulWidget {
-  final String totalharga;
+  
   Checkout({
-    Key key,  this.totalharga,
+    Key key,
   }) : super(key: key);
   @override
   State<StatefulWidget> createState() {
-    return _CheckoutState(
-      totalharga : totalharga,
-      
-    );
+    return _CheckoutState();
   }
 }
 
 class _CheckoutState extends State<Checkout> {
   final kodeposController = TextEditingController();
   final alamatController = TextEditingController();
-  final String totalharga;
+  
   _CheckoutState({
     Key key,
-    @required this.totalharga,
     
   });
   
@@ -69,16 +66,47 @@ class _CheckoutState extends State<Checkout> {
     requestHeaders['Authorization'] = '$tokenType $accessToken';
     print(requestHeaders);
 
-    listNotaAndroid();
+    
   }
 
-  GlobalKey<ScaffoldState> _scaffoldKeyX = new GlobalKey<ScaffoldState>();
+  
 
   void showInSnackBar(String value) {
     _scaffoldKeyX.currentState
         .showSnackBar(new SnackBar(content: new Text(value)));
   }
+  Future<String> hargabarang() async{
+    setState(() {
+      isLoading = true;
+    });
 
+    try{
+      final hargatotal = await http.get(url('api/get_totalharga'),
+      headers: requestHeaders);
+      if(hargatotal.statusCode == 200){
+        var hargatotalJson = json.decode(hargatotal.body);
+        var resulthargatotal = hargatotalJson['totalharga'].toString();
+        setState(() {
+          isLoading = false;
+          hargatotalX = resulthargatotal;
+        });
+      }else if(hargatotal.statusCode == 500){
+        setState(() {
+          isLoading = false;
+        });
+        showInSnackBar('Request failed with status: ${hargatotal.body}');
+      }else{
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }catch(e){
+      debugPrint('$e');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
   Future<List<ListCheckout>> listNotaAndroid() async {
     setState(() {
       isLoading = true;
@@ -103,6 +131,7 @@ class _CheckoutState extends State<Checkout> {
           ListCheckout notax = ListCheckout(
             id: '${i['cart_id']}',
             item: i['i_name'],
+            code: i['i_code'],
             harga: i['ipr_sunitprice'],
             type: i['ity_name'],
             image: i['ip_path'],
@@ -161,7 +190,9 @@ class _CheckoutState extends State<Checkout> {
     selectedProvinsi = null;
     selectedKabupaten = null;
     selectedkecamatan = null;
-
+    hargatotalX = null;
+    listNotaAndroid();
+    hargabarang();
     print(requestHeaders);
     super.initState();
   }
@@ -456,7 +487,7 @@ class _CheckoutState extends State<Checkout> {
                 ),
                 Expanded(
                   flex: 5,
-                  child: Text("Rp." + totalharga,
+                  child: Text("Rp." + hargatotalX,
                       textAlign: TextAlign.end,
                       style: TextStyle(color: Colors.green)),
                 ),
@@ -498,7 +529,7 @@ class _CheckoutState extends State<Checkout> {
                 ),
                 Expanded(
                   flex: 5,
-                  child: Text(_value2 == true ? 'Rp. ' + totalharga : selectedKabupaten == null ? 'Rp. ' + totalharga : 'Rp. ' + selectedKabupaten.totalbelanja,
+                  child: Text(_value2 == true ? 'Rp. ' + hargatotalX : selectedKabupaten == null ? 'Rp. ' + hargatotalX : 'Rp. ' + selectedKabupaten.totalbelanja,
                       textAlign: TextAlign.end,
                       style: TextStyle(color: Colors.green)),
                 ),
@@ -782,7 +813,7 @@ class _CheckoutState extends State<Checkout> {
     formSerialize['alamat'] = _value2 == true ? '-' : alamatController.text;
     for (int i = 0; i < listNota.length; i++) {
       formSerialize['id'].add(listNota[i].id);
-      formSerialize['ciproduct'].add(listNota[i].item);
+      formSerialize['ciproduct'].add(listNota[i].code);
       formSerialize['qty'].add(listNota[i].jumlah);
       formSerialize['disc'].add(0);
       formSerialize['discv'].add(0);

@@ -15,9 +15,6 @@ import 'pages/shopping_cart/shoppingcart.dart';
 import 'pages/checkout/checkout.dart';
 import 'pages/shops/bloc.dart';
 import 'pages/shops/detail.dart';
-import 'pages/checkout/listprovinsi.dart';
-import 'pages/checkout/listkabupaten.dart';
-import 'pages/checkout/listkecamatan.dart';
 import 'pages/profile/profile.dart';
 
 import 'pages/test/test.dart';
@@ -37,9 +34,7 @@ var routes = <String, WidgetBuilder>{
   "/repeat_order" : (BuildContext context) => RepeatOrder(),
   "/checkout" : (BuildContext context) => Checkout(),
   "/details" : (BuildContext context) => DetailShop(),
-  '/listprovinsi': (BuildContext context) => ProvinsiSending(),
-  '/listkabupaten': (BuildContext context) => KabupatenSending(),
-  '/listkecamatan' : (BuildContext context) => KecamatanSending(),
+  
   '/profile' : (BuildContext context) => ProfilePage(),
 
   "/test" : (BuildContext context) => TestCode()
