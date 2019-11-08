@@ -1,6 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_image/network.dart';
 import 'package:provider/provider.dart';
+import 'package:wib_customer_app/cari_produk/cari_produk.dart';
 import 'utils/Navigator.dart';
 import 'package:wib_customer_app/storage/storage.dart';
 import 'package:flutter/cupertino.dart';
@@ -24,7 +26,7 @@ ScrollController scrollController = ScrollController(initialScrollOffset: 0.0);
 
 bool isScrolled;
 int red, green, blue;
-double opacity;
+double opacity, maxOffsetToColor;
 
 class DashboardPage extends StatefulWidget {
   @override
@@ -51,7 +53,7 @@ class _DashboardPageState extends State<DashboardPage>
 
   List category;
 
-  Future<String> getCategory() async {
+  Future<void> getCategory() async {
     var storage = new DataStore();
 
     var tokenTypeStorage = await storage.getDataString('token_type');
@@ -62,20 +64,24 @@ class _DashboardPageState extends State<DashboardPage>
     requestHeaders['Accept'] = 'application/json';
     requestHeaders['Authorization'] = '$tokenType $accessToken';
     print(requestHeaders);
-    final response = await http.get(
-      url('api/listKategoriAndroid'),
-      headers: requestHeaders,
-    );
-    this.setState(() {
-      category = json.decode(response.body);
-    });
+    try {
+      final response = await http.get(
+        url('api/listKategoriAndroid'),
+        headers: requestHeaders,
+      );
+      this.setState(() {
+        category = json.decode(response.body);
+      });
 
-    print(category[1]["ity_code"]);
+      print(category[1]["ity_code"]);
 
-    return "Success!";
+      return "Success!";
+    } catch (e) {
+      print('Error : $e');
+    }
   }
 
-  Future<String> dataProfile() async {
+  Future<void> dataProfile() async {
     var storage = new DataStore();
 
     usernameprofile = await storage.getDataString("username");
@@ -149,24 +155,25 @@ class _DashboardPageState extends State<DashboardPage>
     });
   }
 
-  // Decoration appBarDecoration() {
-  //   if ( > 150) {
-  //     return BoxDecoration(
-  //       boxShadow: [
-  //         BoxShadow(
-  //           color: Color.fromRGBO(70, 70, 70, 0.7),
-  //           offset: Offset(0.0, 3.0),
-  //           blurRadius: 7.0,
-  //         ),
-  //       ],
-  //     );
-  //   }
-  //   return null;
-  // }
+  Decoration appBarDecoration() {
+    if (isScrolled) {
+      return BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            color: Color.fromRGBO(70, 70, 70, 0.7),
+            offset: Offset(0.0, 3.0),
+            blurRadius: 7.0,
+          ),
+        ],
+      );
+    }
+    return null;
+  }
 
   scrollEvent() {
     // print(scrollController.offset);
     if (scrollController.offset == 0) {
+      maxOffsetToColor = 0;
       setState(() {
         red = 255;
         green = 255;
@@ -175,31 +182,35 @@ class _DashboardPageState extends State<DashboardPage>
         opacity = 0.0;
       });
     } else if (scrollController.offset + 100 > 255) {
-      setState(() {
-        red = 0;
-        green = 0;
-        blue = 0;
-
-        opacity = 1.0;
-      });
-    } else {
-      if (scrollController.offset.round() + 100 > 255) {
+      if (maxOffsetToColor == 0 &&
+          maxOffsetToColor != scrollController.offset + 100) {
+        maxOffsetToColor = scrollController.offset;
         setState(() {
-          red = 255 - scrollController.offset.round();
-          green = 255 - scrollController.offset.round();
-          blue = 255 - scrollController.offset.round();
+          red = 0;
+          green = 0;
+          blue = 0;
 
-          opacity = (scrollController.offset.round()) / 255;
-        });
-      } else {
-        setState(() {
-          red = 255 - scrollController.offset.round() + 100;
-          green = 255 - scrollController.offset.round() + 100;
-          blue = 255 - scrollController.offset.round() + 100;
-
-          opacity = (scrollController.offset.round() + 100) / 255;
+          opacity = 1.0;
         });
       }
+    } else if (scrollController.offset < 255 && scrollController.offset > 0) {
+      if (scrollController.offset > 150) {
+        setState(() {
+          isScrolled = true;
+        });
+      } else if (scrollController.offset < 150) {
+        setState(() {
+          isScrolled = false;
+        });
+      }
+
+      setState(() {
+        red = 255 - scrollController.offset.round();
+        green = 255 - scrollController.offset.round();
+        blue = 255 - scrollController.offset.round();
+
+        opacity = (scrollController.offset.round()) / 255;
+      });
     }
 
     // print('Red $red');
@@ -217,6 +228,7 @@ class _DashboardPageState extends State<DashboardPage>
     green = 255;
     blue = 255;
     opacity = 0.0;
+    maxOffsetToColor = 0.0;
     scrollController.addListener(scrollEvent);
     tabController = TabController(vsync: this, length: 4);
     getCategory();
@@ -392,7 +404,7 @@ class _DashboardPageState extends State<DashboardPage>
                                               horizontal: 5.0),
                                           decoration: BoxDecoration(
                                             image: DecorationImage(
-                                              image: NetworkImage(urladmin(
+                                              image: NetworkImageWithRetry(urladmin(
                                                   'storage/image/master/banner/${listBanner[i].banner}')),
                                               fit: BoxFit.fitHeight,
                                             ),
@@ -569,7 +581,7 @@ class _DashboardPageState extends State<DashboardPage>
                 Positioned(
                   // top: 10.0,
                   child: Container(
-                    decoration: null,
+                    decoration: appBarDecoration(),
                     height: 55.0,
                     child: AppBar(
                       backgroundColor: Color.fromRGBO(255, 255, 255, opacity),
@@ -603,6 +615,15 @@ class _DashboardPageState extends State<DashboardPage>
                               color: HexColor('#7f8c8d'),
                             ),
                           ),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (BuildContext context) => CariProduk(),
+                                settings: RouteSettings(name: '/cari_produk'),
+                              ),
+                            );
+                          },
                         ),
                       ),
                       elevation: 0.0,
@@ -641,14 +662,14 @@ class _DashboardPageState extends State<DashboardPage>
               ),
               BottomNavigationBarItem(
                   icon: Icon(
-                    Icons.repeat,
+                    Icons.attach_money,
                   ),
-                  title: new Text('Repeat Order')),
-              BottomNavigationBarItem(
-                  icon: Icon(
-                    Icons.map,
-                  ),
-                  title: new Text('Tracking')),
+                  title: new Text('Saldo')),
+              // BottomNavigationBarItem(
+              //     icon: Icon(
+              //       Icons.map,
+              //     ),
+              //     title: new Text('Tracking')),
               BottomNavigationBarItem(
                   icon: Icon(
                     Icons.person,

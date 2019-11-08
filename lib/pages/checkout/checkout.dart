@@ -55,7 +55,7 @@ class _CheckoutState extends State<Checkout> {
   }
 
   TextEditingController controllerfile = new TextEditingController();
-  Future<List<ListCheckout>> getHeaderHTTP() async {
+  Future<void> getHeaderHTTP() async {
     var storage = new DataStore();
 
     var tokenTypeStorage = await storage.getDataString('token_type');
@@ -75,7 +75,6 @@ class _CheckoutState extends State<Checkout> {
     _scaffoldKeyX.currentState
         .showSnackBar(new SnackBar(content: new Text(value)));
   }
-
   Future<List<ListCheckout>> listNotaAndroid() async {
     setState(() {
       isLoading = true;
@@ -94,7 +93,6 @@ class _CheckoutState extends State<Checkout> {
 
         print('notaJson $notaJson');
         print('harga seluruh $totalharga');
-
         listNota = [];
         for (var i in notas) {
           ListCheckout notax = ListCheckout(
@@ -715,21 +713,16 @@ class _CheckoutState extends State<Checkout> {
                     if (_value2 == false) {
                       if (selectedProvinsi == null) {
                         _showMaterialDialogKabupaten();
-                        return false;
                       } else if (selectedKabupaten == null) {
                         _showMaterialDialogKabupatenNull();
-                        return false;
                       } else if (selectedkecamatan == null) {
                         _showMaterialDialogKecamatanNull();
-                        return false;
                       } else if (kodeposController.text.length == 0 ||
                           kodeposController.text == null) {
                         _showMaterialDialogKodeposNull();
-                        return false;
                       } else if (alamatController.text.length == 0 ||
                           alamatController.text == null) {
                         _showMaterialDialogAlamatNull();
-                        return false;
                       } else {
                         _checkoutSekarang();
                       }
