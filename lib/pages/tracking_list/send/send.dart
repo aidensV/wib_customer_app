@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:wib_customer_app/env.dart';
 import 'dart:async';
 import 'dart:convert';
+import 'package:intl/intl.dart';
 
 GlobalKey<ScaffoldState> _scaffoldKeyX = new GlobalKey<ScaffoldState>();
 List<ListNota> listNota = [];
@@ -116,14 +117,13 @@ class _SendNotaState extends State<SendNota> {
     var tokenTypeStorage = await storage.getDataString('token_type');
     var accessTokenStorage = await storage.getDataString('access_token');
 
-    setState(() {
+    
       tokenType = tokenTypeStorage;
       accessToken = accessTokenStorage;
 
       requestHeaders['Accept'] = 'application/json';
       requestHeaders['Authorization'] = '$tokenType $accessToken';
       print(requestHeaders);
-    });
   }
 
   int totalRefresh = 0;
@@ -183,11 +183,14 @@ class _SendNotaState extends State<SendNota> {
                     return ListView.builder(
                       itemCount: snapshot.data.length,
                       itemBuilder: (BuildContext context, int index) {
+                        double totalpembelian = double.parse(snapshot.data[index].total);
+                        NumberFormat _numberFormat = new NumberFormat.simpleCurrency(decimalDigits: 2, name: 'Rp. ');
+                        String hargaTotal = _numberFormat.format(totalpembelian);
                         return Container(
                           color: Colors.white,
                           child: ListTile(
                             title: Text(snapshot.data[index].nota),
-                            subtitle: Text("Rp." + snapshot.data[index].total),
+                            subtitle: Text(snapshot.data[index].total == null ? 'Rp. 0.00' : hargaTotal),
                             trailing: statusNota(
                                 snapshot.data[index].statusDeliver,
                                 snapshot.data[index].statusPacking,

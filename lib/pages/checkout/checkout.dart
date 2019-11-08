@@ -11,20 +11,24 @@ import 'listkabupaten.dart';
 import 'listkecamatan.dart';
 import 'listprovinsi.dart';
 import 'model.dart';
+import 'package:intl/intl.dart';
 
 List<ListCheckout> listNota = [];
-String tokenType, accessToken, checkboxnoongkir, checkboxongkirsaldo, checkboxtotalsaldo, hargatotalX;
+String tokenType,
+    accessToken,
+    checkboxnoongkir,
+    checkboxongkirsaldo,
+    checkboxtotalsaldo;
+var _scaffoldKeyX;
 Map<String, String> requestHeaders = Map();
-GlobalKey<ScaffoldState> _scaffoldKeyX = new GlobalKey<ScaffoldState>();
 bool isLoading;
 Map<String, dynamic> formSerialize;
 ListProvinsi selectedProvinsi;
 ListKabupaten selectedKabupaten;
 ListKecamatan selectedkecamatan;
-
+String hargatotalX;
 
 class Checkout extends StatefulWidget {
-  
   Checkout({
     Key key,
   }) : super(key: key);
@@ -37,12 +41,10 @@ class Checkout extends StatefulWidget {
 class _CheckoutState extends State<Checkout> {
   final kodeposController = TextEditingController();
   final alamatController = TextEditingController();
-  
+
   _CheckoutState({
     Key key,
-    
   });
-  
 
   List<T> map<T>(List list, Function handler) {
     List<T> result = [];
@@ -66,47 +68,14 @@ class _CheckoutState extends State<Checkout> {
     requestHeaders['Authorization'] = '$tokenType $accessToken';
     print(requestHeaders);
 
-    
+    return listNotaAndroid();
   }
-
-  
 
   void showInSnackBar(String value) {
     _scaffoldKeyX.currentState
         .showSnackBar(new SnackBar(content: new Text(value)));
   }
-  Future<String> hargabarang() async{
-    setState(() {
-      isLoading = true;
-    });
 
-    try{
-      final hargatotal = await http.get(url('api/get_totalharga'),
-      headers: requestHeaders);
-      if(hargatotal.statusCode == 200){
-        var hargatotalJson = json.decode(hargatotal.body);
-        var resulthargatotal = hargatotalJson['totalharga'].toString();
-        setState(() {
-          isLoading = false;
-          hargatotalX = resulthargatotal;
-        });
-      }else if(hargatotal.statusCode == 500){
-        setState(() {
-          isLoading = false;
-        });
-        showInSnackBar('Request failed with status: ${hargatotal.body}');
-      }else{
-        setState(() {
-          isLoading = false;
-        });
-      }
-    }catch(e){
-      debugPrint('$e');
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
   Future<List<ListCheckout>> listNotaAndroid() async {
     setState(() {
       isLoading = true;
@@ -121,10 +90,10 @@ class _CheckoutState extends State<Checkout> {
         // return nota;
         var notaJson = json.decode(nota.body);
         var notas = notaJson['item'];
-        
+        var totalharga = notaJson['totalharga'].toString();
 
         print('notaJson $notaJson');
-        
+        print('harga seluruh $totalharga');
 
         listNota = [];
         for (var i in notas) {
@@ -146,6 +115,7 @@ class _CheckoutState extends State<Checkout> {
         print('listnota $listNota');
         print('listnota length ${listNota.length}');
         setState(() {
+          hargatotalX = totalharga;
           isLoading = false;
         });
         return listNota;
@@ -183,6 +153,7 @@ class _CheckoutState extends State<Checkout> {
   @override
   void initState() {
     getHeaderHTTP();
+    _scaffoldKeyX = new GlobalKey<ScaffoldState>();
     isLoading = false;
     checkboxnoongkir = 'aktif';
     checkboxongkirsaldo = 'aktif';
@@ -190,9 +161,8 @@ class _CheckoutState extends State<Checkout> {
     selectedProvinsi = null;
     selectedKabupaten = null;
     selectedkecamatan = null;
-    hargatotalX = null;
-    listNotaAndroid();
-    hargabarang();
+    hargatotalX = '0.00';
+    // hargabarang();
     print(requestHeaders);
     super.initState();
   }
@@ -214,6 +184,7 @@ class _CheckoutState extends State<Checkout> {
           );
         });
   }
+
   void _showMaterialItemNull() {
     showDialog(
         context: context,
@@ -328,13 +299,6 @@ class _CheckoutState extends State<Checkout> {
   bool _bayarongkirsaldo = false;
 
   //we omitted the brackets '{}' and are using fat arrow '=>' instead, this is dart syntax
-  void _value1Changed(bool value) => setState(() => _value1 = value);
-  void _value2Changed(bool value) => setState(
-        () => _value2 = value,
-      );
-  void _bayarongkirsaldoChanged(bool value) => setState(
-        () => _bayarongkirsaldo = value,
-      );
 
   void _showMaterialDialogKecamatan() {
     showDialog(
@@ -361,6 +325,8 @@ class _CheckoutState extends State<Checkout> {
 
   @override
   Widget build(BuildContext context) {
+    NumberFormat _numberFormat =
+        new NumberFormat.simpleCurrency(decimalDigits: 2, name: 'Rp. ');
     return Scaffold(
       key: _scaffoldKeyX,
       backgroundColor: Colors.white,
@@ -487,7 +453,8 @@ class _CheckoutState extends State<Checkout> {
                 ),
                 Expanded(
                   flex: 5,
-                  child: Text("Rp." + hargatotalX,
+                  child: Text(
+                      hargatotalX == null ? 'Rp. 0' : 'Rp. ${hargatotalX}',
                       textAlign: TextAlign.end,
                       style: TextStyle(color: Colors.green)),
                 ),
@@ -529,7 +496,12 @@ class _CheckoutState extends State<Checkout> {
                 ),
                 Expanded(
                   flex: 5,
-                  child: Text(_value2 == true ? 'Rp. ' + hargatotalX : selectedKabupaten == null ? 'Rp. ' + hargatotalX : 'Rp. ' + selectedKabupaten.totalbelanja,
+                  child: Text(
+                      _value2 == true
+                          ? 'Rp. ' + hargatotalX
+                          : selectedKabupaten == null
+                              ? 'Rp. ' + hargatotalX
+                              : 'Rp. ' + selectedKabupaten.totalbelanja,
                       textAlign: TextAlign.end,
                       style: TextStyle(color: Colors.green)),
                 ),
@@ -540,19 +512,23 @@ class _CheckoutState extends State<Checkout> {
             value: _value1,
             controlAffinity: ListTileControlAffinity.leading,
             title: new Text('Bayar total belanja pakai saldo WIB store'),
-            onChanged: checkboxtotalsaldo == 'pasif' ? null : (value){
-                setState(() {
+            onChanged: checkboxtotalsaldo == 'pasif'
+                ? null
+                : (value) {
+                    setState(() {
                       _value1 = value;
                       _bayarongkirsaldo = value == true ? false : false;
                       checkboxongkirsaldo = value == true ? 'pasif' : 'aktif';
-                });
-            },
+                    });
+                  },
           ),
           new CheckboxListTile(
             value: _bayarongkirsaldo,
             controlAffinity: ListTileControlAffinity.leading,
             title: new Text('Bayar ongkir menggunakan saldo WIB Store'),
-            onChanged: checkboxongkirsaldo == 'pasif' ? null : (value) {
+            onChanged: checkboxongkirsaldo == 'pasif'
+                ? null
+                : (value) {
                     setState(() {
                       _bayarongkirsaldo = value;
                       _value2 = value == true ? false : false;
@@ -560,21 +536,22 @@ class _CheckoutState extends State<Checkout> {
                       checkboxnoongkir = value == true ? 'pasif' : 'aktif';
                       checkboxtotalsaldo = value == true ? 'pasif' : 'aktif';
                     });
-            },
+                  },
           ),
           new CheckboxListTile(
             value: _value2,
             controlAffinity: ListTileControlAffinity.leading,
             title: new Text('Ambil barang ditempat'),
-            onChanged: checkboxnoongkir == 'pasif' ? null : (value){
-                  setState(() {
-                    _value2 = value;
-                   checkboxongkirsaldo = value == true ? 'pasif' : 'aktif' ;
-                   _bayarongkirsaldo = value == true ? false : false;
-                  });
-            },
+            onChanged: checkboxnoongkir == 'pasif'
+                ? null
+                : (value) {
+                    setState(() {
+                      _value2 = value;
+                      checkboxongkirsaldo = value == true ? 'pasif' : 'aktif';
+                      _bayarongkirsaldo = value == true ? false : false;
+                    });
+                  },
           ),
-          
           Padding(
             padding: const EdgeInsets.only(top: 25.0, left: 15.0),
             child: new Text('Daftar barang checkout'),
@@ -617,7 +594,7 @@ class _CheckoutState extends State<Checkout> {
                                       Padding(
                                         padding:
                                             const EdgeInsets.only(left: 5.0),
-                                        child: Text("Rp. " + '${item.total}',
+                                        child: Text(item.total == null ? 'Rp. 0.00' : _numberFormat.format(double.parse(item.total)),
                                             style: TextStyle(
                                               color: Colors.green,
                                             )),
@@ -667,7 +644,7 @@ class _CheckoutState extends State<Checkout> {
                                         Container(
                                           child: Row(
                                             children: <Widget>[
-                                              Text("Rp. " + '${item.harga}',
+                                              Text(item.harga == null ? 'Rp. 0.00' : _numberFormat.format(double.parse(item.harga)),
                                                   style: TextStyle(
                                                       color: Colors.black)),
                                               Padding(
@@ -735,7 +712,7 @@ class _CheckoutState extends State<Checkout> {
                   padding: EdgeInsets.all(15.0),
                   splashColor: Colors.blueAccent,
                   onPressed: () async {
-                   if (_value2 == false) {
+                    if (_value2 == false) {
                       if (selectedProvinsi == null) {
                         _showMaterialDialogKabupaten();
                         return false;
@@ -753,10 +730,10 @@ class _CheckoutState extends State<Checkout> {
                           alamatController.text == null) {
                         _showMaterialDialogAlamatNull();
                         return false;
-                      }else{
+                      } else {
                         _checkoutSekarang();
                       }
-                    } else {  
+                    } else {
                       _checkoutSekarang();
                     }
                   },
@@ -843,9 +820,9 @@ class _CheckoutState extends State<Checkout> {
           Navigator.pushNamed(context, "/tracking_list");
         } else if (responseJson['status'] == 'saldokurang') {
           showInSnackBar('Saldo anda tidak mencukupi');
-        }else if(responseJson['error'] == 'Saldo Anda Tidak Cukup'){
+        } else if (responseJson['error'] == 'Saldo Anda Tidak Cukup') {
           showInSnackBar('Saldo anda tidak mencukupi');
-        }else if(responseJson['status'] == 'kosong'){
+        } else if (responseJson['status'] == 'kosong') {
           _showMaterialItemNull();
         }
         print('response decoded $responseJson');
