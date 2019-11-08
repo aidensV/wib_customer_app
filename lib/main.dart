@@ -16,7 +16,6 @@ import 'pages/checkout/checkout.dart';
 import 'pages/shops/bloc.dart';
 import 'pages/shops/detail.dart';
 import 'pages/profile/profile.dart';
-
 import 'pages/test/test.dart';
 
 
@@ -34,7 +33,6 @@ var routes = <String, WidgetBuilder>{
   "/repeat_order" : (BuildContext context) => RepeatOrder(),
   "/checkout" : (BuildContext context) => Checkout(),
   "/details" : (BuildContext context) => DetailShop(),
-  
   '/profile' : (BuildContext context) => ProfilePage(),
 
   "/test" : (BuildContext context) => TestCode()

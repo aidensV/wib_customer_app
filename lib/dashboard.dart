@@ -1,12 +1,11 @@
 import 'dart:ui';
-import 'package:flutter/cupertino.dart' as prefix0;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'utils/Navigator.dart';
 import 'package:wib_customer_app/storage/storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'utils/utils.dart';
-import 'utils/items.dart';
+// import 'utils/items.dart';
 import 'pages/shops/bloc.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:http/http.dart' as http;
@@ -21,6 +20,13 @@ String tokenType, accessToken;
 Map<String, String> requestHeaders = Map();
 List<ListBanner> listBanner = [];
 bool isLoading;
+
+ScrollController scrollController = ScrollController(initialScrollOffset: 0.0);
+
+bool isScrolled;
+int red, green, blue;
+double opacity;
+
 
 class DashboardPage extends StatefulWidget {
   @override
@@ -152,17 +158,90 @@ class _DashboardPageState extends State<DashboardPage>
     });
   }
 
+  // Decoration appBarDecoration() {
+  //   if ( > 150) {
+  //     return BoxDecoration(
+  //       boxShadow: [
+  //         BoxShadow(
+  //           color: Color.fromRGBO(70, 70, 70, 0.7),
+  //           offset: Offset(0.0, 3.0),
+  //           blurRadius: 7.0,
+  //         ),
+  //       ],
+  //     );
+  //   }
+  //   return null;
+  // }
+
+  scrollEvent() {
+    // print(scrollController.offset);
+    if (scrollController.offset == 0) {
+      setState(() {
+        red = 255;
+        green = 255;
+        blue = 255;
+
+        opacity = 0.0;
+      });
+    } else if (scrollController.offset + 100 > 255) {
+      setState(() {
+        red = 0;
+        green = 0;
+        blue = 0;
+
+        opacity = 1.0;
+      });
+    } else {
+      if (scrollController.offset.round() + 100 > 255) {
+        setState(() {
+          red = 255 - scrollController.offset.round();
+          green = 255 - scrollController.offset.round();
+          blue = 255 - scrollController.offset.round();
+
+          opacity = (scrollController.offset.round()) / 255;
+        });
+      } else {
+        setState(() {
+          red = 255 - scrollController.offset.round() + 100;
+          green = 255 - scrollController.offset.round() + 100;
+          blue = 255 - scrollController.offset.round() + 100;
+
+          opacity = (scrollController.offset.round() + 100) / 255;
+        });
+      }
+    }
+
+    // print('Red $red');
+    // print('green $green');
+    // print('blue $blue');
+    // print('opacity $opacity');
+  }
+
   @override
   void initState() {
     listBannerAndroid();
+    scrollController = ScrollController(initialScrollOffset: 0.0);
+    isScrolled = false;
+    red = 255;
+    green = 255;
+    blue = 255;
+    opacity = 0.0;
+    scrollController.addListener(scrollEvent);
     tabController = TabController(vsync: this, length: 4);
     getCategory();
     isLoading = false;
     dataProfile();
     print(requestHeaders);
+
     super.initState();
   }
   
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -263,84 +342,29 @@ class _DashboardPageState extends State<DashboardPage>
             ),
           ),
           // Body Section Here
-          body: RefreshIndicator(
-            onRefresh: () => refreshFunction(),
-            child: ListView(
+          body: SafeArea(
+            child: Stack(
               children: <Widget>[
-                Stack(
-                  children: <Widget>[
-                    Container(
-                      height: 150.0,
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: AssetImage("images/background.png"),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    Container(
-                        width: double.infinity,
-                        height: 60.0,
-                        color: Colors.transparent,
-                        child: Padding(
-                          padding: EdgeInsets.all(10.0),
-                          child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                Container(
-                                  height: 60.0,
-                                  width: 220.0,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.9),
-                                    borderRadius: BorderRadius.only(
-                                      bottomRight: Radius.circular(5.0),
-                                      bottomLeft: Radius.circular(5.0),
-                                      topRight: Radius.circular(5.0),
-                                      topLeft: Radius.circular(5.0),
-                                    ),
-                                  ),
-                                  child: TextField(
-                                    style: TextStyle(fontFamily: 'Roboto'),
-                                    decoration: InputDecoration(
-                                      border: InputBorder.none,
-                                      contentPadding:
-                                          EdgeInsets.only(top: 11.0),
-                                      hintText: "Cari Sekarang!",
-                                      hintStyle:
-                                          TextStyle(fontFamily: 'Roboto'),
-                                      prefixIcon: Icon(
-                                        CupertinoIcons.search,
-                                        color: HexColor('#7f8c8d'),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Container(
-                                  child: Row(
-                                    children: <Widget>[
-                                      IconButton(
-                                        onPressed: () {
-                                          MyNavigator.goWishlist(context);
-                                        },
-                                        icon: Icon(Icons.favorite),
-                                        color: Colors.white,
-                                      ),
-                                      IconButton(
-                                        onPressed: () {
-                                          MyNavigator.goKeranjang(context);
-                                        },
-                                        icon: Icon(Icons.shopping_cart),
-                                        color: Colors.white,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ]),
-                        )),
-                    isLoading == true ?  Center(
+                RefreshIndicator(
+                  onRefresh: () => refreshFunction(),
+                  child: ListView(
+                    controller: scrollController,
+                    children: <Widget>[
+                      Stack(
+                        children: <Widget>[
+                          Container(
+                            height: 150.0,
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                image: AssetImage("images/background.png"),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                          isLoading == true ?  Center(
                     
                     
-                    child: prefix0.Padding(
+                    child: Padding(
                       padding: const EdgeInsets.only(top:100.0),
                       child: CircularProgressIndicator(),
                     ),
@@ -381,75 +405,28 @@ class _DashboardPageState extends State<DashboardPage>
                         ],
                       ),
                     ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 38.0, top: 158.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: map<Widget>(imgList, (index, url) {
-                          return Container(
-                            width: 8.0,
-                            height: 8.0,
-                            margin: EdgeInsets.symmetric(
-                                vertical: 10.0, horizontal: 2.0),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: _current == index
-                                  ? Colors.yellowAccent
-                                  : Colors.grey[300],
+                          Padding(
+                            padding: EdgeInsets.only(left: 38.0, top: 158.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: map<Widget>(imgList, (index, url) {
+                                return Container(
+                                  width: 8.0,
+                                  height: 8.0,
+                                  margin: EdgeInsets.symmetric(
+                                      vertical: 10.0, horizontal: 2.0),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: _current == index
+                                        ? Colors.yellowAccent
+                                        : Colors.grey[300],
+                                  ),
+                                );
+                              }),
                             ),
-                          );
-                        }),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
-                Padding(
-                  padding: EdgeInsets.only(
-                      left: 10.0, right: 10.0, top: 25.0, bottom: 10.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Text(
-                        "Rekomendasi Produk",
-                        style: TextStyle(fontSize: 21.0, fontFamily: 'Roboto'),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.only(top: 10, left: 0, bottom: 10.0),
-                  height: 200,
-                  decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          stops: [
-                        0.1,
-                        0.4,
-                        0.6,
-                        0.9
-                      ],
-                          colors: [
-                        Colors.white,
-                        Colors.white,
-                        Colors.white,
-                        Colors.grey[100]
-                      ])),
-                  width: MediaQuery.of(context).size.width,
-                  child: PagewiseListView(
-                    pageSize: 4,
-                    padding: EdgeInsets.all(2.0),
-                    scrollDirection: Axis.horizontal,
-                    primary: false,
-                    itemBuilder: this._recItemBuilder,
-                    pageFuture: (pageIndex) =>
-                        BackendService.getDataRecom(pageIndex, 4),
-                  ),
-                ),
-                Container(
-                  color: Colors.grey[100],
-                  child: Column(
-                    children: <Widget>[
                       Padding(
                         padding:
                             EdgeInsets.only(left: 20.0, right: 20.0, top: 25.0),
@@ -457,76 +434,199 @@ class _DashboardPageState extends State<DashboardPage>
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             Text(
-                              "Belanja Sekarang!",
+                              "Rekomendasi Produk",
                               style: TextStyle(
                                   fontSize: 21.0, fontFamily: 'Roboto'),
                             ),
+                            Text(
+                              "Lihat Semua",
+                              style: TextStyle(
+                                  fontSize: 16.0,
+                                  fontFamily: 'Roboto',
+                                  color: Color(0xff31B057)),
+                            )
                           ],
                         ),
                       ),
                       Container(
                         padding:
                             EdgeInsets.only(top: 10, left: 20, bottom: 10.0),
-                        height: 50.0,
+                        height: 200,
+                        decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                stops: [
+                              0.1,
+                              0.4,
+                              0.6,
+                              0.9
+                            ],
+                                colors: [
+                              Colors.white,
+                              Colors.white,
+                              Colors.white,
+                              Colors.grey[100]
+                            ])),
                         width: MediaQuery.of(context).size.width,
-                        child: ListView.builder(
+                        child: PagewiseListView(
+                          pageSize: 4,
+                          padding: EdgeInsets.all(2.0),
                           scrollDirection: Axis.horizontal,
                           primary: false,
-                          itemCount: category == null ? 0 : category.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            return Padding(
-                              padding:
-                                  const EdgeInsets.only(right: 10, bottom: 5.0),
-                              child: Container(
-                                  height: 50.0,
-                                  child: RaisedButton(
-                                    color: Colors.transparent,
-                                    elevation: 0.0,
-                                    highlightColor: Colors.transparent,
-                                    highlightElevation: 0.0,
-                                    onPressed: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => CategoryItem(
-                                              id: category[index]["ity_id"]
-                                                  .toString(),
-                                              category: category[index]
-                                                  ["ity_name"],
-                                              category_id: category[index]
-                                                      ["ity_code"]
-                                                  .toString(),
-                                            ),
-                                          ));
-                                    },
-                                    child: Text(
-                                      category[index]["ity_name"],
-                                      style:
-                                          TextStyle(color: Color(0xff31B057)),
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            new BorderRadius.circular(18.0),
-                                        side: BorderSide(
-                                            color: Color(0xff31B057))),
-                                  )),
-                            );
-                          },
+                          itemBuilder: this._recItemBuilder,
+                          pageFuture: (pageIndex) =>
+                              BackendService.getDataRecom(pageIndex, 4),
                         ),
                       ),
-                      PagewiseGridView.count(
-                        pageSize: PAGE_SIZE,
-                        primary: false,
-                        physics: NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        crossAxisCount: MediaQuery.of(context).size.width <= 400.0 ? 2 : MediaQuery.of(context).size.width >= 1000.0 ? 5 : 4,
-                        childAspectRatio: 0.6,
-                        crossAxisSpacing: 5.0,
-                        itemBuilder: this._itemBuilder,
-                        pageFuture: (pageIndex) =>
-                            BackendService.getData(pageIndex, PAGE_SIZE),
+                      Container(
+                        color: Colors.grey[100],
+                        child: Column(
+                          children: <Widget>[
+                            Padding(
+                              padding: EdgeInsets.only(
+                                  left: 20.0, right: 20.0, top: 25.0),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  Text(
+                                    "Belanja Sekarang!",
+                                    style: TextStyle(
+                                        fontSize: 21.0, fontFamily: 'Roboto'),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: EdgeInsets.only(
+                                  top: 10, left: 20, bottom: 10.0),
+                              height: 50.0,
+                              width: MediaQuery.of(context).size.width,
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                primary: false,
+                                itemCount:
+                                    category == null ? 0 : category.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(
+                                        right: 10, bottom: 5.0),
+                                    child: Container(
+                                      height: 50.0,
+                                      child: RaisedButton(
+                                        color: Colors.transparent,
+                                        elevation: 0.0,
+                                        highlightColor: Colors.transparent,
+                                        highlightElevation: 0.0,
+                                        onPressed: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    CategoryItem(
+                                                  id: category[index]["ity_id"]
+                                                      .toString(),
+                                                  category: category[index]
+                                                      ["ity_name"],
+                                                  category_id: category[index]
+                                                          ["ity_code"]
+                                                      .toString(),
+                                                ),
+                                              ));
+                                        },
+                                        child: Text(
+                                          category[index]["ity_name"],
+                                          style: TextStyle(
+                                              color: Color(0xff31B057)),
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                new BorderRadius.circular(18.0),
+                                            side: BorderSide(
+                                                color: Color(0xff31B057))),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            PagewiseGridView.count(
+                              pageSize: PAGE_SIZE,
+                              primary: false,
+                              physics: NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              crossAxisCount: 2,
+                              // mainAxisSpacing: 10.0,
+                              crossAxisSpacing: 5.0,
+                              childAspectRatio: 0.6,
+                              itemBuilder: this._itemBuilder,
+                              pageFuture: (pageIndex) =>
+                                  BackendService.getData(pageIndex, PAGE_SIZE),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
+                  ),
+                ),
+                Positioned(
+                  // top: 10.0,
+                  child: Container(
+                    decoration: null,
+                    height: 55.0,
+                    child: AppBar(
+                      backgroundColor: Color.fromRGBO(255, 255, 255, opacity),
+                      iconTheme: IconThemeData(
+                          color: Color.fromRGBO(red, green, blue, 1)),
+                      textTheme: TextTheme(
+                          title: TextStyle(
+                        color: Colors.white,
+                      )),
+                      title: Container(
+                        height: 40.0,
+                        width: 220.0,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.9),
+                          borderRadius: BorderRadius.only(
+                            bottomRight: Radius.circular(5.0),
+                            bottomLeft: Radius.circular(5.0),
+                            topRight: Radius.circular(5.0),
+                            topLeft: Radius.circular(5.0),
+                          ),
+                        ),
+                        child: TextField(
+                          style: TextStyle(fontFamily: 'Roboto'),
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.only(top: 11.0),
+                            hintText: "Cari Sekarang!",
+                            hintStyle: TextStyle(fontFamily: 'Roboto'),
+                            prefixIcon: Icon(
+                              CupertinoIcons.search,
+                              color: HexColor('#7f8c8d'),
+                            ),
+                          ),
+                        ),
+                      ),
+                      elevation: 0.0,
+                      actions: <Widget>[
+                        IconButton(
+                          onPressed: () {
+                            MyNavigator.goWishlist(context);
+                          },
+                          icon: Icon(Icons.favorite),
+                          // color: Colors.white,
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            MyNavigator.goKeranjang(context);
+                          },
+                          icon: Icon(Icons.shopping_cart),
+                          // color: Colors.white,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -590,20 +690,20 @@ class _DashboardPageState extends State<DashboardPage>
                 // SizedBox(height: 7),
                 Padding(
                   padding:
-                      prefix0.EdgeInsets.only(left: 5.0, right: 5.0, top: 10.0),
-                  child: prefix0.Row(
+                      EdgeInsets.only(left: 5.0, right: 5.0, top: 10.0),
+                  child: Row(
                     children: <Widget>[
-                      prefix0.Text(entry.item,
-                          style: prefix0.TextStyle(
+                      Text(entry.item,
+                          style: TextStyle(
                             color: Colors.black,
-                            fontWeight: prefix0.FontWeight.bold,
+                            fontWeight: FontWeight.bold,
                             fontSize: 13,
                           )),
                     ],
                   ),
                 ),
 
-                prefix0.Padding(
+                Padding(
                   padding: EdgeInsets.only(left: 5.0, right: 5.0),
                   child: Row(
                     children: <Widget>[
@@ -656,7 +756,7 @@ class _DashboardPageState extends State<DashboardPage>
   }
 
   Widget _itemBuilder(context, ProductModel entry, _) {
-    return prefix0.Stack(
+    return Stack(
       children: <Widget>[
         Positioned(
           // child: Container(

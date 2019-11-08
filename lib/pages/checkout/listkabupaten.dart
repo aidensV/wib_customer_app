@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:wib_customer_app/env.dart';
 import 'dart:async';
 import 'dart:convert';
-import 'checkout.dart';
+// import 'checkout.dart';
 import 'model.dart';
 
 List<ListKabupaten> listNota = [];
@@ -49,7 +49,7 @@ class _KabupatenState extends State<KabupatenSending> {
   });
   TextEditingController controllerfile = new TextEditingController();
   Future<List<ListKabupaten>> getHeaderHTTP() async {
-    listNotaAndroid();
+    return listNotaAndroid();
   }
 
   GlobalKey<ScaffoldState> _scaffoldKeyY = new GlobalKey<ScaffoldState>();
