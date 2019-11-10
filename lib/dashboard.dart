@@ -595,43 +595,61 @@ class _DashboardPageState extends State<DashboardPage>
                         iconTheme: IconThemeData(
                             color: Color.fromRGBO(red, green, blue, 1)),
                         textTheme: TextTheme(
-                            title: TextStyle(
-                          color: Colors.white,
-                        )),
-                        title: Container(
-                          height: 40.0,
-                          width: 220.0,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.9),
-                            borderRadius: BorderRadius.only(
-                              bottomRight: Radius.circular(5.0),
-                              bottomLeft: Radius.circular(5.0),
-                              topRight: Radius.circular(5.0),
-                              topLeft: Radius.circular(5.0),
-                            ),
+                          title: TextStyle(
+                            color: Colors.white,
                           ),
-                          child: TextField(
-                            style: TextStyle(fontFamily: 'Roboto'),
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.only(top: 11.0),
-                              hintText: "Cari Sekarang!",
-                              hintStyle: TextStyle(fontFamily: 'Roboto'),
-                              prefixIcon: Icon(
-                                CupertinoIcons.search,
-                                color: HexColor('#7f8c8d'),
+                        ),
+                        title: InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (BuildContext context) => CariProduk(),
+                                settings: RouteSettings(name: '/cari_produk'),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            height: 40.0,
+                            width: 220.0,
+                            decoration: BoxDecoration(
+                              color: isScrolled
+                                  ? Colors.grey[100].withOpacity(0.7)
+                                  : Colors.white.withOpacity(0.9),
+                              borderRadius: BorderRadius.only(
+                                bottomRight: Radius.circular(5.0),
+                                bottomLeft: Radius.circular(5.0),
+                                topRight: Radius.circular(5.0),
+                                topLeft: Radius.circular(5.0),
                               ),
                             ),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (BuildContext context) =>
-                                      CariProduk(),
-                                  settings: RouteSettings(name: '/cari_produk'),
-                                ),
-                              );
-                            },
+                            alignment: Alignment.center,
+                            child: Center(
+                              child: Row(
+                                // mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  Container(
+                                    width: 40.0,
+                                    height: 40.0,
+                                    child: Icon(
+                                      CupertinoIcons.search,
+                                      color: HexColor('#7f8c8d'),
+                                    ),
+                                  ),
+                                  Container(
+                                    child: Text(
+                                      "Cari Sekarang!",
+                                      style: TextStyle(
+                                        fontFamily: 'Roboto',
+                                        color: isScrolled
+                                            ? Colors.black
+                                            : Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
                         elevation: 0.0,
