@@ -452,7 +452,7 @@ class _CheckoutState extends State<Checkout> {
                 Expanded(
                   flex: 5,
                   child: Text(
-                      hargatotalX == null ? 'Rp. 0' : 'Rp. ${hargatotalX}',
+                      hargatotalX == null ? 'Rp. 0' : 'Rp. $hargatotalX',
                       textAlign: TextAlign.end,
                       style: TextStyle(color: Colors.green)),
                 ),

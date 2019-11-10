@@ -10,7 +10,7 @@ class TestCode extends StatefulWidget {
 }
 
 class _TestCodeState extends State<TestCode> {
-  int PAGE_SIZE = 6;
+  int pageSize = 6;
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +19,7 @@ class _TestCodeState extends State<TestCode> {
         title: Text("Test Area"),
       ),
       body: PagewiseGridView.count(
-        pageSize: PAGE_SIZE,
+        pageSize: pageSize,
         primary: false,
         shrinkWrap: true,
         crossAxisCount: 2,
@@ -28,7 +28,7 @@ class _TestCodeState extends State<TestCode> {
         childAspectRatio: 0.7,
         itemBuilder: this._itemBuilder,
         pageFuture: (pageIndex) =>
-            BackendService.getData(pageIndex, PAGE_SIZE),
+            BackendService.getData(pageIndex, pageSize),
       ),
     );
   }

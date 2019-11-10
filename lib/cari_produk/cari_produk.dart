@@ -70,6 +70,10 @@ class _CariProdukState extends State<CariProduk> {
         for (var data in responseJson) {
           listProdukAutoComplete.add(data['i_name']);
         }
+
+        setState(() {
+          listProdukAutoComplete = listProdukAutoComplete;
+        });
       } else if (response.statusCode == 401) {
         showInSnackBarProduk(
             'Token kedaluwarsa, silahkan logout dan login kembali');
