@@ -697,7 +697,7 @@ class _DashboardPageState extends State<DashboardPage>
           ),
         ),
         bottomNavigationBar: BottomNavigationBar(
-          type: BottomNavigationBarType.shifting,
+          type: BottomNavigationBarType.fixed,
           unselectedItemColor: Colors.grey,
           selectedItemColor: Color(0xff31B057),
           items: [

@@ -3,6 +3,7 @@ import 'dart:convert';
 // import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:wib_customer_app/cari_produk/cari_produk_detail.dart';
 // import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:wib_customer_app/env.dart';
 import 'package:wib_customer_app/cari_produk/modelCariProduk.dart';
@@ -53,6 +54,11 @@ class _CariProdukState extends State<CariProduk> {
     requestHeaders['Accept'] = 'application/json';
     requestHeaders['Authorization'] = '$tokenType $accessToken';
 
+    setState(() {
+      isLoading = true;
+      isError = false;
+    });
+
     try {
       final response = await http.post(
         url('api/daftarProduk'),
@@ -78,17 +84,31 @@ class _CariProdukState extends State<CariProduk> {
 
         setState(() {
           listProduk = listProduk;
+          isLoading = false;
+          isError = false;
         });
       } else if (response.statusCode == 401) {
         showInSnackBarProduk(
             'Token kedaluwarsa, silahkan logout dan login kembali');
+        setState(() {
+          isLoading = false;
+          isError = true;
+        });
       } else {
         showInSnackBarProduk('Error Code : ${response.statusCode}');
         print(jsonDecode(response.body));
+        setState(() {
+          isLoading = false;
+          isError = true;
+        });
       }
     } catch (e) {
       print('Error : $e');
       showInSnackBarProduk('Error : ${e.toString()}');
+      setState(() {
+        isLoading = false;
+        isError = true;
+      });
     }
   }
 
@@ -153,24 +173,50 @@ class _CariProdukState extends State<CariProduk> {
                 ),
               ),
               textInputAction: TextInputAction.search,
-              onSubmitted: (ini){
+              onSubmitted: (ini) {
+                setState(() {
+                  cariController.value = TextEditingValue(
+                    selection: cariController.selection,
+                    text: ini,
+                  );
+                });
                 print('submitted $ini');
+                if (ini.isNotEmpty) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      settings: RouteSettings(name: '/cari_produk_detail'),
+                      builder: (BuildContext context) => CariProdukLebihDetail(
+                        namaProduk: cariController.text,
+                      ),
+                    ),
+                  );
+                } else {
+                  showInSnackBarProduk('Input cari tidak boleh kosong');
+                }
               },
               onChanged: (ini) {
+                setState(() {
+                  cariController.value = TextEditingValue(
+                    selection: cariController.selection,
+                    text: ini,
+                  );
+                });
                 if (ini.length != 0) {
                   setState(() {
                     isCari = true;
                   });
-                  getProduk();
+                  Future.delayed(
+                    Duration(
+                      milliseconds: 50,
+                    ),
+                    getProduk(),
+                  );
                 } else {
                   setState(() {
                     isCari = false;
                   });
                 }
-                cariController.value = TextEditingValue(
-                  selection: cariController.selection,
-                  text: ini,
-                );
               },
             ),
           ),
@@ -201,15 +247,40 @@ class _CariProdukState extends State<CariProduk> {
                 : Scrollbar(
                     child: RefreshIndicator(
                       onRefresh: () => getProduk(),
-                      child: ListView.builder(
-                        itemCount: listProduk.length,
-                        itemBuilder: (BuildContext context, int i) => Card(
-                          child: ListTile(
-                            title: Text(listProduk[i].namaProduk),
-                            onTap: () {},
-                          ),
-                        ),
-                      ),
+                      child: cariController.text.length != 0 &&
+                              listProduk.length == 0
+                          ? ListView(
+                              children: <Widget>[
+                                ListTile(
+                                  title: Text(
+                                    'Produk tidak ditemukan',
+                                    textAlign: TextAlign.center,
+                                  ),
+                                )
+                              ],
+                            )
+                          : ListView.builder(
+                              itemCount: listProduk.length,
+                              itemBuilder: (BuildContext context, int i) =>
+                                  Card(
+                                child: ListTile(
+                                  title: Text(listProduk[i].namaProduk),
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        settings: RouteSettings(
+                                            name: '/cari_produk_detail'),
+                                        builder: (BuildContext context) =>
+                                            CariProdukLebihDetail(
+                                          namaProduk: listProduk[i].namaProduk,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
                     ),
                   ),
       ),

@@ -470,12 +470,12 @@ class ProductDetailState extends State<ProductDetail> {
                                               wishlistX = codeX;
                                             });
                                             showInSnackBar(
-                                                '${itemX} Berhasil ditambahkan ke barang favorit');
+                                                '$itemX Berhasil ditambahkan ke barang favorit');
                                           } else if (aksiwishlistJson[
                                                   'status'] ==
                                               'hapuswishlist') {
                                             showInSnackBar(
-                                                '${itemX} Berhasil dihapus dari barang favorit');
+                                                '$itemX Berhasil dihapus dari barang favorit');
                                             setState(() {
                                               isWishlist = false;
                                               wishlistX = null;
@@ -524,15 +524,15 @@ class ProductDetailState extends State<ProductDetail> {
                                                 json.decode(adcart.body);
                                             if (addcartJson['done'] == 'done') {
                                               showInSnackBar(
-                                                  '${itemX} berhasil dimasukkan ke keranjang');
+                                                  '$itemX berhasil dimasukkan ke keranjang');
                                             } else if (addcartJson['error'] ==
                                                 'stock') {
                                               showInSnackBar(
-                                                  'Stock ${itemX} tersisa ${addcartJson['stock']}');
+                                                  'Stock $itemX tersisa ${addcartJson['stock']}');
                                             } else if (addcartJson['error'] ==
                                                 'error') {
                                               showInSnackBar(
-                                                  '${itemX} sudah ada dikeranjang');
+                                                  '$itemX sudah ada dikeranjang');
                                             }
                                           } else {
                                             print('${adcart.body}');
