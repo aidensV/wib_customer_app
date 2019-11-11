@@ -1073,9 +1073,11 @@ class BackendService {
 
     var tokenTypeStorage = await storage.getDataString('token_type');
     var accessTokenStorage = await storage.getDataString('access_token');
-
+    var hitung =index + 1;
+    print(hitung);
+    print(limit);
     final responseBody = await http.get(
-        url('api/produk_beranda_android?_limit=$limit&count=$index'),
+        url('api/produk_beranda_android?_limit=$limit&count=$hitung'),
         headers: {"Authorization": "$tokenTypeStorage $accessTokenStorage"});
 
     var data = json.decode(responseBody.body);
