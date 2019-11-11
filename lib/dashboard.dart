@@ -23,8 +23,6 @@ String tokenType, accessToken;
 Map<String, String> requestHeaders = Map();
 List<ListBanner> listBanner = [];
 bool isLoading;
-int PAGE_SIZE = 6;
-
 ScrollController scrollController = ScrollController(initialScrollOffset: 0.0);
 
 bool isScrolled;
@@ -50,6 +48,8 @@ class _DashboardPageState extends State<DashboardPage>
     with SingleTickerProviderStateMixin {
   TabController tabController;
   Color _isPressed = Colors.grey;
+int pageSize = 6;
+
 
   PageController pageController;
 
@@ -1063,9 +1063,11 @@ class BackendService {
 
     var tokenTypeStorage = await storage.getDataString('token_type');
     var accessTokenStorage = await storage.getDataString('access_token');
-
+    var hitung =index + 1;
+    print(hitung);
+    print(limit);
     final responseBody = await http.get(
-        url('api/produk_beranda_android?_limit=$limit&count=$index'),
+        url('api/produk_beranda_android?_limit=$limit&count=$hitung'),
         headers: {"Authorization": "$tokenTypeStorage $accessTokenStorage"});
 
     var data = json.decode(responseBody.body);
