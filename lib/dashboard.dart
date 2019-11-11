@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_image/network.dart';
 // import 'package:provider/provider.dart';
 import 'package:wib_customer_app/cari_produk/cari_produk.dart';
+import 'package:wib_customer_app/pages/shopping_cart/shoppingcart.dart';
+import 'package:wib_customer_app/pages/wishlist/wishlist.dart';
 import 'utils/Navigator.dart';
 import 'package:wib_customer_app/storage/storage.dart';
 import 'package:flutter/cupertino.dart';
@@ -44,7 +46,7 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage>
-    with TickerProviderStateMixin {
+    with SingleTickerProviderStateMixin {
   TabController tabController;
   int pageSize = 6;
 
@@ -656,14 +658,31 @@ class _DashboardPageState extends State<DashboardPage>
                         actions: <Widget>[
                           IconButton(
                             onPressed: () {
-                              MyNavigator.goWishlist(context);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  settings: RouteSettings(
+                                    name: '/wishlist',
+                                  ),
+                                  builder: (BuildContext context) => Wishlist(),
+                                ),
+                              );
                             },
                             icon: Icon(Icons.favorite),
                             // color: Colors.white,
                           ),
                           IconButton(
                             onPressed: () {
-                              MyNavigator.goKeranjang(context);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  settings: RouteSettings(
+                                    name: '/keranjangbelanja',
+                                  ),
+                                  builder: (BuildContext context) =>
+                                      Keranjang(),
+                                ),
+                              );
                             },
                             icon: Icon(Icons.shopping_cart),
                             // color: Colors.white,
