@@ -409,7 +409,7 @@ class _CariProdukLebihDetailState extends State<CariProdukLebihDetail> {
                   : 2,
           // mainAxisSpacing: 10.0,
           crossAxisSpacing: 5.0,
-          childAspectRatio: 1,
+          childAspectRatio: 0.6,
           itemBuilder: (BuildContext context, Produk produk, int i) {
             return produkCard(produk);
           },

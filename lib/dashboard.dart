@@ -23,7 +23,7 @@ String tokenType, accessToken;
 Map<String, String> requestHeaders = Map();
 List<ListBanner> listBanner = [];
 bool isLoading;
-int PAGE_SIZE = 6;
+int pageSize = 6;
 
 ScrollController scrollController = ScrollController(initialScrollOffset: 0.0);
 
@@ -49,7 +49,6 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage>
     with SingleTickerProviderStateMixin {
   TabController tabController;
-  Color _isPressed = Colors.grey;
 
   PageController pageController;
 
@@ -346,22 +345,23 @@ class _DashboardPageState extends State<DashboardPage>
                                       _current = index;
                                     });
                                   },
-                                  items: <Widget>[
-                                    for (var i = 0; i < listBanner.length; i++)
-                                      Container(
-                                        width:
-                                            MediaQuery.of(context).size.width,
-                                        margin: EdgeInsets.symmetric(
-                                            horizontal: 5.0),
-                                        decoration: BoxDecoration(
-                                          image: DecorationImage(
-                                            image: NetworkImageWithRetry(urladmin(
-                                                'storage/image/master/banner/${listBanner[i].banner}')),
-                                            fit: BoxFit.fitHeight,
+                                  items: listBanner
+                                      .map(
+                                        (ListBanner listBanner) => Container(
+                                          width:
+                                              MediaQuery.of(context).size.width,
+                                          margin: EdgeInsets.symmetric(
+                                              horizontal: 5.0),
+                                          decoration: BoxDecoration(
+                                            image: DecorationImage(
+                                              image: NetworkImageWithRetry(urladmin(
+                                                  'storage/image/master/banner/${listBanner.banner}')),
+                                              fit: BoxFit.fitHeight,
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                  ],
+                                      )
+                                      .toList(),
                                 ),
                               ),
                         Padding(
@@ -482,7 +482,7 @@ class _DashboardPageState extends State<DashboardPage>
                                                     .toString(),
                                                 category: category[index]
                                                     ["ity_name"],
-                                                category_id: category[index]
+                                                categoryId: category[index]
                                                         ["ity_code"]
                                                     .toString(),
                                               ),
@@ -927,11 +927,11 @@ class _DashboardPageState extends State<DashboardPage>
                   ],
                 ),
                 // SizedBox(width: 15),
-                Padding(
-                  padding: EdgeInsets.only(right: 10.0, left: 10.0, top: 10.0),
+                Expanded(
                   child: Container(
+                    padding: EdgeInsets.all(10.0),
                     width: MediaQuery.of(context).size.width - 130,
-                    child: Column(
+                    child: Stack(
                       children: <Widget>[
                         Container(
                           alignment: Alignment.topLeft,
@@ -946,93 +946,103 @@ class _DashboardPageState extends State<DashboardPage>
                           // height: 60,
                           height: 60.0,
                         ),
-                        entry.diskon == null
-                            ? Container(
-                                height: 20,
-                              )
-                            : Container(
-                                alignment: Alignment.topLeft,
-                                child: Text(
-                                  entry.price == null
-                                      ? 'Rp. 0.00'
-                                      : _numberFormat
-                                          .format(double.parse(entry.price)),
-                                  style: TextStyle(
-                                      decoration: TextDecoration.lineThrough,
-                                      color: Colors.grey[400],
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold),
-                                  textAlign: TextAlign.left,
-                                ),
-                                height: 20,
-                              ),
-                        entry.diskon == null
-                            ? Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Expanded(
-                                    flex: 5,
-                                    child: Text(
-                                      entry.price == null
-                                          ? 'Rp. 0.00'
-                                          : _numberFormat.format(
-                                              double.parse(entry.price)),
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
-                                          color: Colors.deepOrange),
-                                      textAlign: TextAlign.left,
+                        Positioned(
+                          bottom: 0.0,
+                          right: 0.0,
+                          left: 0.0,
+                          child: Column(
+                            children: <Widget>[
+                              entry.diskon == null
+                                  ? Container(
+                                      height: 20,
+                                    )
+                                  : Container(
+                                      alignment: Alignment.topLeft,
+                                      child: Text(
+                                        entry.price == null
+                                            ? 'Rp. 0.00'
+                                            : _numberFormat.format(
+                                                double.parse(entry.price)),
+                                        style: TextStyle(
+                                            decoration:
+                                                TextDecoration.lineThrough,
+                                            color: Colors.grey[400],
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold),
+                                        textAlign: TextAlign.left,
+                                      ),
+                                      height: 20,
                                     ),
-                                  ),
-                                  Expanded(
-                                    flex: 5,
-                                    child: Text(
-                                      entry.tipe,
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
-                                          color: Colors.green),
-                                      textAlign: TextAlign.right,
+                              entry.diskon == null
+                                  ? Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: <Widget>[
+                                        Expanded(
+                                          flex: 5,
+                                          child: Text(
+                                            entry.price == null
+                                                ? 'Rp. 0.00'
+                                                : _numberFormat.format(
+                                                    double.parse(entry.price)),
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                                color: Colors.deepOrange),
+                                            textAlign: TextAlign.left,
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 5,
+                                          child: Text(
+                                            entry.tipe,
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                                color: Colors.green),
+                                            textAlign: TextAlign.right,
+                                          ),
+                                        )
+                                      ],
+                                    )
+                                  : Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: <Widget>[
+                                        Expanded(
+                                          flex: 5,
+                                          child: Text(
+                                            entry.diskon == null
+                                                ? 'Rp. 0.00'
+                                                : _numberFormat.format(
+                                                    double.parse(entry.diskon)),
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                                color: Colors.deepOrange),
+                                            textAlign: TextAlign.left,
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 5,
+                                          child: Text(
+                                            entry.tipe,
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                                color: Colors.green),
+                                            textAlign: TextAlign.right,
+                                          ),
+                                        )
+                                      ],
                                     ),
-                                  )
-                                ],
-                              )
-                            : Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Expanded(
-                                    flex: 5,
-                                    child: Text(
-                                      entry.diskon == null
-                                          ? 'Rp. 0.00'
-                                          : _numberFormat.format(
-                                              double.parse(entry.diskon)),
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
-                                          color: Colors.deepOrange),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 5,
-                                    child: Text(
-                                      entry.tipe,
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
-                                          color: Colors.green),
-                                      textAlign: TextAlign.right,
-                                    ),
-                                  )
-                                ],
-                              ),
+                            ],
+                          ),
+                        )
                       ],
                     ),
                   ),
-                )
+                ),
               ],
             ),
           ),
