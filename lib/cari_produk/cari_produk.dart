@@ -152,6 +152,10 @@ class _CariProdukState extends State<CariProduk> {
                   color: Colors.black,
                 ),
               ),
+              textInputAction: TextInputAction.search,
+              onSubmitted: (ini){
+                print('submitted $ini');
+              },
               onChanged: (ini) {
                 if (ini.length != 0) {
                   setState(() {
