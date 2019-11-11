@@ -181,11 +181,11 @@ class _CariProdukLebihDetailState extends State<CariProdukLebihDetail> {
                   ],
                 ),
                 // SizedBox(width: 15),
-                Padding(
-                  padding: EdgeInsets.only(right: 10.0, left: 10.0, top: 10.0),
+                Expanded(
                   child: Container(
-                    width: MediaQuery.of(context).size.width - 130,
-                    child: Column(
+                    margin:
+                        EdgeInsets.all(10.0),
+                    child: Stack(
                       children: <Widget>[
                         Container(
                           alignment: Alignment.topLeft,
@@ -200,95 +200,108 @@ class _CariProdukLebihDetailState extends State<CariProdukLebihDetail> {
                           // height: 60,
                           height: 60.0,
                         ),
-                        produk.hargaDiskon == null
-                            ? Container(
-                                height: 20,
-                              )
-                            : Container(
-                                alignment: Alignment.topLeft,
-                                child: Text(
-                                  produk.hargaProduk == null
-                                      ? 'Rp. 0.00'
-                                      : numberFormat.format(
-                                          double.parse(produk.hargaProduk),
+                        Positioned(
+                          right: 0.0,
+                          left: 0.0,
+                          bottom: 0.0,
+                          child: Column(
+                            children: <Widget>[
+                              produk.hargaDiskon == null
+                                  ? Container(
+                                      height: 20,
+                                    )
+                                  : Container(
+                                      alignment: Alignment.topLeft,
+                                      child: Text(
+                                        produk.hargaProduk == null
+                                            ? 'Rp. 0.00'
+                                            : numberFormat.format(
+                                                double.parse(
+                                                    produk.hargaProduk),
+                                              ),
+                                        style: TextStyle(
+                                            decoration:
+                                                TextDecoration.lineThrough,
+                                            color: Colors.grey[400],
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold),
+                                        textAlign: TextAlign.left,
+                                      ),
+                                      height: 20,
+                                    ),
+                              produk.hargaDiskon == null
+                                  ? Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: <Widget>[
+                                        Expanded(
+                                          flex: 5,
+                                          child: Text(
+                                            produk.hargaProduk == null
+                                                ? 'Rp. 0.00'
+                                                : numberFormat.format(
+                                                    double.parse(
+                                                        produk.hargaProduk),
+                                                  ),
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                                color: Colors.deepOrange),
+                                            textAlign: TextAlign.left,
+                                          ),
                                         ),
-                                  style: TextStyle(
-                                      decoration: TextDecoration.lineThrough,
-                                      color: Colors.grey[400],
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold),
-                                  textAlign: TextAlign.left,
-                                ),
-                                height: 20,
-                              ),
-                        produk.hargaDiskon == null
-                            ? Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Expanded(
-                                    flex: 5,
-                                    child: Text(
-                                      produk.hargaProduk == null
-                                          ? 'Rp. 0.00'
-                                          : numberFormat.format(
-                                              double.parse(produk.hargaProduk),
-                                            ),
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
-                                          color: Colors.deepOrange),
-                                      textAlign: TextAlign.left,
+                                        Expanded(
+                                          flex: 5,
+                                          child: Text(
+                                            produk.namaTipe,
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                                color: Colors.green),
+                                            textAlign: TextAlign.right,
+                                          ),
+                                        )
+                                      ],
+                                    )
+                                  : Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: <Widget>[
+                                        Expanded(
+                                          flex: 5,
+                                          child: Text(
+                                            produk.hargaDiskon == null
+                                                ? 'Rp. 0.00'
+                                                : numberFormat.format(
+                                                    double.parse(
+                                                        produk.hargaDiskon)),
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                                color: Colors.deepOrange),
+                                            textAlign: TextAlign.left,
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 5,
+                                          child: Text(
+                                            produk.namaTipe,
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                                color: Colors.green),
+                                            textAlign: TextAlign.right,
+                                          ),
+                                        )
+                                      ],
                                     ),
-                                  ),
-                                  Expanded(
-                                    flex: 5,
-                                    child: Text(
-                                      produk.namaTipe,
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
-                                          color: Colors.green),
-                                      textAlign: TextAlign.right,
-                                    ),
-                                  )
-                                ],
-                              )
-                            : Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Expanded(
-                                    flex: 5,
-                                    child: Text(
-                                      produk.hargaDiskon == null
-                                          ? 'Rp. 0.00'
-                                          : numberFormat.format(
-                                              double.parse(produk.hargaDiskon)),
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
-                                          color: Colors.deepOrange),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 5,
-                                    child: Text(
-                                      produk.namaTipe,
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
-                                          color: Colors.green),
-                                      textAlign: TextAlign.right,
-                                    ),
-                                  )
-                                ],
-                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),
-                )
+                ),
               ],
             ),
           ),
@@ -396,7 +409,7 @@ class _CariProdukLebihDetailState extends State<CariProdukLebihDetail> {
                   : 2,
           // mainAxisSpacing: 10.0,
           crossAxisSpacing: 5.0,
-          childAspectRatio: 0.6,
+          childAspectRatio: 1,
           itemBuilder: (BuildContext context, Produk produk, int i) {
             return produkCard(produk);
           },
@@ -405,7 +418,7 @@ class _CariProdukLebihDetailState extends State<CariProdukLebihDetail> {
           ),
           retryBuilder: (BuildContext context, Function onPress) {
             return ErrorCobalLagi(
-              onPress: onPress,
+              onPress: onPress(),
             );
           },
           noItemsFoundBuilder: (BuildContext context) {
