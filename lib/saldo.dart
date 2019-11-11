@@ -1,4 +1,29 @@
+import 'dart:convert';
+import 'package:intl/intl.dart';
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:wib_customer_app/env.dart';
+import 'package:wib_customer_app/storage/storage.dart';
+// import 'package:shimmer/shimmer.dart';
+// import 'dashboard.dart';
+import 'storage/storage.dart';
+
+
+String tokenType, accessToken;
+Map<String, String> requestHeaders = Map();
+List<History> history = [];
+
+class History{
+  final nota;
+  final saldo;
+  final note;
+  final type;
+  final tanggal;
+  final total;
+  
+  History({ Key key , this.nota , this.saldo , this.note , this.type, this.tanggal , this.total});
+}
 
 
 class Saldo extends StatefulWidget{
@@ -12,25 +37,85 @@ class Saldo extends StatefulWidget{
 }
 
 class _Saldo extends State<Saldo>{
+  var rupiah = new NumberFormat.simpleCurrency(decimalDigits: 2, name: 'Rp. ');
+  var _id;
+  var _user;
   final customer;
+  var total;
   _Saldo({Key key , this.customer});
+  
+  Future<List<History>> historyAndroid() async {
+
+    try {
+      var storage = new DataStore();
+      _id = await storage.getDataInteger("id");
+      _user = await storage.getDataString("username");
+      var tokenTypeStorage = await storage.getDataString('token_type');
+      var accessTokenStorage = await storage.getDataString('access_token');
+
+      tokenType = tokenTypeStorage;
+      accessToken = accessTokenStorage;
+      requestHeaders['Accept'] = 'application/json';
+      requestHeaders['Authorization'] = '$tokenType $accessToken';
+
+      final getHistory = await http.post(
+        url('api/detail_saldo_android'),
+        body : {'member' : _id.toString()},
+        headers: requestHeaders,
+      );
+      
+      if (getHistory.statusCode == 200) {
+        // return nota;
+        var getHistoryJson = json.decode(getHistory.body);
+        // var getHistorys = getHistoryJson['getHistory'];
+        double saldototal = double.parse(getHistoryJson[0]['hsm_total']);
+        var parserupiah = rupiah.format(saldototal);
+        total = parserupiah;
+      print(total);
+        history = [];
+        for (var i in getHistoryJson) {
+          History getHistoryx = History(
+            nota: i['hsm_nota'],
+            saldo: rupiah.format(double.parse(i['hsm_changesaldo'])).toString(),
+            note: i['hsm_note'],
+            type : i['hsm_type'],
+            tanggal : i['hsm_date'],
+            total : i['hsm_total'],
+          );
+          history.add(getHistoryx);
+        }
+        return history;
+      } else {
+        return null;
+      }
+    } on TimeoutException catch (_) {} catch (e) {
+      debugPrint('$e');
+    }
+    return null;
+  }
 
   @override
+
+  void initState() {
+    historyAndroid();
+    super.initState();
+  }
+
   Widget build(BuildContext context) {
     return SafeArea(
         child: Column(
           children: <Widget>[
               Container(
               margin: EdgeInsets.only(top: 20, bottom: 15),
-              width: 130,
-              height: 130,
+              width: MediaQuery.of(context).size.height * 0.15,
+              height: MediaQuery.of(context).size.height * 0.15,
               child: CircleAvatar(
                 backgroundImage: AssetImage('images/jisoocu.jpg'),
               ),
             ),
 
             Text(
-              'Faizal Triswanto',
+              _user != '' || _user != null ? _user.toString() : 'Anda Belum Login'  ,
               style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
@@ -46,7 +131,7 @@ class _Saldo extends State<Saldo>{
                   Icons.attach_money,
                 ),
 
-                Text('Rp. 200,000.00')
+                Text(total.toString())
               ],
             ),
 
@@ -70,40 +155,90 @@ class _Saldo extends State<Saldo>{
                     ),
                     
                   ),
-
+  
                   Container(
-                    height: MediaQuery.of(context).size.height * 0.60,
+                    height: MediaQuery.of(context).size.height * 0.50,
                     child: Scrollbar(
-                      child: ListView.builder(
-                        itemCount: 10,
-                        itemBuilder: (BuildContext context, int index) {
-                          return Card(
-                            child : ListTile(
-                            contentPadding: EdgeInsets.symmetric(horizontal: 20.0,vertical: 10.0),
-                            leading: Container(
-                              height: 70,
-                              padding : EdgeInsets.only(right:12),
-                              decoration: new BoxDecoration(
-                                border: new Border(
-                                  right: new BorderSide(width: 1 , color:Colors.black87 ))),
-                                  child: Icon(
-                                    Icons.attach_money , color: Colors.black87,),
-                            ),
-
-                            title: Text(
-                              "Rp. 200,000.00",
-                              style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
-                            ),
-
-                            subtitle: Row(
+                      child: FutureBuilder(
+                        future: historyAndroid(),
+                        builder: (BuildContext context, AsyncSnapshot snapshot){
+                          switch (snapshot.connectionState){
+                    case ConnectionState.none:
+                    return ListTile(
+                      title: Text('Tekan Tombol Mulai'),
+                    );
+                    case ConnectionState.active:
+                    case ConnectionState.waiting:
+                    case ConnectionState.done:
+                      if(snapshot.hasError){
+                        return Text('Error: ${snapshot.error}');
+                      }
+                      
+                      if(snapshot.data == null ||
+                          snapshot.data == 0 ||
+                          snapshot.data.length == null ||
+                          snapshot.data.length == 0) {
+                            return ListView(
                               children: <Widget>[
-                                Text("23 Mei 2019 - Kembalian Ongkir", style: TextStyle(color: Colors.black87))
+                                ListTile(
+                                  title: Text('Tidak Ada Data',textAlign: TextAlign.center,),
+                                )
                               ],
-                            ),
-                            ),
+                            );
+                          }else if(snapshot.data != null || snapshot.data != 0){
+                            return ListView.builder(
+                            itemCount: snapshot.data.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return Card(
+                                child : ListTile(
+
+                                contentPadding: EdgeInsets.symmetric(horizontal: 20.0,vertical: 5.0),
+                                leading: Container(
+                                  height: MediaQuery.of(context).size.height * 0.06,
+                                  padding : EdgeInsets.only(right:12),
+                                  decoration: new BoxDecoration(
+                                    border: new Border(
+                                      right: new BorderSide(width: 1 , color:Colors.black87 ))),
+                                      child: Icon(
+                                        Icons.attach_money , color: Colors.black87,),
+                                ),
+
+                                title: Text(
+                                  snapshot.data[index].type == 'K'  ?  ' - '+snapshot.data[index].saldo : ' + '+snapshot.data[index].saldo,
+                                  style: TextStyle(fontSize: 13.0,color: Colors.black87, fontWeight: FontWeight.bold),
+                                ),
+
+                                subtitle: Container(
+                                  width: MediaQuery.of(context).size.width * 0.8,
+                                  height: MediaQuery.of(context).size.height * 0.06,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Text(snapshot.data[index].tanggal != '' ? snapshot.data[index].tanggal : '', 
+                                        style: TextStyle(
+                                          fontSize: 11.0,
+                                          color: Colors.black87),
+                                        textAlign: TextAlign.left,
+                                        ),
+
+                                        Text(snapshot.data[index].note != '' ? snapshot.data[index].note : '', 
+                                        style: TextStyle(
+                                          fontSize: 11.0,
+                                          color: Colors.black87),
+                                        textAlign: TextAlign.left,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
                           );
-                        },
-                      ),           
+                          }
+                        }
+                            return null;
+                        }
+                      )           
                     ),
                   ),
                 ],

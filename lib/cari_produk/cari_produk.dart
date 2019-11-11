@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:autocomplete_textfield/autocomplete_textfield.dart';
+// import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:wib_customer_app/env.dart';
@@ -20,9 +20,9 @@ GlobalKey<ScaffoldState> _scaffoldKeyProduk;
 
 FocusNode cariFocus;
 TextEditingController cariController;
-AutoCompleteTextField autoCompleteProdukField;
+// AutoCompleteTextField autoCompleteProdukField;
 
-GlobalKey<AutoCompleteTextFieldState<String>> autoCompleteKey;
+// GlobalKey<AutoCompleteTextFieldState<String>> autoCompleteKey;
 FocusNode _autoCompleteProdukFokus;
 
 showInSnackBarProduk(String content) {
@@ -196,35 +196,35 @@ class _CariProdukState extends State<CariProduk> {
           iconTheme: IconThemeData(
             color: Colors.black,
           ),
-          title: autoCompleteProdukField = AutoCompleteTextField<String>(
-            focusNode: _autoCompleteProdukFokus,
-            suggestions: listProdukAutoComplete,
-            key: autoCompleteKey,
-            submitOnSuggestionTap: true,
-            clearOnSubmit: false,
-            itemBuilder: (context, suggestion) => Container(
-                padding: EdgeInsets.all(7.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Text(
-                      suggestion,
-                      style: TextStyle(
-                        fontSize: 18.0,
-                      ),
-                    ),
-                  ],
-                )),
-            itemFilter: (suggestion, input) =>
-                suggestion.toLowerCase().startsWith(input.toLowerCase()),
-            itemSorter: (a, b) {
-              return a.compareTo(b);
-            },
-            itemSubmitted: (iniVal) {},
-            decoration: InputDecoration(
-              hintText: 'Pilih Produk',
-            ),
-          ),
+          // title: autoCompleteProdukField = AutoCompleteTextField<String>(
+          //   focusNode: _autoCompleteProdukFokus,
+          //   suggestions: listProdukAutoComplete,
+          //   key: autoCompleteKey,
+          //   submitOnSuggestionTap: true,
+          //   clearOnSubmit: false,
+          //   itemBuilder: (context, suggestion) => Container(
+          //       padding: EdgeInsets.all(7.0),
+          //       child: Row(
+          //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //         children: <Widget>[
+          //           Text(
+          //             suggestion,
+          //             style: TextStyle(
+          //               fontSize: 18.0,
+          //             ),
+          //           ),
+          //         ],
+          //       )),
+          //   itemFilter: (suggestion, input) =>
+          //       suggestion.toLowerCase().startsWith(input.toLowerCase()),
+          //   itemSorter: (a, b) {
+          //     return a.compareTo(b);
+          //   },
+          //   itemSubmitted: (iniVal) {},
+          //   decoration: InputDecoration(
+          //     hintText: 'Pilih Produk',
+          //   ),
+          // ),
           actions: <Widget>[
             IconButton(
               onPressed: () {

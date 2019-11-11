@@ -22,6 +22,7 @@ String tokenType, accessToken;
 Map<String, String> requestHeaders = Map();
 List<ListBanner> listBanner = [];
 bool isLoading;
+int PAGE_SIZE = 6;
 
 ScrollController scrollController = ScrollController(initialScrollOffset: 0.0);
 
@@ -38,7 +39,6 @@ class _DashboardPageState extends State<DashboardPage>
     with SingleTickerProviderStateMixin {
   TabController tabController;
   Color _isPressed = Colors.grey;
-  int PAGE_SIZE = 6;
 
   var scaffoldKey = GlobalKey<ScaffoldState>();
   PageController pageController;
@@ -995,7 +995,7 @@ class BackendService {
     var accessTokenStorage = await storage.getDataString('access_token');
 
     final responseBody = await http.get(
-        url('api/produk_beranda_android?_limit=$limit'),
+        url('api/produk_beranda_android?_limit=$limit&count=$index'),
         headers: {"Authorization": "$tokenTypeStorage $accessTokenStorage"});
 
     var data = json.decode(responseBody.body);
@@ -1016,7 +1016,6 @@ class BackendService {
 
     var data = json.decode(responseBody.body);
     var product = data['itemslider'];
-    print('bbb');
 
     return RecomendationModel.fromJsonList(product);
   }

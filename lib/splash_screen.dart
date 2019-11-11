@@ -16,7 +16,6 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<Null> getSharedPrefs() async {
     DataStore dataStore = new DataStore();
     _username = await dataStore.getDataString("username");
-    print(_username);
 
     if (_username == 'Tidak ditemukan') {
       Timer(Duration(seconds: 2),
