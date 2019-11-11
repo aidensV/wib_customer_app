@@ -47,7 +47,7 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider<ShopBloc>(
         builder: (context) => ShopBloc(),
         child: MaterialApp(
-          title: "Warung Islami Bogor",
+          title: "Warung Islami Bogor Shop",
           home: new SplashScreen(),
           // this below syntax how you set default font for apps
           // Remember to add font first in pubspec.yaml

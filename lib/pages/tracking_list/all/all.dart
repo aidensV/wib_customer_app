@@ -3,6 +3,7 @@ import 'detail.dart';
 import 'package:wib_customer_app/storage/storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:wib_customer_app/env.dart';
+import 'package:intl/intl.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -49,8 +50,9 @@ Future<List<ListNota>> listNotaAndroid() async {
       print('listnota $listNota');
       print('listnota length ${listNota.length}');
       return listNota;
-    } else {
-//      showInSnackBar('Request failed with status: ${nota.statusCode}');
+    } else if(nota.statusCode == 500) {
+     showInSnackBar('Request failed with status: ${nota.statusCode}');
+     print(nota.body);
       return null;
     }
   } on TimeoutException catch (_) {
@@ -115,15 +117,11 @@ class _AllNotaState extends State<AllNota> {
 
     var tokenTypeStorage = await storage.getDataString('token_type');
     var accessTokenStorage = await storage.getDataString('access_token');
-
-    setState(() {
       tokenType = tokenTypeStorage;
       accessToken = accessTokenStorage;
-
       requestHeaders['Accept'] = 'application/json';
       requestHeaders['Authorization'] = '$tokenType $accessToken';
       print(requestHeaders);
-    });
   }
 
   int totalRefresh = 0;
@@ -183,11 +181,14 @@ class _AllNotaState extends State<AllNota> {
                     return ListView.builder(
                       itemCount: snapshot.data.length,
                       itemBuilder: (BuildContext context, int index) {
+                          double totalpembelian = double.parse(snapshot.data[index].total);
+                          NumberFormat _numberFormat = new NumberFormat.simpleCurrency(decimalDigits: 2, name: 'Rp. ');
+                          String hargaTotal = _numberFormat.format(totalpembelian);
                         return Container(
                           color: Colors.white,
                           child: ListTile(
                             title: Text(snapshot.data[index].nota),
-                            subtitle: Text("Rp." + snapshot.data[index].total),
+                            subtitle: Text(hargaTotal),
                             trailing: statusNota(
                                 snapshot.data[index].statusDeliver,
                                 snapshot.data[index].statusPacking,

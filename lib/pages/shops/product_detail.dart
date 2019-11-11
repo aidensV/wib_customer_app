@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 // import 'package:wib_customer_app/pages/wishlist/wishlist.dart';
 import 'package:wib_customer_app/storage/storage.dart';
+import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:wib_customer_app/env.dart';
 import 'dart:async';
@@ -40,6 +41,9 @@ class ProductDetailState extends State<ProductDetail> {
     Key key,
   });
   int _current = 0;
+
+  
+  
   TextEditingController controllerfile = new TextEditingController();
   Future<List<ListKeranjang>> getHeaderHTTP() async {
     var storage = new DataStore();
@@ -168,6 +172,9 @@ class ProductDetailState extends State<ProductDetail> {
   }
 
   Widget build(BuildContext context) {
+    double hargaperitem = double.parse(priceX);
+    NumberFormat _numberFormat = new NumberFormat.simpleCurrency(decimalDigits: 2, name: 'Rp. ');
+    String finalharganormalitem = _numberFormat.format(hargaperitem);
     return Scaffold(
       key: _scaffoldKeyD,
       backgroundColor: Colors.white,
@@ -426,8 +433,7 @@ class ProductDetailState extends State<ProductDetail> {
                         flex: 3,
                         child: Row(
                           children: <Widget>[
-                            Text(
-                              'Rp. ' + priceX,
+                            Text(priceX == null ? 'Rp. 0.00' : finalharganormalitem,
                               style: TextStyle(
                                   color: Colors.green,
                                   fontWeight: FontWeight.bold,
@@ -464,12 +470,12 @@ class ProductDetailState extends State<ProductDetail> {
                                               wishlistX = codeX;
                                             });
                                             showInSnackBar(
-                                                'Berhasil ditambahkan ke barang favorit');
+                                                '$itemX Berhasil ditambahkan ke barang favorit');
                                           } else if (aksiwishlistJson[
                                                   'status'] ==
                                               'hapuswishlist') {
                                             showInSnackBar(
-                                                'Berhasil dihapus dari barang favorit');
+                                                '$itemX Berhasil dihapus dari barang favorit');
                                             setState(() {
                                               isWishlist = false;
                                               wishlistX = null;
@@ -518,15 +524,15 @@ class ProductDetailState extends State<ProductDetail> {
                                                 json.decode(adcart.body);
                                             if (addcartJson['done'] == 'done') {
                                               showInSnackBar(
-                                                  'Berhasil Memasukkan barang ke keranjang');
+                                                  '$itemX berhasil dimasukkan ke keranjang');
                                             } else if (addcartJson['error'] ==
                                                 'stock') {
                                               showInSnackBar(
-                                                  'Stock Gudang tersisa ${addcartJson['stock']}');
+                                                  'Stock $itemX tersisa ${addcartJson['stock']}');
                                             } else if (addcartJson['error'] ==
                                                 'error') {
                                               showInSnackBar(
-                                                  'Barang sudah ada dikeranjang');
+                                                  '$itemX sudah ada dikeranjang');
                                             }
                                           } else {
                                             print('${adcart.body}');

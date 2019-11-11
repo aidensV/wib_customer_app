@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:wib_customer_app/env.dart';
 import 'dart:async';
 import 'dart:convert';
-import '../../utils/Navigator.dart';
+import 'package:intl/intl.dart';
 
 GlobalKey<ScaffoldState> _scaffoldKeyX = new GlobalKey<ScaffoldState>();
 List<ListKeranjang> listNota = [];
@@ -199,6 +199,18 @@ class _KeranjangState extends State<Keranjang> {
                               padding: EdgeInsets.all(5.0),
                               itemCount: listNota.length,
                               itemBuilder: (BuildContext context, int index) {
+                                double totalperitem =
+                                    double.parse(listNota[index].total);
+                                double hargaperitem =
+                                    double.parse(listNota[index].harga);
+                                NumberFormat _numberFormat =
+                                    new NumberFormat.simpleCurrency(
+                                        decimalDigits: 2, name: 'Rp. ');
+                                String finaltotalitem =
+                                    _numberFormat.format(totalperitem);
+                                String finalhargaperitem =
+                                    _numberFormat.format(hargaperitem);
+
                                 return Card(
                                   child: Column(
                                     children: <Widget>[
@@ -220,9 +232,7 @@ class _KeranjangState extends State<Keranjang> {
                                                   padding:
                                                       const EdgeInsets.only(
                                                           left: 5.0),
-                                                  child: Text(
-                                                      "Rp. " +
-                                                          listNota[index].total,
+                                                  child: Text(listNota[index].total == null ? 'Rp. 0.00' : finaltotalitem,
                                                       style: TextStyle(
                                                         color: Colors.green,
                                                       )),
@@ -389,10 +399,7 @@ class _KeranjangState extends State<Keranjang> {
                                                   Container(
                                                     child: Row(
                                                       children: <Widget>[
-                                                        Text(
-                                                            "Rp. " +
-                                                                listNota[index]
-                                                                    .harga,
+                                                        Text(listNota[index].harga == null ? 'Rp. 0.00' : finalhargaperitem,
                                                             style: TextStyle(
                                                                 color: Colors
                                                                     .black)),
@@ -599,7 +606,11 @@ class _KeranjangState extends State<Keranjang> {
                       if (tambahqty.statusCode == 200) {
                         var tambahqtyJson = json.decode(tambahqty.body);
                         if (tambahqtyJson['status'] == 'Success') {
-                          MyNavigator.goCheckout(context);
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Checkout(),
+                              ));
                         } else if (tambahqtyJson['status'] == 'Error') {
                           showInSnackBar('Gagal! Hubungi pengembang software!');
                         } else if (tambahqtyJson['status'] == 'Kosong') {

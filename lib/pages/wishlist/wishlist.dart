@@ -3,6 +3,7 @@ import 'package:wib_customer_app/storage/storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:wib_customer_app/env.dart';
 import 'dart:async';
+import 'package:intl/intl.dart';
 import 'dart:convert';
 
 GlobalKey<ScaffoldState> _scaffoldKeyX = new GlobalKey<ScaffoldState>();
@@ -167,6 +168,10 @@ class _WishlistState extends State<Wishlist> {
                       return ListView.builder(
                         itemCount: snapshot.data.length,
                         itemBuilder: (BuildContext context, int index) {
+                          double hargaperitem = double.parse(snapshot.data[index].harga);
+                          NumberFormat _numberFormat = new NumberFormat.simpleCurrency( decimalDigits: 2, name: 'Rp. ');
+                          String finalhargaperitem = _numberFormat.format(hargaperitem);
+
                           return Card(
                             color: Colors.white,
                             child: ListTile(
@@ -197,7 +202,7 @@ class _WishlistState extends State<Wishlist> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: <Widget>[
-                                    Text("Rp. " + snapshot.data[index].harga,
+                                    Text(snapshot.data[index].harga == null ? 'Rp. 0.00' : finalhargaperitem,
                                         style: TextStyle(color: Colors.black)),
                                     Padding(
                                       padding: const EdgeInsets.only(left: 0.0),

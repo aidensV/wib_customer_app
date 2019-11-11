@@ -136,7 +136,7 @@ class _DashboardView extends State<DashboardView>{
    });
  }
 
- Future<String> dataProfile() async{
+ Future<void> dataProfile() async{
     var storage = new DataStore();
 
     usernameprofile = await storage.getDataString("username");
@@ -150,7 +150,7 @@ class _DashboardView extends State<DashboardView>{
   String _username;
   String usernameprofile, emailprofile, imageprofile;
 
-  Future<Null> RemoveSharedPrefs() async {
+  Future<Null> removeSharedPrefs() async {
     DataStore dataStore = new DataStore();
     dataStore.clearData();
     _username = await dataStore.getDataString("username");
@@ -254,7 +254,7 @@ class _DashboardView extends State<DashboardView>{
                     ),
                   ),
                   onTap: () {
-                    RemoveSharedPrefs();
+                    removeSharedPrefs();
                     Navigator.pushReplacementNamed(context, "/login");
                   },
                 ),

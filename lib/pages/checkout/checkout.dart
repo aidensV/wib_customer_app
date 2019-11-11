@@ -11,21 +11,22 @@ import 'listkabupaten.dart';
 import 'listkecamatan.dart';
 import 'listprovinsi.dart';
 import 'model.dart';
+import 'package:intl/intl.dart';
 
 List<ListCheckout> listNota = [];
 String tokenType,
     accessToken,
     checkboxnoongkir,
     checkboxongkirsaldo,
-    checkboxtotalsaldo,
-    hargatotalX;
+    checkboxtotalsaldo;
+var _scaffoldKeyX;
 Map<String, String> requestHeaders = Map();
-GlobalKey<ScaffoldState> _scaffoldKeyX = new GlobalKey<ScaffoldState>();
 bool isLoading;
 Map<String, dynamic> formSerialize;
 ListProvinsi selectedProvinsi;
 ListKabupaten selectedKabupaten;
 ListKecamatan selectedkecamatan;
+String hargatotalX;
 
 class Checkout extends StatefulWidget {
   Checkout({
@@ -66,46 +67,14 @@ class _CheckoutState extends State<Checkout> {
     requestHeaders['Accept'] = 'application/json';
     requestHeaders['Authorization'] = '$tokenType $accessToken';
     print(requestHeaders);
+
+    return listNotaAndroid();
   }
 
   void showInSnackBar(String value) {
     _scaffoldKeyX.currentState
         .showSnackBar(new SnackBar(content: new Text(value)));
   }
-
-  Future<void> hargabarang() async {
-    setState(() {
-      isLoading = true;
-    });
-
-    try {
-      final hargatotal =
-          await http.get(url('api/get_totalharga'), headers: requestHeaders);
-      if (hargatotal.statusCode == 200) {
-        var hargatotalJson = json.decode(hargatotal.body);
-        var resulthargatotal = hargatotalJson['totalharga'].toString();
-        setState(() {
-          isLoading = false;
-          hargatotalX = resulthargatotal;
-        });
-      } else if (hargatotal.statusCode == 500) {
-        setState(() {
-          isLoading = false;
-        });
-        showInSnackBar('Request failed with status: ${hargatotal.body}');
-      } else {
-        setState(() {
-          isLoading = false;
-        });
-      }
-    } catch (e) {
-      debugPrint('$e');
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
-
   Future<List<ListCheckout>> listNotaAndroid() async {
     setState(() {
       isLoading = true;
@@ -120,9 +89,10 @@ class _CheckoutState extends State<Checkout> {
         // return nota;
         var notaJson = json.decode(nota.body);
         var notas = notaJson['item'];
+        var totalharga = notaJson['totalharga'].toString();
 
         print('notaJson $notaJson');
-
+        print('harga seluruh $totalharga');
         listNota = [];
         for (var i in notas) {
           ListCheckout notax = ListCheckout(
@@ -143,6 +113,7 @@ class _CheckoutState extends State<Checkout> {
         print('listnota $listNota');
         print('listnota length ${listNota.length}');
         setState(() {
+          hargatotalX = totalharga;
           isLoading = false;
         });
         return listNota;
@@ -180,6 +151,7 @@ class _CheckoutState extends State<Checkout> {
   @override
   void initState() {
     getHeaderHTTP();
+    _scaffoldKeyX = new GlobalKey<ScaffoldState>();
     isLoading = false;
     checkboxnoongkir = 'aktif';
     checkboxongkirsaldo = 'aktif';
@@ -187,9 +159,8 @@ class _CheckoutState extends State<Checkout> {
     selectedProvinsi = null;
     selectedKabupaten = null;
     selectedkecamatan = null;
-    hargatotalX = null;
-    listNotaAndroid();
-    hargabarang();
+    hargatotalX = '0.00';
+    // hargabarang();
     print(requestHeaders);
     super.initState();
   }
@@ -326,13 +297,6 @@ class _CheckoutState extends State<Checkout> {
   bool _bayarongkirsaldo = false;
 
   //we omitted the brackets '{}' and are using fat arrow '=>' instead, this is dart syntax
-  void _value1Changed(bool value) => setState(() => _value1 = value);
-  void _value2Changed(bool value) => setState(
-        () => _value2 = value,
-      );
-  void _bayarongkirsaldoChanged(bool value) => setState(
-        () => _bayarongkirsaldo = value,
-      );
 
   void _showMaterialDialogKecamatan() {
     showDialog(
@@ -359,6 +323,8 @@ class _CheckoutState extends State<Checkout> {
 
   @override
   Widget build(BuildContext context) {
+    NumberFormat _numberFormat =
+        new NumberFormat.simpleCurrency(decimalDigits: 2, name: 'Rp. ');
     return Scaffold(
       key: _scaffoldKeyX,
       backgroundColor: Colors.white,
@@ -485,7 +451,8 @@ class _CheckoutState extends State<Checkout> {
                 ),
                 Expanded(
                   flex: 5,
-                  child: Text("Rp." + hargatotalX,
+                  child: Text(
+                      hargatotalX == null ? 'Rp. 0' : 'Rp. $hargatotalX',
                       textAlign: TextAlign.end,
                       style: TextStyle(color: Colors.green)),
                 ),
@@ -625,7 +592,7 @@ class _CheckoutState extends State<Checkout> {
                                       Padding(
                                         padding:
                                             const EdgeInsets.only(left: 5.0),
-                                        child: Text("Rp. " + '${item.total}',
+                                        child: Text(item.total == null ? 'Rp. 0.00' : _numberFormat.format(double.parse(item.total)),
                                             style: TextStyle(
                                               color: Colors.green,
                                             )),
@@ -675,7 +642,7 @@ class _CheckoutState extends State<Checkout> {
                                         Container(
                                           child: Row(
                                             children: <Widget>[
-                                              Text("Rp. " + '${item.harga}',
+                                              Text(item.harga == null ? 'Rp. 0.00' : _numberFormat.format(double.parse(item.harga)),
                                                   style: TextStyle(
                                                       color: Colors.black)),
                                               Padding(

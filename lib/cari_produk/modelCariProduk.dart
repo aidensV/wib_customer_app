@@ -3,13 +3,19 @@ class Produk {
       kodeProduk,
       linkProduk,
       namaProduk,
+      deskripsiProduk,
+      wishlist,
       idTipe,
       namaTipe,
       hargaProduk,
+      gambar,
       hargaDiskon;
 
   Produk({
+    this.deskripsiProduk,
+    this.gambar,
     this.idProduk,
+    this.wishlist,
     this.namaProduk,
     this.hargaDiskon,
     this.hargaProduk,

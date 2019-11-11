@@ -1,14 +1,15 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_image/network.dart';
-import 'package:provider/provider.dart';
+// import 'package:provider/provider.dart';
 import 'package:wib_customer_app/cari_produk/cari_produk.dart';
+import 'package:wib_customer_app/pages/shopping_cart/shoppingcart.dart';
+import 'package:wib_customer_app/pages/wishlist/wishlist.dart';
 import 'utils/Navigator.dart';
 import 'package:wib_customer_app/storage/storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'utils/utils.dart';
-// import 'utils/items.dart';
-import 'pages/shops/bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:http/http.dart' as http;
 import 'package:wib_customer_app/env.dart';
@@ -30,6 +31,16 @@ bool isScrolled;
 int red, green, blue;
 double opacity, maxOffsetToColor;
 
+GlobalKey<ScaffoldState> _scaffoldKeyDashboard;
+
+showInSnackBarDashboard(String content) {
+  _scaffoldKeyDashboard.currentState.showSnackBar(
+    SnackBar(
+      content: Text(content),
+    ),
+  );
+}
+
 class DashboardPage extends StatefulWidget {
   @override
   _DashboardPageState createState() => _DashboardPageState();
@@ -40,13 +51,12 @@ class _DashboardPageState extends State<DashboardPage>
   TabController tabController;
   Color _isPressed = Colors.grey;
 
-  var scaffoldKey = GlobalKey<ScaffoldState>();
   PageController pageController;
 
   String _username;
   String usernameprofile, emailprofile, imageprofile;
 
-  Future<Null> RemoveSharedPrefs() async {
+  Future<Null> removeSharedPrefs() async {
     DataStore dataStore = new DataStore();
     dataStore.clearData();
     _username = await dataStore.getDataString("username");
@@ -71,9 +81,12 @@ class _DashboardPageState extends State<DashboardPage>
         url('api/listKategoriAndroid'),
         headers: requestHeaders,
       );
-      this.setState(() {
-        category = json.decode(response.body);
-      });
+
+      if (response.statusCode == 200) {
+        this.setState(() {
+          category = json.decode(response.body);
+        });
+      } else if (response.statusCode == 401) {}
 
       print(category[1]["ity_code"]);
 
@@ -129,11 +142,15 @@ class _DashboardPageState extends State<DashboardPage>
           isLoading = false;
         });
         return listBanner;
+      } else if (banner.statusCode == 401) {
+        showInSnackBarProduk('Token kedaluwarsa, silahkan login kembali');
       } else {
-        return null;
+        showInSnackBarProduk('Error Code : ${banner.statusCode}');
       }
-    } on TimeoutException catch (_) {} catch (e) {
-      debugPrint('$e');
+    } on TimeoutException catch (_) {
+      showInSnackBarProduk('Request Timeout, try again');
+    } catch (e) {
+      print('Error : $e');
     }
     return null;
   }
@@ -157,72 +174,9 @@ class _DashboardPageState extends State<DashboardPage>
     });
   }
 
-  Decoration appBarDecoration() {
-    if (isScrolled) {
-      return BoxDecoration(
-        boxShadow: [
-          BoxShadow(
-            color: Color.fromRGBO(70, 70, 70, 0.7),
-            offset: Offset(0.0, 3.0),
-            blurRadius: 7.0,
-          ),
-        ],
-      );
-    }
-    return null;
-  }
-
-  scrollEvent() {
-    // print(scrollController.offset);
-    if (scrollController.offset == 0) {
-      maxOffsetToColor = 0;
-      setState(() {
-        red = 255;
-        green = 255;
-        blue = 255;
-
-        opacity = 0.0;
-      });
-    } else if (scrollController.offset + 100 > 255) {
-      if (maxOffsetToColor == 0 &&
-          maxOffsetToColor != scrollController.offset + 100) {
-        maxOffsetToColor = scrollController.offset;
-        setState(() {
-          red = 0;
-          green = 0;
-          blue = 0;
-
-          opacity = 1.0;
-        });
-      }
-    } else if (scrollController.offset < 255 && scrollController.offset > 0) {
-      if (scrollController.offset > 150) {
-        setState(() {
-          isScrolled = true;
-        });
-      } else if (scrollController.offset < 150) {
-        setState(() {
-          isScrolled = false;
-        });
-      }
-
-      setState(() {
-        red = 255 - scrollController.offset.round();
-        green = 255 - scrollController.offset.round();
-        blue = 255 - scrollController.offset.round();
-
-        opacity = (scrollController.offset.round()) / 255;
-      });
-    }
-
-    // print('Red $red');
-    // print('green $green');
-    // print('blue $blue');
-    // print('opacity $opacity');
-  }
-
   @override
   void initState() {
+    _scaffoldKeyDashboard = GlobalKey<ScaffoldState>();
     listBannerAndroid();
     scrollController = ScrollController(initialScrollOffset: 0.0);
     isScrolled = false;
@@ -231,7 +185,6 @@ class _DashboardPageState extends State<DashboardPage>
     blue = 255;
     opacity = 0.0;
     maxOffsetToColor = 0.0;
-    scrollController.addListener(scrollEvent);
     tabController = TabController(vsync: this, length: 4);
     getCategory();
     isLoading = false;
@@ -249,375 +202,407 @@ class _DashboardPageState extends State<DashboardPage>
 
   @override
   Widget build(BuildContext context) {
-    var bloc = Provider.of<ShopBloc>(context);
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-          backgroundColor: Colors.white,
-          key: scaffoldKey,
-          drawer: Drawer(
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: <Widget>[
-                // Profil Drawer Here
-                UserAccountsDrawerHeader(
-                  // Below this my gf name :))))), jk
-                  accountName: Text(usernameprofile == null
-                      ? 'Nama Lengkap'
-                      : usernameprofile),
-                  accountEmail:
-                      Text(emailprofile == null ? 'Email Anda' : emailprofile),
-                  // This how you set profil image in sidebar
-                  // Remeber to add image first in pubspec.yaml
-                  currentAccountPicture: CircleAvatar(
-                    backgroundImage: imageprofile != null
-                        ? AssetImage('images/jisoocu.jpg')
-                        : AssetImage('images/jisoocu.jpg'),
-                  ),
-                  // This how you set color in top of sidebar
-                  decoration: BoxDecoration(
-                    color: Color(0xff31B057),
+        backgroundColor: Colors.white,
+        key: _scaffoldKeyDashboard,
+        drawer: Drawer(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: <Widget>[
+              // Profil Drawer Here
+              UserAccountsDrawerHeader(
+                // Below this my gf name :))))), jk
+                accountName: Text(
+                    usernameprofile == null ? 'Nama Lengkap' : usernameprofile),
+                accountEmail:
+                    Text(emailprofile == null ? 'Email Anda' : emailprofile),
+                // This how you set profil image in sidebar
+                // Remeber to add image first in pubspec.yaml
+                currentAccountPicture: CircleAvatar(
+                  backgroundImage: imageprofile != null
+                      ? AssetImage('images/jisoocu.jpg')
+                      : AssetImage('images/jisoocu.jpg'),
+                ),
+                // This how you set color in top of sidebar
+                decoration: BoxDecoration(
+                  color: Color(0xff31B057),
+                ),
+              ),
+              //  Menu Section Here
+              ListTile(
+                title: Text(
+                  'Tracking',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    fontFamily: 'Roboto',
+                    color: Color(0xff25282b),
                   ),
                 ),
-                //  Menu Section Here
-                ListTile(
-                  title: Text(
-                    'Tracking',
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      fontFamily: 'Roboto',
-                      color: Color(0xff25282b),
-                    ),
+                onTap: () {
+                  Navigator.pushNamed(context, "/tracking_list");
+                },
+              ),
+              ListTile(
+                title: Text(
+                  'Repeat Order',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    fontFamily: 'Roboto',
+                    color: Color(0xff25282b),
                   ),
-                  onTap: () {
-                    Navigator.pushNamed(context, "/tracking_list");
-                  },
                 ),
-                ListTile(
-                  title: Text(
-                    'Repeat Order',
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      fontFamily: 'Roboto',
-                      color: Color(0xff25282b),
-                    ),
+                onTap: () {
+                  MyNavigator.goToRepeatOrder(context);
+                },
+              ),
+              ListTile(
+                title: Text(
+                  'Shop',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    fontFamily: 'Roboto',
+                    color: Color(0xff25282b),
                   ),
-                  onTap: () {
-                    MyNavigator.goToRepeatOrder(context);
-                  },
                 ),
-                ListTile(
-                  title: Text(
-                    'Shop',
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      fontFamily: 'Roboto',
-                      color: Color(0xff25282b),
-                    ),
+                onTap: () {
+                  Navigator.pushNamed(context, "/home");
+                },
+              ),
+              ListTile(
+                title: Text(
+                  'Test',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    fontFamily: 'Roboto',
+                    color: Color(0xff25282b),
                   ),
-                  onTap: () {
-                    Navigator.pushNamed(context, "/home");
-                  },
                 ),
-                ListTile(
-                  title: Text(
-                    'Test',
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      fontFamily: 'Roboto',
-                      color: Color(0xff25282b),
-                    ),
+                onTap: () {
+                  Navigator.pushNamed(context, "/test");
+                },
+              ),
+              ListTile(
+                title: Text(
+                  'Logout',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    fontFamily: 'Roboto',
+                    color: Color(0xff25282b),
                   ),
-                  onTap: () {
-                    Navigator.pushNamed(context, "/test");
-                  },
                 ),
-                ListTile(
-                  title: Text(
-                    'Logout',
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      fontFamily: 'Roboto',
-                      color: Color(0xff25282b),
-                    ),
-                  ),
-                  onTap: () {
-                    RemoveSharedPrefs();
-                    Navigator.pushReplacementNamed(context, "/login");
-                  },
-                ),
-              ],
-            ),
+                onTap: () {
+                  removeSharedPrefs();
+                  Navigator.pushReplacementNamed(context, "/login");
+                },
+              ),
+            ],
           ),
-          // Body Section Here
-          body: SafeArea(
-            child: Stack(
-              children: <Widget>[
-                RefreshIndicator(
-                  onRefresh: () => refreshFunction(),
-                  child: ListView(
-                    controller: scrollController,
-                    children: <Widget>[
-                      Stack(
-                        children: <Widget>[
-                          Container(
-                            height: 150.0,
-                            decoration: BoxDecoration(
-                              image: DecorationImage(
-                                image: AssetImage("images/background.png"),
-                                fit: BoxFit.cover,
-                              ),
+        ),
+        // Body Section Here
+        body: SafeArea(
+          child: Stack(
+            children: <Widget>[
+              RefreshIndicator(
+                onRefresh: () => refreshFunction(),
+                child: ListView(
+                  controller: scrollController,
+                  children: <Widget>[
+                    Stack(
+                      children: <Widget>[
+                        Container(
+                          height: 150.0,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: AssetImage("images/background.png"),
+                              fit: BoxFit.cover,
                             ),
                           ),
-                          isLoading == true
-                              ? Center(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(top: 100.0),
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                )
-                              : Padding(
-                                  padding: EdgeInsets.only(top: 70.0),
-                                  child: carouselSlider = CarouselSlider(
-                                    height: 100.0,
-                                    initialPage: 0,
-                                    enlargeCenterPage: true,
-                                    autoPlay: true,
-                                    reverse: false,
-                                    enableInfiniteScroll: true,
-                                    autoPlayInterval: Duration(seconds: 5),
-                                    autoPlayAnimationDuration:
-                                        Duration(milliseconds: 2000),
-                                    pauseAutoPlayOnTouch: Duration(seconds: 10),
-                                    scrollDirection: Axis.horizontal,
-                                    onPageChanged: (index) {
-                                      setState(() {
-                                        _current = index;
-                                      });
-                                    },
-                                    items: <Widget>[
-                                      for (var i = 0;
-                                          i < listBanner.length;
-                                          i++)
-                                        Container(
-                                          width:
-                                              MediaQuery.of(context).size.width,
-                                          margin: EdgeInsets.symmetric(
-                                              horizontal: 5.0),
-                                          decoration: BoxDecoration(
-                                            image: DecorationImage(
-                                              image: NetworkImageWithRetry(urladmin(
-                                                  'storage/image/master/banner/${listBanner[i].banner}')),
-                                              fit: BoxFit.fitHeight,
-                                            ),
+                        ),
+                        isLoading == true
+                            ? Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(top: 100.0),
+                                  child: CircularProgressIndicator(),
+                                ),
+                              )
+                            : Padding(
+                                padding: EdgeInsets.only(top: 70.0),
+                                child: carouselSlider = CarouselSlider(
+                                  height: 100.0,
+                                  initialPage: 0,
+                                  enlargeCenterPage: true,
+                                  autoPlay: true,
+                                  reverse: false,
+                                  enableInfiniteScroll: true,
+                                  autoPlayInterval: Duration(seconds: 5),
+                                  autoPlayAnimationDuration:
+                                      Duration(milliseconds: 2000),
+                                  pauseAutoPlayOnTouch: Duration(seconds: 10),
+                                  scrollDirection: Axis.horizontal,
+                                  onPageChanged: (index) {
+                                    setState(() {
+                                      _current = index;
+                                    });
+                                  },
+                                  items: <Widget>[
+                                    for (var i = 0; i < listBanner.length; i++)
+                                      Container(
+                                        width:
+                                            MediaQuery.of(context).size.width,
+                                        margin: EdgeInsets.symmetric(
+                                            horizontal: 5.0),
+                                        decoration: BoxDecoration(
+                                          image: DecorationImage(
+                                            image: NetworkImageWithRetry(urladmin(
+                                                'storage/image/master/banner/${listBanner[i].banner}')),
+                                            fit: BoxFit.fitHeight,
                                           ),
                                         ),
-                                    ],
-                                  ),
+                                      ),
+                                  ],
                                 ),
+                              ),
+                        Padding(
+                          padding: EdgeInsets.only(left: 38.0, top: 158.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: map<Widget>(imgList, (index, url) {
+                              return Container(
+                                width: 8.0,
+                                height: 8.0,
+                                margin: EdgeInsets.symmetric(
+                                    vertical: 10.0, horizontal: 2.0),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: _current == index
+                                      ? Colors.yellowAccent
+                                      : Colors.grey[300],
+                                ),
+                              );
+                            }),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Padding(
+                      padding:
+                          EdgeInsets.only(left: 20.0, right: 20.0, top: 25.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Text(
+                            "Rekomendasi Produk",
+                            style:
+                                TextStyle(fontSize: 21.0, fontFamily: 'Roboto'),
+                          ),
+                          Text(
+                            "Lihat Semua",
+                            style: TextStyle(
+                                fontSize: 16.0,
+                                fontFamily: 'Roboto',
+                                color: Color(0xff31B057)),
+                          )
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: EdgeInsets.only(top: 10, left: 20, bottom: 10.0),
+                      height: 225,
+                      // decoration: BoxDecoration(
+                      //   gradient: LinearGradient(
+                      //     begin: Alignment.topCenter,
+                      //     end: Alignment.bottomCenter,
+                      //     stops: [0.1, 0.4, 0.6, 0.9],
+                      //     colors: [
+                      //       Colors.white,
+                      //       Colors.white,
+                      //       Colors.white,
+                      //       Colors.grey[100]
+                      //     ],
+                      //   ),
+                      // ),
+                      width: MediaQuery.of(context).size.width,
+                      child: PagewiseListView(
+                        pageSize: 4,
+                        padding: EdgeInsets.all(2.0),
+                        scrollDirection: Axis.horizontal,
+                        primary: false,
+                        itemBuilder: this._recItemBuilder,
+                        pageFuture: (pageIndex) =>
+                            BackendService.getDataRecom(pageIndex, 4),
+                      ),
+                    ),
+                    Container(
+                      // color: Colors.grey[100],
+                      child: Column(
+                        children: <Widget>[
                           Padding(
-                            padding: EdgeInsets.only(left: 38.0, top: 158.0),
+                            padding: EdgeInsets.only(
+                                left: 20.0, right: 20.0, top: 25.0),
                             child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: map<Widget>(imgList, (index, url) {
-                                return Container(
-                                  width: 8.0,
-                                  height: 8.0,
-                                  margin: EdgeInsets.symmetric(
-                                      vertical: 10.0, horizontal: 2.0),
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: _current == index
-                                        ? Colors.yellowAccent
-                                        : Colors.grey[300],
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Text(
+                                  "Belanja Sekarang!",
+                                  style: TextStyle(
+                                      fontSize: 21.0, fontFamily: 'Roboto'),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            padding: EdgeInsets.only(
+                                top: 10, left: 20, bottom: 10.0),
+                            height: 50.0,
+                            width: MediaQuery.of(context).size.width,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              primary: false,
+                              itemCount: category == null ? 0 : category.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(
+                                      right: 10, bottom: 5.0),
+                                  child: Container(
+                                    height: 50.0,
+                                    child: RaisedButton(
+                                      color: Colors.transparent,
+                                      elevation: 0.0,
+                                      highlightColor: Colors.transparent,
+                                      highlightElevation: 0.0,
+                                      onPressed: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  CategoryItem(
+                                                id: category[index]["ity_id"]
+                                                    .toString(),
+                                                category: category[index]
+                                                    ["ity_name"],
+                                                category_id: category[index]
+                                                        ["ity_code"]
+                                                    .toString(),
+                                              ),
+                                            ));
+                                      },
+                                      child: Text(
+                                        category[index]["ity_name"],
+                                        style:
+                                            TextStyle(color: Color(0xff31B057)),
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              new BorderRadius.circular(18.0),
+                                          side: BorderSide(
+                                              color: Color(0xff31B057))),
+                                    ),
                                   ),
                                 );
-                              }),
+                              },
                             ),
+                          ),
+                          PagewiseGridView.count(
+                            pageSize: pageSize,
+                            primary: false,
+                            physics: NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            crossAxisCount:
+                                MediaQuery.of(context).orientation ==
+                                        Orientation.landscape
+                                    ? 3
+                                    : 2,
+                            // mainAxisSpacing: 10.0,
+                            crossAxisSpacing: 5.0,
+                            childAspectRatio: 0.6,
+                            itemBuilder: this._itemBuilder,
+                            pageFuture: (pageIndex) =>
+                                BackendService.getData(pageIndex, pageSize),
                           ),
                         ],
                       ),
-                      Padding(
-                        padding:
-                            EdgeInsets.only(left: 20.0, right: 20.0, top: 25.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text(
-                              "Rekomendasi Produk",
-                              style: TextStyle(
-                                  fontSize: 21.0, fontFamily: 'Roboto'),
-                            ),
-                            Text(
-                              "Lihat Semua",
-                              style: TextStyle(
-                                  fontSize: 16.0,
-                                  fontFamily: 'Roboto',
-                                  color: Color(0xff31B057)),
-                            )
-                          ],
-                        ),
-                      ),
-                      Container(
-                        padding:
-                            EdgeInsets.only(top: 10, left: 20, bottom: 10.0),
-                        height: 200,
-                        decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                stops: [
-                              0.1,
-                              0.4,
-                              0.6,
-                              0.9
-                            ],
-                                colors: [
-                              Colors.white,
-                              Colors.white,
-                              Colors.white,
-                              Colors.grey[100]
-                            ])),
-                        width: MediaQuery.of(context).size.width,
-                        child: PagewiseListView(
-                          pageSize: 4,
-                          padding: EdgeInsets.all(2.0),
-                          scrollDirection: Axis.horizontal,
-                          primary: false,
-                          itemBuilder: this._recItemBuilder,
-                          pageFuture: (pageIndex) =>
-                              BackendService.getDataRecom(pageIndex, 4),
-                        ),
-                      ),
-                      Container(
-                        color: Colors.grey[100],
-                        child: Column(
-                          children: <Widget>[
-                            Padding(
-                              padding: EdgeInsets.only(
-                                  left: 20.0, right: 20.0, top: 25.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    "Belanja Sekarang!",
-                                    style: TextStyle(
-                                        fontSize: 21.0, fontFamily: 'Roboto'),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              padding: EdgeInsets.only(
-                                  top: 10, left: 20, bottom: 10.0),
-                              height: 50.0,
-                              width: MediaQuery.of(context).size.width,
-                              child: ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                primary: false,
-                                itemCount:
-                                    category == null ? 0 : category.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  return Padding(
-                                    padding: const EdgeInsets.only(
-                                        right: 10, bottom: 5.0),
-                                    child: Container(
-                                      height: 50.0,
-                                      child: RaisedButton(
-                                        color: Colors.transparent,
-                                        elevation: 0.0,
-                                        highlightColor: Colors.transparent,
-                                        highlightElevation: 0.0,
-                                        onPressed: () {
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    CategoryItem(
-                                                  id: category[index]["ity_id"]
-                                                      .toString(),
-                                                  category: category[index]
-                                                      ["ity_name"],
-                                                  category_id: category[index]
-                                                          ["ity_code"]
-                                                      .toString(),
-                                                ),
-                                              ));
-                                        },
-                                        child: Text(
-                                          category[index]["ity_name"],
-                                          style: TextStyle(
-                                              color: Color(0xff31B057)),
-                                        ),
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                new BorderRadius.circular(18.0),
-                                            side: BorderSide(
-                                                color: Color(0xff31B057))),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                            PagewiseGridView.count(
-                              pageSize: PAGE_SIZE,
-                              primary: false,
-                              physics: NeverScrollableScrollPhysics(),
-                              shrinkWrap: true,
-                              crossAxisCount: 2,
-                              // mainAxisSpacing: 10.0,
-                              crossAxisSpacing: 5.0,
-                              childAspectRatio: 0.6,
-                              itemBuilder: this._itemBuilder,
-                              pageFuture: (pageIndex) =>
-                                  BackendService.getData(pageIndex, PAGE_SIZE),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                Positioned(
-                  // top: 10.0,
-                  child: Container(
-                    decoration: appBarDecoration(),
-                    height: 55.0,
-                    child: AppBar(
-                      backgroundColor: Color.fromRGBO(255, 255, 255, opacity),
-                      iconTheme: IconThemeData(
-                          color: Color.fromRGBO(red, green, blue, 1)),
-                      textTheme: TextTheme(
+              ),
+              Positioned(
+                // top: 10.0,
+                child: AnimatedBuilder(
+                  animation: scrollController,
+                  builder: (BuildContext context, Widget child) {
+                    if (scrollController.offset < 1) {
+                      maxOffsetToColor = 0;
+
+                      red = 255;
+                      green = 255;
+                      blue = 255;
+
+                      opacity = 0.0;
+                    } else if (scrollController.offset + 100 > 255) {
+                      if (maxOffsetToColor == 0 &&
+                          maxOffsetToColor != scrollController.offset) {
+                        maxOffsetToColor = scrollController.offset;
+
+                        if (scrollController.offset + 100 > 250) {
+                          if (isScrolled == false) {
+                            isScrolled = true;
+                          }
+                        } else if (scrollController.offset + 100 < 250) {
+                          if (isScrolled == true) {
+                            isScrolled = false;
+                          }
+                        }
+
+                        red = 0;
+                        green = 0;
+                        blue = 0;
+
+                        opacity = 1.0;
+                      }
+                    } else if (scrollController.offset < 255 &&
+                        scrollController.offset > 0) {
+                      if (scrollController.offset > 250) {
+                        if (isScrolled == false) {
+                          isScrolled = true;
+                        }
+                      } else if (scrollController.offset < 250) {
+                        if (isScrolled == true) {
+                          isScrolled = false;
+                        }
+                      }
+
+                      red = 255 - scrollController.offset.round();
+                      green = 255 - scrollController.offset.round();
+                      blue = 255 - scrollController.offset.round();
+
+                      opacity = (scrollController.offset.round()) / 255;
+                    }
+
+                    return Container(
+                      decoration: isScrolled
+                          ? BoxDecoration(
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Color.fromRGBO(70, 70, 70, 0.7),
+                                  offset: Offset(0.0, 0.0),
+                                  blurRadius: 4.0,
+                                ),
+                              ],
+                            )
+                          : null,
+                      height: 55.0,
+                      child: AppBar(
+                        backgroundColor: Color.fromRGBO(255, 255, 255, opacity),
+                        iconTheme: IconThemeData(
+                            color: Color.fromRGBO(red, green, blue, 1)),
+                        textTheme: TextTheme(
                           title: TextStyle(
-                        color: Colors.white,
-                      )),
-                      title: Container(
-                        height: 40.0,
-                        width: 220.0,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.9),
-                          borderRadius: BorderRadius.only(
-                            bottomRight: Radius.circular(5.0),
-                            bottomLeft: Radius.circular(5.0),
-                            topRight: Radius.circular(5.0),
-                            topLeft: Radius.circular(5.0),
+                            color: Colors.white,
                           ),
                         ),
-                        child: TextField(
-                          style: TextStyle(fontFamily: 'Roboto'),
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            contentPadding: EdgeInsets.only(top: 11.0),
-                            hintText: "Cari Sekarang!",
-                            hintStyle: TextStyle(fontFamily: 'Roboto'),
-                            prefixIcon: Icon(
-                              CupertinoIcons.search,
-                              color: HexColor('#7f8c8d'),
-                            ),
-                          ),
+                        title: InkWell(
                           onTap: () {
                             Navigator.push(
                               context,
@@ -627,132 +612,427 @@ class _DashboardPageState extends State<DashboardPage>
                               ),
                             );
                           },
+                          child: Container(
+                            height: 40.0,
+                            width: 220.0,
+                            decoration: BoxDecoration(
+                              color: isScrolled
+                                  ? Colors.grey[100].withOpacity(0.7)
+                                  : Colors.white.withOpacity(0.9),
+                              borderRadius: BorderRadius.only(
+                                bottomRight: Radius.circular(5.0),
+                                bottomLeft: Radius.circular(5.0),
+                                topRight: Radius.circular(5.0),
+                                topLeft: Radius.circular(5.0),
+                              ),
+                            ),
+                            alignment: Alignment.center,
+                            child: Center(
+                              child: Row(
+                                // mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  Container(
+                                    width: 40.0,
+                                    height: 40.0,
+                                    child: Icon(
+                                      CupertinoIcons.search,
+                                      color: HexColor('#7f8c8d'),
+                                    ),
+                                  ),
+                                  Container(
+                                    child: Text(
+                                      "Cari Sekarang!",
+                                      style: TextStyle(
+                                        fontFamily: 'Roboto',
+                                        color: isScrolled
+                                            ? Colors.black
+                                            : Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                         ),
+                        elevation: 0.0,
+                        actions: <Widget>[
+                          IconButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  settings: RouteSettings(
+                                    name: '/wishlist',
+                                  ),
+                                  builder: (BuildContext context) => Wishlist(),
+                                ),
+                              );
+                            },
+                            icon: Icon(Icons.favorite),
+                            // color: Colors.white,
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  settings: RouteSettings(
+                                    name: '/keranjangbelanja',
+                                  ),
+                                  builder: (BuildContext context) =>
+                                      Keranjang(),
+                                ),
+                              );
+                            },
+                            icon: Icon(Icons.shopping_cart),
+                            // color: Colors.white,
+                          ),
+                        ],
                       ),
-                      elevation: 0.0,
-                      actions: <Widget>[
-                        IconButton(
-                          onPressed: () {
-                            MyNavigator.goWishlist(context);
-                          },
-                          icon: Icon(Icons.favorite),
-                          // color: Colors.white,
-                        ),
-                        IconButton(
-                          onPressed: () {
-                            MyNavigator.goKeranjang(context);
-                          },
-                          icon: Icon(Icons.shopping_cart),
-                          // color: Colors.white,
-                        ),
-                      ],
-                    ),
-                  ),
+                    );
+                  },
                 ),
-              ],
-            ),
-          ),
-          bottomNavigationBar: BottomNavigationBar(
-            type: BottomNavigationBarType.shifting,
-            unselectedItemColor: Colors.grey,
-            selectedItemColor: Color(0xff31B057),
-            items: [
-              BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.home,
-                ),
-                title: new Text('Shop'),
               ),
-              BottomNavigationBarItem(
-                  icon: Icon(
-                    Icons.attach_money,
-                  ),
-                  title: new Text('Saldo')),
-              // BottomNavigationBarItem(
-              //     icon: Icon(
-              //       Icons.map,
-              //     ),
-              //     title: new Text('Tracking')),
-              BottomNavigationBarItem(
-                  icon: Icon(
-                    Icons.person,
-                  ),
-                  title: new Text('Profile'))
             ],
-          )),
+          ),
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          unselectedItemColor: Colors.grey,
+          selectedItemColor: Color(0xff31B057),
+          items: [
+            BottomNavigationBarItem(
+              icon: Icon(
+                Icons.home,
+              ),
+              title: new Text('Shop'),
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(
+                Icons.attach_money,
+              ),
+              title: new Text('Saldo'),
+            ),
+            // BottomNavigationBarItem(
+            //     icon: Icon(
+            //       Icons.map,
+            //     ),
+            //     title: new Text('Tracking')),
+            BottomNavigationBarItem(
+              icon: Icon(
+                Icons.person,
+              ),
+              title: new Text('Profile'),
+            )
+          ],
+        ),
+      ),
     );
   }
 
   Widget _recItemBuilder(context, RecomendationModel entry, _) {
-    return Container(
-      width: MediaQuery.of(context).size.width / 2,
-      // elevation: 0.0,
-      child: InkWell(
-//                      color: Colors.green,
-          child: Card(
-            child: Column(
-              children: <Widget>[
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(0),
-                  child: Image.network(
-                    entry.gambar != null
-                        ? urladmin(
-                            'storage/image/master/produk/${entry.gambar}',
-                          )
-                        : url(
-                            'assets/img/noimage.jpg',
-                          ),
-                    fit: BoxFit.cover,
-                    height: 130.0,
-                    width: MediaQuery.of(context).size.width,
+    NumberFormat _numberFormat =
+        new NumberFormat.simpleCurrency(decimalDigits: 2, name: 'Rp. ');
+    return InkWell(
+      child: Container(
+        height: 200,
+        width: MediaQuery.of(context).orientation == Orientation.portrait
+            ? MediaQuery.of(context).size.width / 2
+            : MediaQuery.of(context).size.width / 3,
+        margin: EdgeInsets.all(5.0),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(
+            width: 1.0,
+            color: Colors.grey[300],
+          ),
+          boxShadow: <BoxShadow>[
+            BoxShadow(
+              blurRadius: 4.0,
+              color: Colors.grey[300],
+              offset: Offset(0.0, 0.3),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            ClipRRect(
+              borderRadius: BorderRadius.circular(0),
+              child: Image.network(
+                entry.gambar != null
+                    ? urladmin(
+                        'storage/image/master/produk/${entry.gambar}',
+                      )
+                    : url(
+                        'assets/img/noimage.jpg',
+                      ),
+                fit: BoxFit.cover,
+                height: 130.0,
+                width: MediaQuery.of(context).size.width,
+              ),
+            ),
+            // SizedBox(height: 7),
+            Padding(
+              padding: EdgeInsets.only(left: 5.0, right: 5.0, top: 10.0),
+              child: Row(
+                children: <Widget>[
+                  Text(
+                    entry.item,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
                   ),
-                ),
-                // SizedBox(height: 7),
-                Padding(
-                  padding: EdgeInsets.only(left: 5.0, right: 5.0, top: 10.0),
-                  child: Row(
-                    children: <Widget>[
-                      Text(entry.item,
-                          style: TextStyle(
-                            color: Colors.black,
+                ],
+              ),
+            ),
+
+            IntrinsicHeight(
+              child: Padding(
+                padding: EdgeInsets.only(left: 5.0, right: 5.0),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      flex: 5,
+                      child: Text(
+                        entry.price == null
+                            ? 'Rp. 0.00'
+                            : _numberFormat.format(double.parse(entry.price)),
+                        style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 13,
-                          )),
-                    ],
-                  ),
-                ),
-
-                Padding(
-                  padding: EdgeInsets.only(left: 5.0, right: 5.0),
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                        flex: 5,
-                        child: Text(
-                          "Rp." + entry.price,
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
-                              color: Colors.deepOrange),
-                          maxLines: 1,
-                          textAlign: TextAlign.left,
-                        ),
+                            color: Colors.deepOrange),
+                        maxLines: 1,
+                        textAlign: TextAlign.left,
                       ),
-                      Expanded(
-                        flex: 5,
-                        child: Text(
-                          entry.tipe,
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
-                              color: Colors.green),
-                          maxLines: 1,
-                          textAlign: TextAlign.right,
-                        ),
-                      )
-                    ],
-                  ),
+                    ),
+                    Expanded(
+                      flex: 5,
+                      child: Text(
+                        entry.tipe,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                            color: Colors.green),
+                        maxLines: 1,
+                        textAlign: TextAlign.right,
+                      ),
+                    )
+                  ],
                 ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProductDetail(
+              item: entry.item,
+              price: entry.price,
+              code: entry.code,
+              diskon: entry.diskon,
+              desc: entry.desc,
+              tipe: entry.tipe,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _itemBuilder(context, ProductModel entry, _) {
+    NumberFormat _numberFormat =
+        new NumberFormat.simpleCurrency(decimalDigits: 2, name: 'Rp. ');
+    return Container(
+      child: new Card(
+        elevation: 1.5,
+        child: InkWell(
+          //   height: 250.0,
+          child: Container(
+            child: Column(
+              children: <Widget>[
+                Stack(
+                  children: <Widget>[
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(0.0),
+                      child: Image.network(
+                        entry.gambar != null
+                            ? urladmin(
+                                'storage/image/master/produk/${entry.gambar}',
+                              )
+                            : url(
+                                'assets/img/noimage.jpg',
+                              ),
+                        fit: BoxFit.cover,
+                        height: 150.0,
+                        width: MediaQuery.of(context).size.width,
+                      ),
+                    ),
+                    Positioned(
+                        top: 5.0,
+                        right: 5.0,
+                        child: Container(
+                          width: 35.0,
+                          height: 35.0,
+                          decoration: new BoxDecoration(
+                            color: Colors.grey[100],
+                            shape: BoxShape.circle,
+                          ),
+                          child: new IconButton(
+                            icon: Icon(
+                              Icons.favorite,
+                              size: 16,
+                              color: entry.wishlist == null
+                                  ? Colors.grey[400]
+                                  : Colors.pink,
+                            ),
+                            onPressed: () async {
+                              var idX = entry.code;
+                              // var color = entry.color;
+                              try {
+                                final hapuswishlist = await http.post(
+                                    url('api/ActionWishlistAndroid'),
+                                    headers: requestHeaders,
+                                    body: {'produk': idX});
+
+                                if (hapuswishlist.statusCode == 200) {
+                                  var hapuswishlistJson =
+                                      json.decode(hapuswishlist.body);
+                                  if (hapuswishlistJson['status'] ==
+                                      'tambahwishlist') {
+                                    setState(() {
+                                      entry.wishlist = entry.code;
+                                    });
+                                  } else if (hapuswishlistJson['status'] ==
+                                      'hapuswishlist') {
+                                    setState(() {
+                                      entry.wishlist = null;
+                                    });
+                                  }
+                                } else {
+                                  print('${hapuswishlist.body}');
+                                }
+                              } on TimeoutException catch (_) {} catch (e) {
+                                print(e);
+                              }
+                            },
+                          ),
+                        )),
+                  ],
+                ),
+                // SizedBox(width: 15),
+                Padding(
+                  padding: EdgeInsets.only(right: 10.0, left: 10.0, top: 10.0),
+                  child: Container(
+                    width: MediaQuery.of(context).size.width - 130,
+                    child: Column(
+                      children: <Widget>[
+                        Container(
+                          alignment: Alignment.topLeft,
+                          child: Text(
+                            entry.item,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 16,
+                            ),
+                            textAlign: TextAlign.left,
+                          ),
+                          // height: 60,
+                          height: 60.0,
+                        ),
+                        entry.diskon == null
+                            ? Container(
+                                height: 20,
+                              )
+                            : Container(
+                                alignment: Alignment.topLeft,
+                                child: Text(
+                                  entry.price == null
+                                      ? 'Rp. 0.00'
+                                      : _numberFormat
+                                          .format(double.parse(entry.price)),
+                                  style: TextStyle(
+                                      decoration: TextDecoration.lineThrough,
+                                      color: Colors.grey[400],
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold),
+                                  textAlign: TextAlign.left,
+                                ),
+                                height: 20,
+                              ),
+                        entry.diskon == null
+                            ? Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  Expanded(
+                                    flex: 5,
+                                    child: Text(
+                                      entry.price == null
+                                          ? 'Rp. 0.00'
+                                          : _numberFormat.format(
+                                              double.parse(entry.price)),
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                          color: Colors.deepOrange),
+                                      textAlign: TextAlign.left,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 5,
+                                    child: Text(
+                                      entry.tipe,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                          color: Colors.green),
+                                      textAlign: TextAlign.right,
+                                    ),
+                                  )
+                                ],
+                              )
+                            : Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  Expanded(
+                                    flex: 5,
+                                    child: Text(
+                                      entry.diskon == null
+                                          ? 'Rp. 0.00'
+                                          : _numberFormat.format(
+                                              double.parse(entry.diskon)),
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                          color: Colors.deepOrange),
+                                      textAlign: TextAlign.left,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 5,
+                                    child: Text(
+                                      entry.tipe,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                          color: Colors.green),
+                                      textAlign: TextAlign.right,
+                                    ),
+                                  )
+                                ],
+                              ),
+                      ],
+                    ),
+                  ),
+                )
               ],
             ),
           ),
@@ -770,219 +1050,9 @@ class _DashboardPageState extends State<DashboardPage>
                 ),
               ),
             );
-          }),
-    );
-  }
-
-  Widget _itemBuilder(context, ProductModel entry, _) {
-    return Stack(
-      children: <Widget>[
-        Positioned(
-          // child: Container(
-          child: Container(
-            child: new Card(
-              elevation: 1.5,
-              child: InkWell(
-                //   height: 250.0,
-                child: Container(
-                  child: Column(
-                    children: <Widget>[
-                      Stack(
-                        children: <Widget>[
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(0.0),
-                            child: Image.network(
-                              entry.gambar != null
-                                  ? urladmin(
-                                      'storage/image/master/produk/${entry.gambar}',
-                                    )
-                                  : url(
-                                      'assets/img/noimage.jpg',
-                                    ),
-                              fit: BoxFit.cover,
-                              height: 150.0,
-                              width: MediaQuery.of(context).size.width,
-                            ),
-                          ),
-                          Positioned(
-                              top: 5.0,
-                              right: 5.0,
-                              child: Container(
-                                width: 35.0,
-                                height: 35.0,
-                                decoration: new BoxDecoration(
-                                  color: Colors.grey[100],
-                                  shape: BoxShape.circle,
-                                ),
-                                child: new IconButton(
-                                  icon: Icon(
-                                    Icons.favorite,
-                                    size: 16,
-                                    color: entry.wishlist == null
-                                        ? Colors.grey[400]
-                                        : Colors.pink,
-                                  ),
-                                  onPressed: () async {
-                                    var idX = entry.code;
-                                    // var color = entry.color;
-                                    try {
-                                      final hapuswishlist = await http.post(
-                                          url('api/ActionWishlistAndroid'),
-                                          headers: requestHeaders,
-                                          body: {'produk': idX});
-
-                                      if (hapuswishlist.statusCode == 200) {
-                                        var hapuswishlistJson =
-                                            json.decode(hapuswishlist.body);
-                                        if (hapuswishlistJson['status'] ==
-                                            'tambahwishlist') {
-                                          setState(() {
-                                            entry.wishlist = entry.code;
-                                          });
-                                        } else if (hapuswishlistJson[
-                                                'status'] ==
-                                            'hapuswishlist') {
-                                          setState(() {
-                                            entry.wishlist = null;
-                                          });
-                                        }
-                                      } else {
-                                        print('${hapuswishlist.body}');
-                                      }
-                                    } on TimeoutException catch (_) {} catch (e) {
-                                      print(e);
-                                    }
-                                    setState(() {
-                                      _isPressed = Colors.pink[400];
-                                    });
-                                  },
-                                ),
-                              )),
-                        ],
-                      ),
-                      // SizedBox(width: 15),
-                      Padding(
-                        padding:
-                            EdgeInsets.only(right: 10.0, left: 10.0, top: 10.0),
-                        child: Container(
-                          width: MediaQuery.of(context).size.width - 130,
-                          child: Column(
-                            children: <Widget>[
-                              Container(
-                                alignment: Alignment.topLeft,
-                                child: Text(
-                                  entry.item,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 16,
-                                  ),
-                                  textAlign: TextAlign.left,
-                                ),
-                                // height: 60,
-                                height: 60.0,
-                              ),
-                              entry.diskon == null
-                                  ? Container(
-                                      // height: 20,
-                                      )
-                                  : Container(
-                                      alignment: Alignment.topLeft,
-                                      child: Text(
-                                        'Rp. ' + entry.price,
-                                        style: TextStyle(
-                                            decoration:
-                                                TextDecoration.lineThrough,
-                                            color: Colors.grey[400],
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold),
-                                        textAlign: TextAlign.left,
-                                      ),
-                                      // height: 20,
-                                    ),
-                              entry.diskon == null
-                                  ? Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: <Widget>[
-                                        Expanded(
-                                          flex: 5,
-                                          child: Text(
-                                            "Rp. " + entry.price,
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 14,
-                                                color: Colors.deepOrange),
-                                            textAlign: TextAlign.left,
-                                          ),
-                                        ),
-                                        Expanded(
-                                          flex: 5,
-                                          child: Text(
-                                            entry.tipe,
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 14,
-                                                color: Colors.green),
-                                            textAlign: TextAlign.right,
-                                          ),
-                                        )
-                                      ],
-                                    )
-                                  : Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: <Widget>[
-                                        Expanded(
-                                          flex: 5,
-                                          child: Text(
-                                            "Rp. " + entry.diskon,
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 14,
-                                                color: Colors.deepOrange),
-                                            textAlign: TextAlign.left,
-                                          ),
-                                        ),
-                                        Expanded(
-                                          flex: 5,
-                                          child: Text(
-                                            entry.tipe,
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 14,
-                                                color: Colors.green),
-                                            textAlign: TextAlign.right,
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                            ],
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ProductDetail(
-                        item: entry.item,
-                        price: entry.price,
-                        code: entry.code,
-                        diskon: entry.diskon,
-                        desc: entry.desc,
-                        tipe: entry.tipe,
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
+          },
         ),
-      ],
+      ),
     );
   }
 }
@@ -1006,6 +1076,8 @@ class BackendService {
 
   static Future<List<RecomendationModel>> getDataRecom(index, limit) async {
     var storage = new DataStore();
+
+    print('index $index');
 
     var tokenTypeStorage = await storage.getDataString('token_type');
     var accessTokenStorage = await storage.getDataString('access_token');
