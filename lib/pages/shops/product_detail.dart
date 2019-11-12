@@ -40,7 +40,7 @@ class ProductDetailState extends State<ProductDetail> {
   ProductDetailState({
     Key key,
   });
-  int _current = 0;
+  // int _current = 0;
 
   
   
@@ -222,9 +222,9 @@ class ProductDetailState extends State<ProductDetail> {
                         pauseAutoPlayOnTouch: Duration(seconds: 10),
                         scrollDirection: Axis.horizontal,
                         onPageChanged: (index) {
-                          setState(() {
-                            _current = index;
-                          });
+                          // setState(() {
+                          //   _current = index;
+                          // });
                         },
                         items: <Widget>[
                           for (var i = 0; i < listNota.length; i++)

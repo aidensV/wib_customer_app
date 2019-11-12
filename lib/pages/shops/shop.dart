@@ -21,25 +21,23 @@ class ShopPage extends StatefulWidget {
 class _ShopPageState extends State<ShopPage>
     with SingleTickerProviderStateMixin {
   Color _isPressed = Colors.grey;
-  int PAGE_SIZE = 4;
+  int pageSize = 4;
 
   var scaffoldKey = GlobalKey<ScaffoldState>();
   PageController pageController;
 
-  String _username;
   String _name;
   String _email;
 
   Future<Null> getSharedPrefs() async {
     DataStore dataStore = new DataStore();
-    _username = await dataStore.getDataString("username");
     _name = await dataStore.getDataString("name");
     _email = await dataStore.getDataString("email");
 
     print(_name);
   }
 
-  Future<Null> RemoveSharedPrefs() async {
+  Future<Null> removeSharedPrefs() async {
     DataStore dataStore = new DataStore();
     dataStore.clearData();
   }
@@ -150,7 +148,7 @@ class _ShopPageState extends State<ShopPage>
                     ),
                   ),
                   onTap: () {
-                    RemoveSharedPrefs();
+                    removeSharedPrefs();
                     Navigator.pushReplacementNamed(context, "/login");
                   },
                 ),
@@ -369,7 +367,7 @@ class _ShopPageState extends State<ShopPage>
                                             builder: (context) => CategoryItem(
                                               id: category[index]["ity_id"].toString(),
                                               category: category[index]["ity_name"],
-                                              category_id: category[index]["ity_code"].toString(),
+                                              categoryId: category[index]["ity_code"].toString(),
                                             ),
                                           )
                                       );
@@ -386,7 +384,7 @@ class _ShopPageState extends State<ShopPage>
                         ),
                       ),
                       PagewiseGridView.count(
-                        pageSize: PAGE_SIZE,
+                        pageSize: pageSize,
                         primary: false,
                         physics: NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
@@ -396,7 +394,7 @@ class _ShopPageState extends State<ShopPage>
                         childAspectRatio: 0.7,
                         itemBuilder: this._itemBuilder,
                         pageFuture: (pageIndex) =>
-                            BackendService.getData(pageIndex, PAGE_SIZE),
+                            BackendService.getData(pageIndex, pageSize),
                       ),
                     ],
                   ),
