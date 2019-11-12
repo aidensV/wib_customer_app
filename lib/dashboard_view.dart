@@ -16,7 +16,6 @@ import 'dart:io';
 String tokenType, accessToken;
 Map<String, String> requestHeaders = Map();
 List<ListBanner> listBanner = [];
-bool isLoading;
 List<ListHistory> listHistory = [];
   var dashboardViewKey = GlobalKey<ScaffoldState>();
 
@@ -43,7 +42,7 @@ class _DashboardView extends State<DashboardView>{
 
   int _currentIndex = 0;
   final List<Widget> _children = [
-    Saldo(),
+    DashboardPage(),
     Saldo(),
     Saldo(),
   ];

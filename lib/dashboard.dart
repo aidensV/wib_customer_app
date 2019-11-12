@@ -213,9 +213,7 @@ class _DashboardPageState extends State<DashboardPage>
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
+    return Scaffold(
         backgroundColor: Colors.white,
         key: _scaffoldKeyDashboard,
         drawer: Drawer(
@@ -738,7 +736,6 @@ class _DashboardPageState extends State<DashboardPage>
             )
           ],
         ),
-      ),
     );
   }
 
