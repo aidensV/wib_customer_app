@@ -1055,7 +1055,7 @@ class BackendService {
 
     var tokenTypeStorage = await storage.getDataString('token_type');
     var accessTokenStorage = await storage.getDataString('access_token');
-    var hitung = index + 1;
+    var hitung = index;
     print(hitung);
     print(limit);
     final responseBody = await http.get(
