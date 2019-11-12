@@ -43,6 +43,8 @@ class _AccountState extends State<Account> {
     _name = "";
     _email = "";
     getSharedPrefs();
+    
+    super.initState();
   }
 
   @override

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:wib_customer_app/notification_service/notification_service.dart';
 import 'package:wib_customer_app/pages/account/account.dart';
 import 'package:wib_customer_app/pages/account/setting.dart';
 
@@ -20,10 +22,8 @@ import 'pages/shops/detail.dart';
 import 'pages/profile/profile.dart';
 import 'pages/test/test.dart';
 
-
-
 // This route for identifi when you use navigator
-var routes = <String, WidgetBuilder>{
+Map<String, WidgetBuilder> routesX = <String, WidgetBuilder>{
   "/login": (BuildContext context) => LoginPage(),
   "/dashboard": (BuildContext context) => DashboardPage(),
   "/list_tracking" : (BuildContext context) => ListNotaTracking(),
@@ -38,13 +38,15 @@ var routes = <String, WidgetBuilder>{
   '/profile' : (BuildContext context) => ProfilePage(),
   '/account' : (BuildContext context) => Account(),
   '/settingprofile' : (BuildContext context) => SettingProfile(),
-
-
   "/test" : (BuildContext context) => TestCode()
 
 };
 
-void main() => runApp(MyApp());
+void main() {
+  flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
@@ -60,7 +62,7 @@ class MyApp extends StatelessWidget {
           theme: new ThemeData(fontFamily: 'Roboto'),
           debugShowCheckedModeBanner: false,
           // debungShowCheckedModeBanner: false, this syntax for remove dubugbanner on left top phone screem
-          routes: routes,
+          routes: routesX,
         ));
   }
 }
@@ -77,11 +79,7 @@ ThemeData buildDarkTheme() {
     hintColor: Color(0xff31B057),
     inputDecorationTheme: InputDecorationTheme(
       border: OutlineInputBorder(),
-      labelStyle: TextStyle(
-          color: Color(0xff25282b),
-          fontSize: 24.0
-      ),
+      labelStyle: TextStyle(color: Color(0xff25282b), fontSize: 24.0),
     ),
   );
 }
-
