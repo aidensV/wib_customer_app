@@ -202,9 +202,7 @@ int pageSize = 6;
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
+    return Scaffold(
         backgroundColor: Colors.white,
         key: _scaffoldKeyDashboard,
         drawer: Drawer(
@@ -697,38 +695,7 @@ int pageSize = 6;
             ],
           ),
         ),
-        bottomNavigationBar: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          unselectedItemColor: Colors.grey,
-          selectedItemColor: Color(0xff31B057),
-          items: [
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.home,
-              ),
-              title: new Text('Shop'),
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.attach_money,
-              ),
-              title: new Text('Saldo'),
-            ),
-            // BottomNavigationBarItem(
-            //     icon: Icon(
-            //       Icons.map,
-            //     ),
-            //     title: new Text('Tracking')),
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.person,
-              ),
-              title: new Text('Profile'),
-            )
-          ],
-        ),
-      ),
-    );
+      );
   }
 
   Widget _recItemBuilder(context, RecomendationModel entry, _) {
@@ -1063,9 +1030,7 @@ class BackendService {
 
     var tokenTypeStorage = await storage.getDataString('token_type');
     var accessTokenStorage = await storage.getDataString('access_token');
-    var hitung =index + 1;
-    print(hitung);
-    print(limit);
+    var hitung = index;
     final responseBody = await http.get(
         url('api/produk_beranda_android?_limit=$limit&count=$hitung'),
         headers: {"Authorization": "$tokenTypeStorage $accessTokenStorage"});
