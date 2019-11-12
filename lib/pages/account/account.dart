@@ -7,7 +7,7 @@ class Account extends StatefulWidget {
 }
 
 class _AccountState extends State<Account> {
-  TextEditingController _textEditingController;
+  // TextEditingController _textEditingController;
   String _username;
   String _name;
   String _email;
@@ -21,11 +21,11 @@ class _AccountState extends State<Account> {
     print(_username);
     print(_name);
     print(_email);
-    setState(() {
-      _textEditingController = new TextEditingController(text: _username);
-      _textEditingController = new TextEditingController(text: _name);
-      _textEditingController = new TextEditingController(text: _email);
-    });
+    // setState(() {
+    //   _textEditingController = new TextEditingController(text: _username);
+    //   _textEditingController = new TextEditingController(text: _name);
+    //   _textEditingController = new TextEditingController(text: _email);
+    // });
   }
 
   // Future<Null> RemoveSharedPrefs() async {
@@ -36,12 +36,12 @@ class _AccountState extends State<Account> {
   // }
 
   void initState() {
-    // TODO: implement initState
-    super.initState();
     _username = "";
     _name = "";
     _email = "";
     getSharedPrefs();
+    
+    super.initState();
   }
 
   @override
