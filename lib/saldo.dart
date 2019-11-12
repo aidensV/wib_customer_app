@@ -71,7 +71,6 @@ class _Saldo extends State<Saldo>{
         double saldototal = double.parse(getHistoryJson[0]['hsm_total']);
         var parserupiah = rupiah.format(saldototal);
         total = parserupiah;
-      print(total);
         history = [];
         for (var i in getHistoryJson) {
           History getHistoryx = History(
@@ -98,11 +97,14 @@ class _Saldo extends State<Saldo>{
 
   void initState() {
     historyAndroid();
+
+    if(total != null){
     super.initState();
+    }
   }
 
   Widget build(BuildContext context) {
-    return SafeArea(
+    return SingleChildScrollView(
         child: Column(
           children: <Widget>[
               Container(
@@ -115,7 +117,7 @@ class _Saldo extends State<Saldo>{
             ),
 
             Text(
-              _user != '' || _user != null ? _user.toString() : 'Anda Belum Login'  ,
+              _user != null ? _user.toString() : ''  ,
               style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
@@ -131,11 +133,11 @@ class _Saldo extends State<Saldo>{
                   Icons.attach_money,
                 ),
 
-                Text(total.toString())
+                Text(total != null ? total.toString() : '')
               ],
             ),
 
-            Scrollbar(
+            Center(
               child:Column(
                 children: <Widget>[
                   Container(

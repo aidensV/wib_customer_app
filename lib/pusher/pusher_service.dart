@@ -18,8 +18,8 @@ class PusherService {
       StreamController<String>();
   StreamController<String> eventDataPenjualanOffline =
       StreamController<String>();
-  Sink get _inEventData => eventDataPenjualanOnline.sink;
-  Sink get _inEventDataOff => eventDataPenjualanOffline.sink;
+  // Sink get _inEventData => eventDataPenjualanOnline.sink;
+  // Sink get _inEventDataOff => eventDataPenjualanOffline.sink;
   Stream get eventStream => eventDataPenjualanOnline.stream;
   Stream get eventStreamOff => eventDataPenjualanOffline.stream;
 

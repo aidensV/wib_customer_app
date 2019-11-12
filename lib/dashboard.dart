@@ -707,35 +707,6 @@ class _DashboardPageState extends State<DashboardPage>
             ],
           ),
         ),
-        bottomNavigationBar: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          unselectedItemColor: Colors.grey,
-          selectedItemColor: Color(0xff31B057),
-          onTap: (ini) {
-            if (ini == 2) {
-              MyNavigator.goAccount(context);
-            }
-          },
-          items: [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              title: new Text('Shop'),
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.attach_money),
-              title: new Text('Saldo'),
-            ),
-            // BottomNavigationBarItem(
-            //     icon: Icon(
-            //       Icons.map,
-            //     ),
-            //     title: new Text('Tracking')),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              title: new Text('Profile'),
-            )
-          ],
-        ),
     );
   }
 
