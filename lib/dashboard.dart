@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_image/network.dart';
 // import 'package:provider/provider.dart';
 import 'package:wib_customer_app/cari_produk/cari_produk.dart';
-import 'package:wib_customer_app/pages/shopping_cart/shoppingcart.dart';
-import 'package:wib_customer_app/pages/wishlist/wishlist.dart';
 import 'utils/Navigator.dart';
 import 'package:wib_customer_app/storage/storage.dart';
 import 'package:flutter/cupertino.dart';
@@ -46,7 +44,7 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   TabController tabController;
   int pageSize = 6;
 
@@ -391,6 +389,15 @@ class _DashboardPageState extends State<DashboardPage>
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
+                          ButtonTheme(
+                            minWidth: 0,
+                                                          height: 20.0,
+                                                          buttonColor:
+                                                              Color(0xff388bf2),
+                            child: FlatButton(
+                              
+                            onPressed: (){ MyNavigator.goWishlist(context);},
+                          ),),
                           Text(
                             "Rekomendasi Produk",
                             style:
@@ -443,6 +450,15 @@ class _DashboardPageState extends State<DashboardPage>
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: <Widget>[
+                                ButtonTheme(
+                            minWidth: 0,
+                                                          height: 20.0,
+                                                          buttonColor:
+                                                              Color(0xff388bf2),
+                            child: FlatButton(
+                              
+                            onPressed: (){ MyNavigator.goKeranjang(context);},
+                          ),),
                                 Text(
                                   "Belanja Sekarang!",
                                   style: TextStyle(
@@ -658,31 +674,14 @@ class _DashboardPageState extends State<DashboardPage>
                         actions: <Widget>[
                           IconButton(
                             onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  settings: RouteSettings(
-                                    name: '/wishlist',
-                                  ),
-                                  builder: (BuildContext context) => Wishlist(),
-                                ),
-                              );
+                              MyNavigator.goWishlist(context);
                             },
                             icon: Icon(Icons.favorite),
                             // color: Colors.white,
                           ),
                           IconButton(
                             onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  settings: RouteSettings(
-                                    name: '/keranjangbelanja',
-                                  ),
-                                  builder: (BuildContext context) =>
-                                      Keranjang(),
-                                ),
-                              );
+                              MyNavigator.goKeranjang(context);
                             },
                             icon: Icon(Icons.shopping_cart),
                             // color: Colors.white,
@@ -777,8 +776,7 @@ class _DashboardPageState extends State<DashboardPage>
               padding: EdgeInsets.only(left: 5.0, right: 5.0, top: 10.0),
               child: Row(
                 children: <Widget>[
-                  Text(
-                    entry.item,
+                  Text(entry.item == null ? 'Unknown Item' : entry.item,
                     style: TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
@@ -810,8 +808,7 @@ class _DashboardPageState extends State<DashboardPage>
                     ),
                     Expanded(
                       flex: 5,
-                      child: Text(
-                        entry.tipe,
+                      child: Text(entry.tipe == null ? 'Unknown Tipe' : entry.tipe,
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 13,

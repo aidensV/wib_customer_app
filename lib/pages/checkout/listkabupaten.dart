@@ -13,6 +13,7 @@ List<ListKabupaten> listNota = [];
 List<ListKabupaten> filteredlistNota = [];
 String tokenType, accessToken;
 bool isLoading;
+var _scaffoldKeyY;
 Map<String, String> requestHeaders = Map();
 ListProvinsi provinsi;
 
@@ -52,7 +53,6 @@ class _KabupatenState extends State<KabupatenSending> {
     return listNotaAndroid();
   }
 
-  GlobalKey<ScaffoldState> _scaffoldKeyY = new GlobalKey<ScaffoldState>();
   void showInSnackBar(String value) {
     _scaffoldKeyY.currentState
         .showSnackBar(new SnackBar(content: new Text(value)));
@@ -135,6 +135,7 @@ class _KabupatenState extends State<KabupatenSending> {
 
   @override
   void initState() {
+    _scaffoldKeyY = GlobalKey<ScaffoldState>();
     listNotaAndroid().then((usersFromServer) {
       setState(() {
         listNota = usersFromServer;

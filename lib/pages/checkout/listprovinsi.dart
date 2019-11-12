@@ -12,6 +12,7 @@ List<ListProvinsi> listNota = [];
 List<ListProvinsi> filteredlistNota = [];
 String tokenType, accessToken;
 bool isLoading;
+var _scaffoldKeyZ;
 Map<String, String> requestHeaders = Map();
 
 class ProvinsiSending extends StatefulWidget {
@@ -45,7 +46,6 @@ class _ProvinsiState extends State<ProvinsiSending> {
     return listNotaAndroid();
   }
 
-  GlobalKey<ScaffoldState> _scaffoldKeyZ = new GlobalKey<ScaffoldState>();
   void showInSnackBar(String value) {
     _scaffoldKeyZ.currentState
         .showSnackBar(new SnackBar(content: new Text(value)));
@@ -127,6 +127,7 @@ class _ProvinsiState extends State<ProvinsiSending> {
 
   @override
   void initState() {
+    _scaffoldKeyZ = GlobalKey<ScaffoldState>();
     listNotaAndroid().then((usersFromServer) {
       setState(() {
         listNota = usersFromServer;

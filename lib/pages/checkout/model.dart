@@ -45,6 +45,7 @@ class ListCheckout {
   final String satuan;
   final String total;
   final String gudang;
+  String diskon;
 
   ListCheckout(
       {this.id,
@@ -56,5 +57,6 @@ class ListCheckout {
       this.jumlah,
       this.satuan,
       this.total,
-      this.gudang});
+      this.gudang,
+      this.diskon});
 }
