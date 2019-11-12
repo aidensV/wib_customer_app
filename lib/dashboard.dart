@@ -390,15 +390,6 @@ class _DashboardPageState extends State<DashboardPage>
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
-                          ButtonTheme(
-                            minWidth: 0,
-                                                          height: 20.0,
-                                                          buttonColor:
-                                                              Color(0xff388bf2),
-                            child: FlatButton(
-                              
-                            onPressed: (){ MyNavigator.goWishlist(context);},
-                          ),),
                           Text(
                             "Rekomendasi Produk",
                             style:
@@ -451,15 +442,6 @@ class _DashboardPageState extends State<DashboardPage>
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: <Widget>[
-                                ButtonTheme(
-                            minWidth: 0,
-                                                          height: 20.0,
-                                                          buttonColor:
-                                                              Color(0xff388bf2),
-                            child: FlatButton(
-                              
-                            onPressed: (){ MyNavigator.goKeranjang(context);},
-                          ),),
                                 Text(
                                   "Belanja Sekarang!",
                                   style: TextStyle(
