@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:wib_customer_app/notification_service/notification_service.dart';
+import 'package:wib_customer_app/pages/account/account.dart';
+import 'package:wib_customer_app/pages/account/setting.dart';
 
 // Remember import flutter/material package first
 import 'dashboard.dart';
@@ -18,10 +22,8 @@ import 'pages/shops/detail.dart';
 import 'pages/profile/profile.dart';
 import 'pages/test/test.dart';
 
-
-
 // This route for identifi when you use navigator
-var routes = <String, WidgetBuilder>{
+Map<String, WidgetBuilder> routesX = <String, WidgetBuilder>{
   "/login": (BuildContext context) => LoginPage(),
   "/dashboard": (BuildContext context) => DashboardPage(),
   "/list_tracking" : (BuildContext context) => ListNotaTracking(),
@@ -34,12 +36,17 @@ var routes = <String, WidgetBuilder>{
   "/checkout" : (BuildContext context) => Checkout(),
   "/details" : (BuildContext context) => DetailShop(),
   '/profile' : (BuildContext context) => ProfilePage(),
-
+  '/account' : (BuildContext context) => Account(),
+  '/settingprofile' : (BuildContext context) => SettingProfile(),
   "/test" : (BuildContext context) => TestCode()
 
 };
 
-void main() => runApp(MyApp());
+void main() {
+  flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
@@ -47,7 +54,7 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider<ShopBloc>(
         builder: (context) => ShopBloc(),
         child: MaterialApp(
-          title: "Warung Islami Bogor",
+          title: "Warung Islami Bogor Shop",
           home: new SplashScreen(),
           // this below syntax how you set default font for apps
           // Remember to add font first in pubspec.yaml
@@ -55,7 +62,7 @@ class MyApp extends StatelessWidget {
           theme: new ThemeData(fontFamily: 'Roboto'),
           debugShowCheckedModeBanner: false,
           // debungShowCheckedModeBanner: false, this syntax for remove dubugbanner on left top phone screem
-          routes: routes,
+          routes: routesX,
         ));
   }
 }
@@ -72,11 +79,7 @@ ThemeData buildDarkTheme() {
     hintColor: Color(0xff31B057),
     inputDecorationTheme: InputDecorationTheme(
       border: OutlineInputBorder(),
-      labelStyle: TextStyle(
-          color: Color(0xff25282b),
-          fontSize: 24.0
-      ),
+      labelStyle: TextStyle(color: Color(0xff25282b), fontSize: 24.0),
     ),
   );
 }
-

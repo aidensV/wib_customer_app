@@ -39,4 +39,10 @@ class MyNavigator {
   static void goProfile(BuildContext context){
     Navigator.pushNamed(context, "/profile");
   }
+  static void goAccount(BuildContext context){
+    Navigator.pushNamed(context, "/account");
+  }
+  static void goSetting(BuildContext context){
+    Navigator.pushNamed(context, "/settingprofile");
+  }
 }

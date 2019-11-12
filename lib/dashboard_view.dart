@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:wib_customer_app/pages/profile/profile.dart';
 import 'dashboard.dart';
 import 'env.dart';
 import 'saldo.dart';
@@ -16,7 +17,6 @@ import 'dart:io';
 String tokenType, accessToken;
 Map<String, String> requestHeaders = Map();
 List<ListBanner> listBanner = [];
-bool isLoading;
 List<ListHistory> listHistory = [];
   var dashboardViewKey = GlobalKey<ScaffoldState>();
 
@@ -43,9 +43,9 @@ class _DashboardView extends State<DashboardView>{
 
   int _currentIndex = 0;
   final List<Widget> _children = [
+    DashboardPage(),
     Saldo(),
-    Saldo(),
-    Saldo(),
+    ProfilePage(),
   ];
 
   

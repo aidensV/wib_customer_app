@@ -21,6 +21,7 @@ String tokenType, accessToken;
 Map<String, String> requestHeaders = Map();
 List<ListBanner> listBanner = [];
 bool isLoading;
+int pageSize = 6;
 
 ScrollController scrollController = ScrollController(initialScrollOffset: 0.0);
 
@@ -46,7 +47,6 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage>
     with TickerProviderStateMixin {
   TabController tabController;
-  int pageSize = 6;
 
   PageController pageController;
 
@@ -343,22 +343,23 @@ class _DashboardPageState extends State<DashboardPage>
                                       _current = index;
                                     });
                                   },
-                                  items: <Widget>[
-                                    for (var i = 0; i < listBanner.length; i++)
-                                      Container(
-                                        width:
-                                            MediaQuery.of(context).size.width,
-                                        margin: EdgeInsets.symmetric(
-                                            horizontal: 5.0),
-                                        decoration: BoxDecoration(
-                                          image: DecorationImage(
-                                            image: NetworkImageWithRetry(urladmin(
-                                                'storage/image/master/banner/${listBanner[i].banner}')),
-                                            fit: BoxFit.fitHeight,
+                                  items: listBanner
+                                      .map(
+                                        (ListBanner listBanner) => Container(
+                                          width:
+                                              MediaQuery.of(context).size.width,
+                                          margin: EdgeInsets.symmetric(
+                                              horizontal: 5.0),
+                                          decoration: BoxDecoration(
+                                            image: DecorationImage(
+                                              image: NetworkImageWithRetry(urladmin(
+                                                  'storage/image/master/banner/${listBanner.banner}')),
+                                              fit: BoxFit.fitHeight,
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                  ],
+                                      )
+                                      .toList(),
                                 ),
                               ),
                         Padding(
@@ -497,7 +498,7 @@ class _DashboardPageState extends State<DashboardPage>
                                                     .toString(),
                                                 category: category[index]
                                                     ["ity_name"],
-                                                category_id: category[index]
+                                                categoryId: category[index]
                                                         ["ity_code"]
                                                     .toString(),
                                               ),
@@ -555,6 +556,7 @@ class _DashboardPageState extends State<DashboardPage>
                       blue = 255;
 
                       opacity = 0.0;
+                      isScrolled = false;
                     } else if (scrollController.offset + 100 > 255) {
                       if (maxOffsetToColor == 0 &&
                           maxOffsetToColor != scrollController.offset) {
@@ -576,8 +578,7 @@ class _DashboardPageState extends State<DashboardPage>
 
                         opacity = 1.0;
                       }
-                    } else if (scrollController.offset < 255 &&
-                        scrollController.offset > 0) {
+                    } else {
                       if (scrollController.offset > 250) {
                         if (isScrolled == false) {
                           isScrolled = true;
@@ -696,7 +697,7 @@ class _DashboardPageState extends State<DashboardPage>
           ),
         ),
         bottomNavigationBar: BottomNavigationBar(
-          type: BottomNavigationBarType.shifting,
+          type: BottomNavigationBarType.fixed,
           unselectedItemColor: Colors.grey,
           selectedItemColor: Color(0xff31B057),
           items: [
@@ -718,9 +719,12 @@ class _DashboardPageState extends State<DashboardPage>
             //     ),
             //     title: new Text('Tracking')),
             BottomNavigationBarItem(
-              icon: Icon(
-                Icons.person,
-              ),
+              icon: IconButton(
+                  icon: Icon(Icons.person),
+                  onPressed: () {
+                    MyNavigator.goAccount(context);
+                  },
+                ),
               title: new Text('Profile'),
             )
           ],
@@ -923,11 +927,11 @@ class _DashboardPageState extends State<DashboardPage>
                   ],
                 ),
                 // SizedBox(width: 15),
-                Padding(
-                  padding: EdgeInsets.only(right: 10.0, left: 10.0, top: 10.0),
+                Expanded(
                   child: Container(
+                    padding: EdgeInsets.all(10.0),
                     width: MediaQuery.of(context).size.width - 130,
-                    child: Column(
+                    child: Stack(
                       children: <Widget>[
                         Container(
                           alignment: Alignment.topLeft,
@@ -942,93 +946,103 @@ class _DashboardPageState extends State<DashboardPage>
                           // height: 60,
                           height: 60.0,
                         ),
-                        entry.diskon == null
-                            ? Container(
-                                height: 20,
-                              )
-                            : Container(
-                                alignment: Alignment.topLeft,
-                                child: Text(
-                                  entry.price == null
-                                      ? 'Rp. 0.00'
-                                      : _numberFormat
-                                          .format(double.parse(entry.price)),
-                                  style: TextStyle(
-                                      decoration: TextDecoration.lineThrough,
-                                      color: Colors.grey[400],
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold),
-                                  textAlign: TextAlign.left,
-                                ),
-                                height: 20,
-                              ),
-                        entry.diskon == null
-                            ? Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Expanded(
-                                    flex: 5,
-                                    child: Text(
-                                      entry.price == null
-                                          ? 'Rp. 0.00'
-                                          : _numberFormat.format(
-                                              double.parse(entry.price)),
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
-                                          color: Colors.deepOrange),
-                                      textAlign: TextAlign.left,
+                        Positioned(
+                          bottom: 0.0,
+                          right: 0.0,
+                          left: 0.0,
+                          child: Column(
+                            children: <Widget>[
+                              entry.diskon == null
+                                  ? Container(
+                                      height: 20,
+                                    )
+                                  : Container(
+                                      alignment: Alignment.topLeft,
+                                      child: Text(
+                                        entry.price == null
+                                            ? 'Rp. 0.00'
+                                            : _numberFormat.format(
+                                                double.parse(entry.price)),
+                                        style: TextStyle(
+                                            decoration:
+                                                TextDecoration.lineThrough,
+                                            color: Colors.grey[400],
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold),
+                                        textAlign: TextAlign.left,
+                                      ),
+                                      height: 20,
                                     ),
-                                  ),
-                                  Expanded(
-                                    flex: 5,
-                                    child: Text(
-                                      entry.tipe,
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
-                                          color: Colors.green),
-                                      textAlign: TextAlign.right,
+                              entry.diskon == null
+                                  ? Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: <Widget>[
+                                        Expanded(
+                                          flex: 5,
+                                          child: Text(
+                                            entry.price == null
+                                                ? 'Rp. 0.00'
+                                                : _numberFormat.format(
+                                                    double.parse(entry.price)),
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                                color: Colors.deepOrange),
+                                            textAlign: TextAlign.left,
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 5,
+                                          child: Text(
+                                            entry.tipe,
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                                color: Colors.green),
+                                            textAlign: TextAlign.right,
+                                          ),
+                                        )
+                                      ],
+                                    )
+                                  : Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: <Widget>[
+                                        Expanded(
+                                          flex: 5,
+                                          child: Text(
+                                            entry.diskon == null
+                                                ? 'Rp. 0.00'
+                                                : _numberFormat.format(
+                                                    double.parse(entry.diskon)),
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                                color: Colors.deepOrange),
+                                            textAlign: TextAlign.left,
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 5,
+                                          child: Text(
+                                            entry.tipe,
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                                color: Colors.green),
+                                            textAlign: TextAlign.right,
+                                          ),
+                                        )
+                                      ],
                                     ),
-                                  )
-                                ],
-                              )
-                            : Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Expanded(
-                                    flex: 5,
-                                    child: Text(
-                                      entry.diskon == null
-                                          ? 'Rp. 0.00'
-                                          : _numberFormat.format(
-                                              double.parse(entry.diskon)),
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
-                                          color: Colors.deepOrange),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 5,
-                                    child: Text(
-                                      entry.tipe,
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
-                                          color: Colors.green),
-                                      textAlign: TextAlign.right,
-                                    ),
-                                  )
-                                ],
-                              ),
+                            ],
+                          ),
+                        )
                       ],
                     ),
                   ),
-                )
+                ),
               ],
             ),
           ),
@@ -1059,9 +1073,11 @@ class BackendService {
 
     var tokenTypeStorage = await storage.getDataString('token_type');
     var accessTokenStorage = await storage.getDataString('access_token');
-
+    var hitung = index + 1;
+    print(hitung);
+    print(limit);
     final responseBody = await http.get(
-        url('api/produk_beranda_android?_limit=$limit'),
+        url('api/produk_beranda_android?_limit=$limit&count=$hitung'),
         headers: {"Authorization": "$tokenTypeStorage $accessTokenStorage"});
 
     var data = json.decode(responseBody.body);
@@ -1084,7 +1100,6 @@ class BackendService {
 
     var data = json.decode(responseBody.body);
     var product = data['itemslider'];
-    print('bbb');
 
     return RecomendationModel.fromJsonList(product);
   }
