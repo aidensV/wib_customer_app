@@ -7,10 +7,11 @@ import 'package:wib_customer_app/env.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:intl/intl.dart';
+import 'package:flutter_image/network.dart';
 
-GlobalKey<ScaffoldState> _scaffoldKeyX = new GlobalKey<ScaffoldState>();
+var _scaffoldKeyCart;
 List<ListKeranjang> listNota = [];
-String tokenType, accessToken;
+String tokenType, accessToken, totalhargaX;
 bool isLoading;
 Map<String, String> requestHeaders = Map();
 
@@ -48,7 +49,7 @@ class _KeranjangState extends State<Keranjang> {
   }
 
   void showInSnackBar(String value) {
-    _scaffoldKeyX.currentState
+    _scaffoldKeyCart.currentState
         .showSnackBar(new SnackBar(content: new Text(value)));
   }
 
@@ -66,7 +67,8 @@ class _KeranjangState extends State<Keranjang> {
         // return nota;
         var notaJson = json.decode(nota.body);
         var notas = notaJson['item'];
-
+        var totalharga = notaJson['totalharga'];
+        print('totalharga $totalharga');
         print('notaJson $notaJson');
 
         listNota = [];
@@ -80,11 +82,13 @@ class _KeranjangState extends State<Keranjang> {
             jumlah: i['cart_qty'].toString(),
             satuan: i['iu_name'],
             total: i['hasil'].toString(),
+            hargadiskon: i['gpp_sellprice'],
           );
           listNota.add(notax);
         }
         setState(() {
           isLoading = false;
+          totalhargaX = totalharga;
         });
         print('listnota $listNota');
         print('listnota length ${listNota.length}');
@@ -109,7 +113,9 @@ class _KeranjangState extends State<Keranjang> {
 
   @override
   void initState() {
+    _scaffoldKeyCart = new GlobalKey<ScaffoldState>();
     getHeaderHTTP();
+    totalhargaX = null;
     isLoading = false;
     print(requestHeaders);
     super.initState();
@@ -139,8 +145,9 @@ class _KeranjangState extends State<Keranjang> {
   }
 
   Widget build(BuildContext context) {
+    NumberFormat _numberFormat = new NumberFormat.simpleCurrency(decimalDigits: 2, name: 'Rp. ');
     return Scaffold(
-      key: _scaffoldKeyX,
+      key: _scaffoldKeyCart,
       backgroundColor: Colors.white,
       appBar: new AppBar(
         iconTheme: IconThemeData(
@@ -190,7 +197,8 @@ class _KeranjangState extends State<Keranjang> {
                             // ),
                             ),
                       )
-                    : Expanded(
+                    :
+                    Expanded(
                         child: Scrollbar(
                           child: RefreshIndicator(
                             onRefresh: () => listNotaAndroid(),
@@ -210,7 +218,6 @@ class _KeranjangState extends State<Keranjang> {
                                     _numberFormat.format(totalperitem);
                                 String finalhargaperitem =
                                     _numberFormat.format(hargaperitem);
-
                                 return Card(
                                   child: Column(
                                     children: <Widget>[
@@ -228,15 +235,40 @@ class _KeranjangState extends State<Keranjang> {
                                                       style: TextStyle(
                                                           color: Colors.black)),
                                                 ),
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          left: 5.0),
-                                                  child: Text(listNota[index].total == null ? 'Rp. 0.00' : finaltotalitem,
-                                                      style: TextStyle(
-                                                        color: Colors.green,
-                                                      )),
-                                                )
+                                                listNota[index].hargadiskon ==
+                                                        null
+                                                    ? Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .only(
+                                                                left: 5.0),
+                                                        child: Text(
+                                                            listNota[index]
+                                                                        .total ==
+                                                                    null
+                                                                ? 'Rp. 0.00'
+                                                                : finaltotalitem,
+                                                            style: TextStyle(
+                                                              color:
+                                                                  Colors.green,
+                                                            )),
+                                                      )
+                                                    : Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .only(
+                                                                left: 5.0),
+                                                        child: Text(
+                                                            listNota[index]
+                                                                        .hargadiskon ==
+                                                                    null
+                                                                ? 'Rp. 0.00'
+                                                                : _numberFormat.format(double.parse(listNota[index].hargadiskon.toString()) * int.parse(listNota[index].jumlah.toString())),
+                                                            style: TextStyle(
+                                                              color:
+                                                                  Colors.green,
+                                                            )),
+                                                      )
                                               ],
                                             ),
                                           ),
@@ -361,7 +393,8 @@ class _KeranjangState extends State<Keranjang> {
                                           children: <Widget>[
                                             Expanded(
                                               flex: 5,
-                                              child: Image.network(
+                                              child: new Image(
+                                                image: new  NetworkImageWithRetry(
                                                 listNota[index].image != null
                                                     ? urladmin(
                                                         'storage/image/master/produk/${listNota[index].image}',
@@ -369,8 +402,9 @@ class _KeranjangState extends State<Keranjang> {
                                                     : url(
                                                         'assets/img/noimage.jpg',
                                                       ),
-                                                width: 80.0,
-                                                height: 80.0,
+                                                ),
+                                                width: 100.0,
+                                                height: 100.0,
                                               ),
                                             ),
                                             Expanded(
@@ -383,7 +417,7 @@ class _KeranjangState extends State<Keranjang> {
                                                     child: Padding(
                                                       padding:
                                                           const EdgeInsets.only(
-                                                              top: 10.0),
+                                                              top: 10.0,bottom: 10.0),
                                                       child: Text(
                                                         listNota[index].item,
                                                         style: TextStyle(
@@ -396,10 +430,73 @@ class _KeranjangState extends State<Keranjang> {
                                                       ),
                                                     ),
                                                   ),
+                                                  listNota[index].hargadiskon ==
+                                                          null
+                                                      ? Container(
+                                                          height: 30.0,
+                                                        )
+                                                      : Container(
+                                                          height: 30.0,
+                                                          child: Row(
+                                                            children: <Widget>[
+                                                              Text(
+                                                                  listNota[index]
+                                                                              .harga ==
+                                                                          null
+                                                                      ? 'Rp. 0.00'
+                                                                      : finalhargaperitem,
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .black,
+                                                                      decoration:
+                                                                          TextDecoration
+                                                                              .lineThrough)),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        listNota[index].hargadiskon ==
+                                                          null ?
                                                   Container(
                                                     child: Row(
                                                       children: <Widget>[
-                                                        Text(listNota[index].harga == null ? 'Rp. 0.00' : finalhargaperitem,
+                                                        Text(
+                                                            listNota[index]
+                                                                        .harga ==
+                                                                    null
+                                                                ? 'Rp. 0.00'
+                                                                : finalhargaperitem,
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .black)),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .only(
+                                                                  left: 0.0),
+                                                          child: Text(
+                                                              " / " +
+                                                                  listNota[
+                                                                          index]
+                                                                      .satuan,
+                                                              style: TextStyle(
+                                                                color: Colors
+                                                                    .green,
+                                                              )),
+                                                        )
+                                                      ],
+                                                    ),
+                                                    padding: EdgeInsets.only(
+                                                        left: 0.0, top: 10.0),
+                                                  ):
+                                                  Container(
+                                                    child: Row(
+                                                      children: <Widget>[
+                                                        Text(
+                                                            listNota[index]
+                                                                        .hargadiskon ==
+                                                                    null
+                                                                ? 'Rp. 0.00'
+                                                                : _numberFormat.format(double.parse(listNota[index].hargadiskon.toString())),
                                                             style: TextStyle(
                                                                 color: Colors
                                                                     .black)),
@@ -580,9 +677,31 @@ class _KeranjangState extends State<Keranjang> {
                           ),
                         ),
                       ),
-          ],
-        ),
-      ),
+                      listNota.length == 0 ?
+                      Container(
+                    ):
+                    Container(child:Row(
+                        children: <Widget>[
+                      Expanded(
+                        flex: 4,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left:10.0,top:10.0,bottom: 20.0),
+                          child: Text('Total Harga'),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 6,
+                        child: Padding(
+                          padding: const EdgeInsets.only(right:10.0,top: 10.0,bottom: 20.0),
+                          child: Text(totalhargaX == null ? 'Rp. 0.00' : 'Rp. ' + totalhargaX,textAlign: TextAlign.right,style: TextStyle(color: Colors.green,fontSize: 18),
+                      ),
+                        ),
+                      ),
+                      ],
+                      ),),
+                      ],
+                    ),
+                    ),
       bottomNavigationBar: BottomAppBar(
         child: new Row(
           mainAxisSize: MainAxisSize.max,
@@ -646,8 +765,8 @@ class ListKeranjang {
   final String image;
   final String jumlah;
   final String satuan;
-  final String total;
-
+   String total;
+  final String hargadiskon;
   ListKeranjang(
       {this.id,
       this.item,
@@ -656,5 +775,6 @@ class ListKeranjang {
       this.image,
       this.jumlah,
       this.satuan,
-      this.total});
+      this.total,
+      this.hargadiskon});
 }

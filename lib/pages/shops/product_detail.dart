@@ -251,8 +251,7 @@ class ProductDetailState extends State<ProductDetail> {
                 padding: EdgeInsets.only(top: 30.0, left: 10.0, right: 10.0),
                 child: Row(
                   children: <Widget>[
-                    Text(
-                      tipeX,
+                    Text(tipeX == null ? 'Jenis Item' : tipeX,
                       textAlign: TextAlign.left,
                       style: TextStyle(
                           color: Colors.green, fontWeight: FontWeight.bold),
@@ -264,8 +263,7 @@ class ProductDetailState extends State<ProductDetail> {
                 padding: EdgeInsets.only(top: 4.0, left: 10.0, right: 10.0),
                 child: Row(
                   children: <Widget>[
-                    Text(
-                      itemX,
+                    Text(itemX == null ? 'Nama Item' : itemX,
                       textAlign: TextAlign.left,
                       style: TextStyle(color: Colors.grey[800], fontSize: 30),
                     ),
@@ -407,7 +405,7 @@ class ProductDetailState extends State<ProductDetail> {
                   child: Row(
                     children: <Widget>[
                       Text(
-                        descX == ''
+                        descX == null || descX == ''
                             ? 'Tidak ada deskripsi untuk barang ini'
                             : descX,
                       )

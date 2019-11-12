@@ -5,10 +5,11 @@ import 'package:intl/intl.dart';
 import 'dart:async';
 import '../../../utils/Navigator.dart';
 import 'dart:convert';
+import 'package:wib_customer_app/pages/checkout/checkout.dart';
 import 'package:wib_customer_app/storage/storage.dart';
 
 var idX, notaX, customerX, statusX;
-String accessToken, tokenType, stockiesX;
+String accessToken, tokenType, stockiesX, ongkirX;
 Map<String, dynamic> formSerialize;
 Map<String, String> requestHeaders = Map();
 List<ListItem> listItem;
@@ -84,6 +85,10 @@ class _DetailState extends State<Detail> {
         // return nota;
         var itemJson = json.decode(item.body);
         String stockies = itemJson['stockies'].toString();
+        var itemproduct = itemJson['item'];
+        var ongkir = itemJson['ongkir'];
+        print('biaya ${ongkir}');
+        print(itemproduct);
         print(itemJson);
         listItem = [];
         for (var i in itemJson['item']) {
@@ -97,6 +102,7 @@ class _DetailState extends State<Detail> {
             image: i['ip_path'],
             code: i['i_code'],
             berat: i['itp_weight'].toString(),
+            hargadiskon : i['sd_discvalue'].toString(),
           );
           listItem.add(notax);
         }
@@ -105,10 +111,11 @@ class _DetailState extends State<Detail> {
         print('length listItem ${listItem.length}');
         setState(() {
           stockiesX = stockies;
+          ongkirX = ongkir;
           isLoading = false;
         });
         return listItem;
-      } else if (item.statusCode == 500) {
+      } else if(item.statusCode == 500){
         showInSnackBar('Request failed with status: ${item.statusCode}');
         print(item.body);
         setState(() {
@@ -158,6 +165,7 @@ class _DetailState extends State<Detail> {
     notaX = nota;
     customerX = customer;
     statusX = status;
+    ongkirX = null;
     stockiesX = null;
     listItemNotaAndroid();
     getHeaderHTTP();
@@ -166,6 +174,7 @@ class _DetailState extends State<Detail> {
 
   @override
   Widget build(BuildContext context) {
+    NumberFormat _numberFormat = new NumberFormat.simpleCurrency(decimalDigits: 2, name: 'Rp. ');
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: Colors.grey[100],
@@ -227,6 +236,24 @@ class _DetailState extends State<Detail> {
                         ),
                       ],
                     ),
+                    Divider(),
+                    Row(
+                      children: <Widget>[
+                        Expanded(
+                          flex: 5,
+                          child: Text(
+                            'Biaya Ongkir',
+                            style: TextStyle(color: Colors.black),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 5,
+                          child: Text(ongkirX == null ? 'Rp. 0.00' : _numberFormat.format(double.parse(ongkirX.toString())),
+                            style: TextStyle(color: Colors.black54),
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -279,8 +306,13 @@ class _DetailState extends State<Detail> {
                                                   padding:
                                                       const EdgeInsets.only(
                                                           left: 0.0),
-                                                  child: Text( listItem[index].totalharga == null ? 
-                                                       "Total : Rp. 0.00": "Total : " + finaltotalitem,
+                                                  child: Text(
+                                                      listItem[index]
+                                                                  .totalharga ==
+                                                              null
+                                                          ? "Total : Rp. 0.00"
+                                                          : "Total : " +
+                                                              finaltotalitem,
                                                       style: TextStyle(
                                                           color: Colors.black)),
                                                 ),
@@ -411,10 +443,74 @@ class _DetailState extends State<Detail> {
                                                     ),
                                                   ),
                                                 ),
+                                                listItem[index].hargadiskon.toString() == '0' ?
                                                 Container(
+                                                  height: 30.0,
+                                                  padding: EdgeInsets.only(
+                                                      left: 0.0, top: 10.0),
+                                                ):
+                                                Container(
+                                                  height: 30.0,
                                                   child: Row(
                                                     children: <Widget>[
-                                                      Text(listItem[index].hargasales == null ? 'Rp. 0.00' : finalhargaperitem ,
+                                                      Text(
+                                                          listItem[index]
+                                                                      .hargasales ==
+                                                                  null
+                                                              ? 'Rp. 0.00'
+                                                              : _numberFormat.format(double.parse(listItem[index].hargasales.toString())),
+                                                          style: TextStyle(
+                                                              color: Colors
+                                                                  .black,
+                                                                  decoration: TextDecoration.lineThrough)),
+                                                    ],
+                                                  ),
+                                                  padding: EdgeInsets.only(
+                                                      left: 0.0, top: 10.0),
+                                                ),
+                                                listItem[index].hargadiskon.toString() == '0' ?
+                                                Container(
+                                                  height: 30.0,
+                                                  child: Row(
+                                                    children: <Widget>[
+                                                      Text(
+                                                          listItem[index]
+                                                                      .hargadiskon ==
+                                                                  null
+                                                              ? 'Rp. 0.00'
+                                                              : _numberFormat.format(double.parse(listItem[index].hargasales.toString())),
+                                                          style: TextStyle(
+                                                              color: Colors
+                                                                  .black)),
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .only(
+                                                                left: 0.0),
+                                                        child: Text(
+                                                            " / " +
+                                                                listItem[index]
+                                                                    .satuan,
+                                                            style: TextStyle(
+                                                              color:
+                                                                  Colors.green,
+                                                            )),
+                                                      )
+                                                    ],
+                                                  ),
+                                                  padding: EdgeInsets.only(
+                                                      left: 0.0, top: 10.0),
+                                                ):
+                                                Container(
+                                                  height: 30.0,
+                                                  child: Row(
+                                                    children: <Widget>[
+                                                      Text(
+                                                          listItem[index]
+                                                                      .hargadiskon ==
+                                                                  null
+                                                              ? 'Rp. 0.00'
+                                                              : _numberFormat.format(double.parse(listItem[index].hargasales.toString()) - (double.parse(listItem[index].hargadiskon.toString()) / int.parse(listItem[index].qty)) ),
                                                           style: TextStyle(
                                                               color: Colors
                                                                   .black)),
@@ -469,6 +565,7 @@ class _DetailState extends State<Detail> {
           ],
         ),
       ),
+      
       floatingActionButton: InkWell(
         onTap: () {
           _confirmationModalBottomSheet(context);
@@ -579,7 +676,11 @@ class _DetailState extends State<Detail> {
                                       jsonDecode(response.body);
                                   if (responseJson['status'] == 'success') {
                                     Navigator.pop(context);
-                                    MyNavigator.goCheckout(context);
+                                    Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Checkout(),
+                              ));
                                   } else {
                                     showInSnackBar(
                                         'Hubungi Pengembang Software');
@@ -650,6 +751,7 @@ class ListItem {
   final String berat;
   final String hargasales;
   final String totalharga;
+  final String hargadiskon;
 
   ListItem({
     this.nama,
@@ -661,5 +763,6 @@ class ListItem {
     this.berat,
     this.totalharga,
     this.hargasales,
+    this.hargadiskon,
   });
 }

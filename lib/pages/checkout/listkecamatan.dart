@@ -14,6 +14,7 @@ String tokenType, accessToken;
 bool isLoading;
 Map<String, String> requestHeaders = Map();
 ListKabupaten kabupaten;
+var _scaffoldKeyU;
 
 class KecamatanSending extends StatefulWidget {
   final ListKabupaten kabupaten;
@@ -53,7 +54,6 @@ class _KecamatanState extends State<KecamatanSending> {
      return listNotaAndroid();
   }
 
-  GlobalKey<ScaffoldState> _scaffoldKeyU = new GlobalKey<ScaffoldState>();
   void showInSnackBar(String value) {
     _scaffoldKeyU.currentState
         .showSnackBar(new SnackBar(content: new Text(value)));
@@ -132,6 +132,7 @@ class _KecamatanState extends State<KecamatanSending> {
 
   @override
   void initState() {
+    _scaffoldKeyU = GlobalKey<ScaffoldState>();
     listNotaAndroid().then((usersFromServer) {
       setState(() {
         listNota = usersFromServer;

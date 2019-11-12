@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:wib_customer_app/storage/storage.dart';
 
+import '../../utils/Navigator.dart';
+
 class Account extends StatefulWidget {
   @override
   _AccountState createState() => _AccountState();
 }
 
 class _AccountState extends State<Account> {
-  // TextEditingController _textEditingController;
+  TextEditingController textEditingController;
   String _username;
   String _name;
   String _email;
@@ -21,11 +23,11 @@ class _AccountState extends State<Account> {
     print(_username);
     print(_name);
     print(_email);
-    // setState(() {
-    //   _textEditingController = new TextEditingController(text: _username);
-    //   _textEditingController = new TextEditingController(text: _name);
-    //   _textEditingController = new TextEditingController(text: _email);
-    // });
+    setState(() {
+      textEditingController = new TextEditingController(text: _username);
+      textEditingController = new TextEditingController(text: _name);
+      textEditingController = new TextEditingController(text: _email);
+    });
   }
 
   // Future<Null> RemoveSharedPrefs() async {
@@ -36,6 +38,7 @@ class _AccountState extends State<Account> {
   // }
 
   void initState() {
+    super.initState();
     _username = "";
     _name = "";
     _email = "";
@@ -46,7 +49,6 @@ class _AccountState extends State<Account> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         iconTheme: IconThemeData(
@@ -61,13 +63,7 @@ class _AccountState extends State<Account> {
         elevation: 2.0,
         backgroundColor: Colors.white,
       ),
-      body: new Container(
-        // decoration: BoxDecoration(
-        //   image: DecorationImage(
-        //     image: AssetImage("images/background.png"),
-        //     // fit: BoxFit.cover,
-        //   ),
-        // ),
+      body: SingleChildScrollView(
         // color: Colors.white,
         // width: MediaQuery.of(context).size.width,
         // height: MediaQuery.of(context).size.height,
@@ -182,9 +178,11 @@ class _AccountState extends State<Account> {
                     child: new ListTile(
                       title: Text('Setting',
                           style: TextStyle(fontWeight: FontWeight.w500)),
-                      leading: Icon(
-                        Icons.settings,
-                        color: Colors.green[500],
+                      leading: IconButton(
+                        icon: Icon(Icons.settings, color: Colors.green[500],),
+                        onPressed: () {
+                          MyNavigator.goSetting(context);
+                        },
                       ),
                     ),
                   ),

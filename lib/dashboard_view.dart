@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:wib_customer_app/pages/profile/profile.dart';
 import 'dashboard.dart';
 import 'env.dart';
 import 'saldo.dart';
@@ -44,7 +45,7 @@ class _DashboardView extends State<DashboardView>{
   final List<Widget> _children = [
     DashboardPage(),
     Saldo(),
-    Saldo(),
+    ProfilePage(),
   ];
 
   
