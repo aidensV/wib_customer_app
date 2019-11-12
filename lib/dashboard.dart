@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_image/network.dart';
 // import 'package:provider/provider.dart';
 import 'package:wib_customer_app/cari_produk/cari_produk.dart';
+import 'package:wib_customer_app/pusher/pusher_service.dart';
+import 'notification_service/notification_service.dart';
 import 'utils/Navigator.dart';
 import 'package:wib_customer_app/storage/storage.dart';
 import 'package:flutter/cupertino.dart';
@@ -30,6 +32,7 @@ int red, green, blue;
 double opacity, maxOffsetToColor;
 
 GlobalKey<ScaffoldState> _scaffoldKeyDashboard;
+NotificationService notificationService;
 
 showInSnackBarDashboard(String content) {
   _scaffoldKeyDashboard.currentState.showSnackBar(
@@ -174,6 +177,15 @@ class _DashboardPageState extends State<DashboardPage>
   @override
   void initState() {
     _scaffoldKeyDashboard = GlobalKey<ScaffoldState>();
+    notificationService = new NotificationService(context: context);
+
+    notificationService.initStateNotificationCustomerSudahBayarService();
+    PusherService pusherService =
+        PusherService(notificationService: notificationService);
+
+    pusherService = PusherService(notificationService: notificationService);
+    pusherService.firePusher();
+
     listBannerAndroid();
     scrollController = ScrollController(initialScrollOffset: 0.0);
     isScrolled = false;
@@ -514,7 +526,7 @@ class _DashboardPageState extends State<DashboardPage>
                                     : 2,
                             // mainAxisSpacing: 10.0,
                             crossAxisSpacing: 5.0,
-                            childAspectRatio: 0.6,
+                            childAspectRatio: 0.7,
                             itemBuilder: this._itemBuilder,
                             pageFuture: (pageIndex) =>
                                 BackendService.getData(pageIndex, pageSize),
@@ -678,39 +690,6 @@ class _DashboardPageState extends State<DashboardPage>
             ],
           ),
         ),
-        bottomNavigationBar: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          unselectedItemColor: Colors.grey,
-          selectedItemColor: Color(0xff31B057),
-          items: [
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.home,
-              ),
-              title: new Text('Shop'),
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.attach_money,
-              ),
-              title: new Text('Saldo'),
-            ),
-            // BottomNavigationBarItem(
-            //     icon: Icon(
-            //       Icons.map,
-            //     ),
-            //     title: new Text('Tracking')),
-            BottomNavigationBarItem(
-              icon: IconButton(
-                  icon: Icon(Icons.person),
-                  onPressed: () {
-                    MyNavigator.goAccount(context);
-                  },
-                ),
-              title: new Text('Profile'),
-            )
-          ],
-        ),
       ),
     );
   }
@@ -744,25 +723,29 @@ class _DashboardPageState extends State<DashboardPage>
           children: <Widget>[
             ClipRRect(
               borderRadius: BorderRadius.circular(0),
-              child: Image.network(
-                entry.gambar != null
-                    ? urladmin(
+              child: entry.gambar != null
+                  ? Image.network(
+                      urladmin(
                         'storage/image/master/produk/${entry.gambar}',
-                      )
-                    : url(
-                        'assets/img/noimage.jpg',
                       ),
-                fit: BoxFit.cover,
-                height: 130.0,
-                width: MediaQuery.of(context).size.width,
-              ),
+                      fit: BoxFit.cover,
+                      height: 130.0,
+                      width: MediaQuery.of(context).size.width,
+                    )
+                  : Image(
+                      image: AssetImage('images/noimage.jpg'),
+                      fit: BoxFit.cover,
+                      height: 130.0,
+                      width: MediaQuery.of(context).size.width,
+                    ),
             ),
             // SizedBox(height: 7),
             Padding(
               padding: EdgeInsets.only(left: 5.0, right: 5.0, top: 10.0),
               child: Row(
                 children: <Widget>[
-                  Text(entry.item == null ? 'Unknown Item' : entry.item,
+                  Text(
+                    entry.item == null ? 'Unknown Item' : entry.item,
                     style: TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
@@ -794,7 +777,8 @@ class _DashboardPageState extends State<DashboardPage>
                     ),
                     Expanded(
                       flex: 5,
-                      child: Text(entry.tipe == null ? 'Unknown Tipe' : entry.tipe,
+                      child: Text(
+                        entry.tipe == null ? 'Unknown Tipe' : entry.tipe,
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 13,
@@ -843,18 +827,21 @@ class _DashboardPageState extends State<DashboardPage>
                   children: <Widget>[
                     ClipRRect(
                       borderRadius: BorderRadius.circular(0.0),
-                      child: Image.network(
-                        entry.gambar != null
-                            ? urladmin(
+                      child: entry.gambar != null
+                          ? Image.network(
+                              urladmin(
                                 'storage/image/master/produk/${entry.gambar}',
-                              )
-                            : url(
-                                'assets/img/noimage.jpg',
                               ),
-                        fit: BoxFit.cover,
-                        height: 150.0,
-                        width: MediaQuery.of(context).size.width,
-                      ),
+                              fit: BoxFit.cover,
+                              height: 150.0,
+                              width: MediaQuery.of(context).size.width,
+                            )
+                          : Image(
+                              image: AssetImage('images/noimage.jpg'),
+                              fit: BoxFit.cover,
+                              height: 150.0,
+                              width: MediaQuery.of(context).size.width,
+                            ),
                     ),
                     Positioned(
                         top: 5.0,
@@ -1058,14 +1045,31 @@ class BackendService {
     var hitung = index;
     print(hitung);
     print(limit);
-    final responseBody = await http.get(
-        url('api/produk_beranda_android?_limit=$limit&count=$hitung'),
-        headers: {"Authorization": "$tokenTypeStorage $accessTokenStorage"});
+    try {
+      final responseBody = await http.get(
+          url('api/produk_beranda_android?_limit=$limit&count=$hitung'),
+          headers: {"Authorization": "$tokenTypeStorage $accessTokenStorage"});
 
-    var data = json.decode(responseBody.body);
-    var product = data['semuaitem'];
+      if (responseBody.statusCode == 200) {
+        var data = json.decode(responseBody.body);
+        var product = data['semuaitem'];
 
-    return ProductModel.fromJsonList(product);
+        return ProductModel.fromJsonList(product);
+      } else if (responseBody.statusCode == 401) {
+        showInSnackBarDashboard('Token kedaluwarsa, silahkan login kembali');
+        return null;
+      } else {
+        showInSnackBarDashboard('Error Code : ${responseBody.statusCode}');
+        return null;
+      }
+    } on TimeoutException catch (_) {
+      showInSnackBarDashboard('Request timeout, try again');
+      return null;
+    } catch (e) {
+      print('Error : $e');
+      showInSnackBarDashboard('Error : ${e.toString()}');
+      return null;
+    }
   }
 
   static Future<List<RecomendationModel>> getDataRecom(index, limit) async {
@@ -1076,14 +1080,32 @@ class BackendService {
     var tokenTypeStorage = await storage.getDataString('token_type');
     var accessTokenStorage = await storage.getDataString('access_token');
 
-    final responseBody = await http.get(
-        url('api/produk_beranda_android?_limit=0&_recLimit=$limit'),
-        headers: {"Authorization": "$tokenTypeStorage $accessTokenStorage"});
+    try {
+      final responseBody = await http.get(
+          url('api/produk_beranda_android?_limit=0&_recLimit=$limit'),
+          headers: {"Authorization": "$tokenTypeStorage $accessTokenStorage"});
 
-    var data = json.decode(responseBody.body);
-    var product = data['itemslider'];
+      if (responseBody.statusCode == 200) {
+        var data = json.decode(responseBody.body);
+        var product = data['itemslider'];
 
-    return RecomendationModel.fromJsonList(product);
+        return RecomendationModel.fromJsonList(product);
+      } else if (responseBody.statusCode == 401) {
+        showInSnackBarDashboard('Token kedaluwarsa, silahkan login kembali');
+        return null;
+      } else {
+        showInSnackBarDashboard('Error code : ${responseBody.statusCode}');
+        print(jsonDecode(responseBody.body));
+        return null;
+      }
+    } on TimeoutException catch (_) {
+      showInSnackBarDashboard('Request timeout, try again');
+      return null;
+    } catch (e) {
+      print('Error : $e');
+      showInSnackBarDashboard('Error : ${e.toString()}');
+      return null;
+    }
   }
 }
 
