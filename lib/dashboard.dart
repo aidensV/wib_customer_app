@@ -720,9 +720,12 @@ class _DashboardPageState extends State<DashboardPage>
             //     ),
             //     title: new Text('Tracking')),
             BottomNavigationBarItem(
-              icon: Icon(
-                Icons.person,
-              ),
+              icon: IconButton(
+                  icon: Icon(Icons.person),
+                  onPressed: () {
+                    MyNavigator.goAccount(context);
+                  },
+                ),
               title: new Text('Profile'),
             )
           ],
