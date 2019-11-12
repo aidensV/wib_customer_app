@@ -540,6 +540,7 @@ class _DashboardPageState extends State<DashboardPage>
                       blue = 255;
 
                       opacity = 0.0;
+                      isScrolled = false;
                     } else if (scrollController.offset + 100 > 255) {
                       if (maxOffsetToColor == 0 &&
                           maxOffsetToColor != scrollController.offset) {
@@ -561,8 +562,7 @@ class _DashboardPageState extends State<DashboardPage>
 
                         opacity = 1.0;
                       }
-                    } else if (scrollController.offset < 255 &&
-                        scrollController.offset > 0) {
+                    } else {
                       if (scrollController.offset > 250) {
                         if (isScrolled == false) {
                           isScrolled = true;
@@ -1073,7 +1073,7 @@ class BackendService {
 
     var tokenTypeStorage = await storage.getDataString('token_type');
     var accessTokenStorage = await storage.getDataString('access_token');
-    var hitung =index + 1;
+    var hitung = index + 1;
     print(hitung);
     print(limit);
     final responseBody = await http.get(
