@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wib_customer_app/pages/account/account.dart';
 
 // Remember import flutter/material package first
 import 'dashboard.dart';
@@ -34,6 +35,8 @@ var routes = <String, WidgetBuilder>{
   "/checkout" : (BuildContext context) => Checkout(),
   "/details" : (BuildContext context) => DetailShop(),
   '/profile' : (BuildContext context) => ProfilePage(),
+  '/account' : (BuildContext context) => Account(),
+
 
   "/test" : (BuildContext context) => TestCode()
 
