@@ -52,7 +52,7 @@ class _CategoryItemState extends State<CategoryItem> {
     var accessTokenStorage = await storage.getDataString('access_token');
 
     final responseBody = await http.post(
-        url('api/listProdukKategoriAndroid?_limit=$limit'),
+        url('api/listProdukKategoriAndroid?_limit=$limit&count=$index'),
         headers: {"Authorization": "$tokenTypeStorage $accessTokenStorage"},
         body: {"kategori": "$categoryId"});
 
