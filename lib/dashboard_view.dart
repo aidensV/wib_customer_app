@@ -31,7 +31,7 @@ class ListHistory {
 }
 
 class DashboardView extends StatefulWidget{
-  int page;
+  final int page;
 
   DashboardView({Key key,this.page});
   @override
