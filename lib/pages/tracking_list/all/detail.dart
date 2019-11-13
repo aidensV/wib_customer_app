@@ -258,6 +258,7 @@ class _DetailState extends State<Detail> {
                 ),
               ),
             ),
+            
             isLoading == true
                 ? Center(
                     child: CircularProgressIndicator(),

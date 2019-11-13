@@ -109,8 +109,6 @@ class ProductDetailState extends State<ProductDetail> {
         print('listnota $listNota');
         print('listnota length ${listNota.length}');
       } else {
-        print('${nota.statusCode}');
-        print('${nota.body}');
         showInSnackBar('Request failed with status: ${nota.body}');
         setState(() {
           isLoadings = false;
