@@ -22,11 +22,11 @@ class _SplashScreenState extends State<SplashScreen> {
               () => Navigator.pushReplacementNamed(context, "/login"));
     } else {
       Timer(Duration(seconds: 2),
-              // () => Navigator.pushReplacementNamed(context, "/dashboard"));
-              () => Navigator.push(context,
-                                          MaterialPageRoute(
-                                            builder: (context) => DashboardView(),
-                                          ),));
+              () => Navigator.pushReplacementNamed(context, "/dashboard"));
+              // () => Navigator.push(context,
+              //                             MaterialPageRoute(
+              //                               builder: (context) => DashboardView(),
+              //                             ),));
     }
   }
 

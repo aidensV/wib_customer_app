@@ -3,8 +3,12 @@ import 'package:flutter/material.dart';
 
 import 'package:wib_customer_app/storage/storage.dart';
 import 'package:flutter/cupertino.dart';
+
+import '../../dashboard.dart';
+import '../../saldo.dart';
 // import 'dart:async';
 
+// GlobalKey<ScaffoldState> _scaffoldKeyprofile = new GlobalKey<ScaffoldState>();
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -17,26 +21,43 @@ class _ProfilePageState extends State<ProfilePage> {
   String _name;
   String _email;
 
+  
+  int _currentIndex = 2;
+  void onTabTapped(int index) {
+    _currentIndex = index;
+   if(index == 0){
+     Navigator.push(context,
+      MaterialPageRoute(
+        builder: (context) => DashboardPage(),
+    ),);
+   }else if(index == 1){
+     Navigator.push(context,
+      MaterialPageRoute(
+        builder: (context) => Saldo(),
+    ),);
+   }else if(index == 2){
+   }
+ }
+
   void getSharedPrefs() async {
     DataStore dataStore = new DataStore();
     _username = await dataStore.getDataString("username");
     _name = await dataStore.getDataString("name");
     _email = await dataStore.getDataString("email");
 
-    print(_username);
-    print(_name);
-    print(_email);
+    this.setState((){
+    });
   }
 
   void initState() {
-    
+    getSharedPrefs();    
     super.initState();
-    getSharedPrefs();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // key:_scaffoldKeyprofile,
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -136,9 +157,11 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
       ),
       // bottomNavigationBar: BottomNavigationBar(
-      //       type: BottomNavigationBarType.shifting,
+      //       onTap: onTabTapped, 
+      //       // type: BottomNavigationBarType.shifting,
       //       unselectedItemColor: Colors.grey,
       //       selectedItemColor: Color(0xff31B057),
+      //       currentIndex: _currentIndex,
       //       items: [
       //         BottomNavigationBarItem(
       //           icon: Icon(
@@ -148,21 +171,16 @@ class _ProfilePageState extends State<ProfilePage> {
       //         ),
       //         BottomNavigationBarItem(
       //             icon: Icon(
-      //               Icons.repeat,
+      //               Icons.attach_money,
       //             ),
-      //             title: new Text('Repeat Order'),),
-      //         BottomNavigationBarItem(
-      //             icon: Icon(
-      //               Icons.map,
-      //             ),
-      //             title: new Text('Tracking')),
+      //             title: new Text('Saldo')),
       //         BottomNavigationBarItem(
       //             icon: Icon(
       //               Icons.person,
       //             ),
       //             title: new Text('Profile'))
       //       ],
-      //     ),
-    );
+      //     ),    
+        );
   }
 }
