@@ -18,6 +18,8 @@ import 'dart:convert';
 import 'package:wib_customer_app/pages/shops/category_item.dart';
 import 'package:flutter_pagewise/flutter_pagewise.dart';
 import 'pages/shops/product_detail.dart';
+import 'pages/wishlist/wishlist.dart';
+import 'pages/shopping_cart/shoppingcart.dart';
 
 bool bottom;
 String tokenType, accessToken;
@@ -675,14 +677,22 @@ class _DashboardPageState extends State<DashboardPage>
                         actions: <Widget>[
                           IconButton(
                             onPressed: () {
-                              MyNavigator.goWishlist(context);
+                              Navigator.push(
+                              context,
+                              MaterialPageRoute(settings: RouteSettings(name: '/wishlist'),
+                                builder: (context) => Wishlist(),
+                              ));
                             },
                             icon: Icon(Icons.favorite),
                             // color: Colors.white,
                           ),
                           IconButton(
                             onPressed: () {
-                              MyNavigator.goKeranjang(context);
+                              Navigator.push(
+                              context,
+                              MaterialPageRoute(settings: RouteSettings(name: '/keranjangbelanja'),
+                                builder: (context) => Keranjang(),
+                              ));
                             },
                             icon: Icon(Icons.shopping_cart),
                             // color: Colors.white,
