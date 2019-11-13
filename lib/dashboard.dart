@@ -120,7 +120,7 @@ class _DashboardPageState extends State<DashboardPage>
     imageprofile = await storage.getDataString('image');
   }
 
-  Future<List<ListBanner>> listBannerAndroid() async {
+  Future<void> listBannerAndroid() async {
     try {
       var storage = new DataStore();
 
@@ -150,26 +150,38 @@ class _DashboardPageState extends State<DashboardPage>
         listBanner = [];
         for (var i in banners) {
           ListBanner bannerx = ListBanner(
-            idbanner: '${i['b_id']}',
+            idbanner: i['b_id'].toString(),
             banner: i['b_image'],
           );
           listBanner.add(bannerx);
         }
         this.setState(() {
           isLoading = false;
+          listBanner = listBanner;
         });
-        return listBanner;
       } else if (banner.statusCode == 401) {
         showInSnackBarProduk('Token kedaluwarsa, silahkan login kembali');
+        setState(() {
+          isLoading = false;
+        });
       } else {
         showInSnackBarProduk('Error Code : ${banner.statusCode}');
+        setState(() {
+          isLoading = false;
+        });
       }
     } on TimeoutException catch (_) {
       showInSnackBarProduk('Request Timeout, try again');
+      setState(() {
+        isLoading = false;
+      });
     } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
       print('Error : $e');
     }
-    return null;
+    // return null;
   }
 
   CarouselSlider carouselSlider;
@@ -442,13 +454,13 @@ class _DashboardPageState extends State<DashboardPage>
                       // ),
                       width: MediaQuery.of(context).size.width,
                       child: PagewiseListView(
-                        pageSize: 4,
+                        pageSize: pageSize,
                         padding: EdgeInsets.all(2.0),
                         scrollDirection: Axis.horizontal,
                         primary: false,
                         itemBuilder: this._recItemBuilder,
                         pageFuture: (pageIndex) =>
-                            BackendService.getDataRecom(pageIndex, 4),
+                            BackendService.getDataRecom(pageIndex, pageSize),
                       ),
                     ),
                     Container(
@@ -678,10 +690,11 @@ class _DashboardPageState extends State<DashboardPage>
                           IconButton(
                             onPressed: () {
                               Navigator.push(
-                              context,
-                              MaterialPageRoute(settings: RouteSettings(name: '/wishlist'),
-                                builder: (context) => Wishlist(),
-                              ));
+                                  context,
+                                  MaterialPageRoute(
+                                    settings: RouteSettings(name: '/wishlist'),
+                                    builder: (context) => Wishlist(),
+                                  ));
                             },
                             icon: Icon(Icons.favorite),
                             // color: Colors.white,
@@ -689,10 +702,12 @@ class _DashboardPageState extends State<DashboardPage>
                           IconButton(
                             onPressed: () {
                               Navigator.push(
-                              context,
-                              MaterialPageRoute(settings: RouteSettings(name: '/keranjangbelanja'),
-                                builder: (context) => Keranjang(),
-                              ));
+                                  context,
+                                  MaterialPageRoute(
+                                    settings: RouteSettings(
+                                        name: '/keranjangbelanja'),
+                                    builder: (context) => Keranjang(),
+                                  ));
                             },
                             icon: Icon(Icons.shopping_cart),
                             // color: Colors.white,

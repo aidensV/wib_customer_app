@@ -23,10 +23,6 @@ class _SplashScreenState extends State<SplashScreen> {
     } else {
       Timer(Duration(seconds: 2),
               () => Navigator.pushReplacementNamed(context, "/dashboard"));
-              // () => Navigator.push(context,
-              //                             MaterialPageRoute(
-              //                               builder: (context) => DashboardView(),
-              //                             ),));
     }
   }
 
