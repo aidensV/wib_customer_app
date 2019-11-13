@@ -10,8 +10,8 @@
 // String hostadmin = 'http://192.168.100.8/git/warungislamibogor/';
 
 // local bakhrul
-// String host = 'http://192.168.43.115/warungislamibogor_shop/';
-// String hostadmin = 'http://192.168.43.115/warungislamibogor/';
+// String host = 'http://192.168.100.4/warungislamibogor_shop/';
+// String hostadmin = 'http://192.168.100.4/warungislamibogor/';
 // String clientSecret = '0zxvmtgG2PkVw0NfQ0HwxjKYHVbhoaFBZyDlmJEp';
 
 
@@ -33,6 +33,14 @@ url(pathname){
 
 	return outp;
 }
+
+urlpath(pathname){
+  var path = pathname;  
+	var outp = host + path;
+
+	return Uri.parse(outp);
+}
+
 urladmin(pathname){
   var path = pathname;  
 	var outp = hostadmin + path;

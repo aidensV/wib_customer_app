@@ -7,6 +7,9 @@ class MyNavigator {
   static void goToDashboard(BuildContext context) {
     Navigator.pushNamed(context, "/dashboard");
   }
+  static void goToViewDashboard(BuildContext context) {
+    Navigator.pushNamed(context, "/dashboard_view");
+  }
   static void goToTracking(BuildContext context) {
     Navigator.pushNamed(context, "/tracking");
   }

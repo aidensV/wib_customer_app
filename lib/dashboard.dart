@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_image/network.dart';
 // import 'package:provider/provider.dart';
 import 'package:wib_customer_app/cari_produk/cari_produk.dart';
-import 'package:wib_customer_app/pusher/pusher_service.dart';
-import 'notification_service/notification_service.dart';
+import 'package:wib_customer_app/pages/profile/profile.dart';
+import 'package:wib_customer_app/saldo.dart';
 import 'utils/Navigator.dart';
 import 'package:wib_customer_app/storage/storage.dart';
 import 'package:flutter/cupertino.dart';
@@ -19,12 +19,16 @@ import 'dart:convert';
 import 'package:wib_customer_app/pages/shops/category_item.dart';
 import 'package:flutter_pagewise/flutter_pagewise.dart';
 import 'pages/shops/product_detail.dart';
+import 'pages/wishlist/wishlist.dart';
+import 'pages/shopping_cart/shoppingcart.dart';
 
+bool bottom;
 String tokenType, accessToken;
 Map<String, String> requestHeaders = Map();
 List<ListBanner> listBanner = [];
 bool isLoading;
 int pageSize = 6;
+
 
 ScrollController scrollController = ScrollController(initialScrollOffset: 0.0);
 
@@ -33,7 +37,6 @@ int red, green, blue;
 double opacity, maxOffsetToColor;
 
 GlobalKey<ScaffoldState> _scaffoldKeyDashboard;
-NotificationService notificationService;
 
 showInSnackBarDashboard(String content) {
   _scaffoldKeyDashboard.currentState.showSnackBar(
@@ -56,6 +59,19 @@ class _DashboardPageState extends State<DashboardPage>
 
   String _username;
   String usernameprofile, emailprofile, imageprofile;
+
+  final List<Widget> _children = [
+    null,
+    Saldo(),
+    ProfilePage(),
+  ];
+
+  int _currentIndex = 0;
+  void onTabTapped(int index) {
+     _currentIndex = index;
+   setState(() {
+   });
+ }
 
   Future<Null> removeSharedPrefs() async {
     DataStore dataStore = new DataStore();
@@ -103,7 +119,7 @@ class _DashboardPageState extends State<DashboardPage>
     imageprofile = await storage.getDataString('image');
   }
 
-  Future<List<ListBanner>> listBannerAndroid() async {
+  Future<void> listBannerAndroid() async {
     try {
       var storage = new DataStore();
 
@@ -114,14 +130,15 @@ class _DashboardPageState extends State<DashboardPage>
       accessToken = accessTokenStorage;
       requestHeaders['Accept'] = 'application/json';
       requestHeaders['Authorization'] = '$tokenType $accessToken';
-      setState(() {
+      this.setState(() {
         isLoading = true;
       });
       final banner = await http.get(
-        url('api/produk_beranda_android'),
+        url('api/produk_beranda_android?_limit=6&count=1'),
         headers: requestHeaders,
       );
 
+      print(banner.statusCode);
       if (banner.statusCode == 200) {
         // return nota;
         var bannerJson = json.decode(banner.body);
@@ -132,26 +149,38 @@ class _DashboardPageState extends State<DashboardPage>
         listBanner = [];
         for (var i in banners) {
           ListBanner bannerx = ListBanner(
-            idbanner: '${i['b_id']}',
+            idbanner: i['b_id'].toString(),
             banner: i['b_image'],
           );
           listBanner.add(bannerx);
         }
+        this.setState(() {
+          isLoading = false;
+          listBanner = listBanner;
+        });
+      } else if (banner.statusCode == 401) {
+        showInSnackBarProduk('Token kedaluwarsa, silahkan login kembali');
         setState(() {
           isLoading = false;
         });
-        return listBanner;
-      } else if (banner.statusCode == 401) {
-        showInSnackBarProduk('Token kedaluwarsa, silahkan login kembali');
       } else {
         showInSnackBarProduk('Error Code : ${banner.statusCode}');
+        setState(() {
+          isLoading = false;
+        });
       }
     } on TimeoutException catch (_) {
       showInSnackBarProduk('Request Timeout, try again');
+      setState(() {
+        isLoading = false;
+      });
     } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
       print('Error : $e');
     }
-    return null;
+    // return null;
   }
 
   CarouselSlider carouselSlider;
@@ -176,15 +205,6 @@ class _DashboardPageState extends State<DashboardPage>
   @override
   void initState() {
     _scaffoldKeyDashboard = GlobalKey<ScaffoldState>();
-    notificationService = new NotificationService(context: context);
-
-    notificationService.initStateNotificationCustomerSudahBayarService();
-    PusherService pusherService =
-        PusherService(notificationService: notificationService);
-
-    pusherService = PusherService(notificationService: notificationService);
-    pusherService.firePusher();
-
     listBannerAndroid();
     scrollController = ScrollController(initialScrollOffset: 0.0);
     isScrolled = false;
@@ -198,7 +218,6 @@ class _DashboardPageState extends State<DashboardPage>
     isLoading = false;
     dataProfile();
     print(requestHeaders);
-
     super.initState();
   }
 
@@ -309,7 +328,7 @@ class _DashboardPageState extends State<DashboardPage>
           ),
         ),
         // Body Section Here
-        body: SafeArea(
+        body: _currentIndex == 0 ? SafeArea(
           child: Stack(
             children: <Widget>[
               RefreshIndicator(
@@ -434,13 +453,13 @@ class _DashboardPageState extends State<DashboardPage>
                       // ),
                       width: MediaQuery.of(context).size.width,
                       child: PagewiseListView(
-                        pageSize: 4,
+                        pageSize: pageSize,
                         padding: EdgeInsets.all(2.0),
                         scrollDirection: Axis.horizontal,
                         primary: false,
                         itemBuilder: this._recItemBuilder,
                         pageFuture: (pageIndex) =>
-                            BackendService.getDataRecom(pageIndex, 4),
+                            BackendService.getDataRecom(pageIndex, pageSize),
                       ),
                     ),
                     Container(
@@ -525,7 +544,7 @@ class _DashboardPageState extends State<DashboardPage>
                                     : 2,
                             // mainAxisSpacing: 10.0,
                             crossAxisSpacing: 5.0,
-                            childAspectRatio: 0.7,
+                            childAspectRatio: 0.6,
                             itemBuilder: this._itemBuilder,
                             pageFuture: (pageIndex) =>
                                 BackendService.getData(pageIndex, pageSize),
@@ -613,6 +632,7 @@ class _DashboardPageState extends State<DashboardPage>
                         ),
                         title: InkWell(
                           onTap: () {
+                            bottom = false;
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -668,14 +688,25 @@ class _DashboardPageState extends State<DashboardPage>
                         actions: <Widget>[
                           IconButton(
                             onPressed: () {
-                              MyNavigator.goWishlist(context);
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    settings: RouteSettings(name: '/wishlist'),
+                                    builder: (context) => Wishlist(),
+                                  ));
                             },
                             icon: Icon(Icons.favorite),
                             // color: Colors.white,
                           ),
                           IconButton(
                             onPressed: () {
-                              MyNavigator.goKeranjang(context);
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    settings: RouteSettings(
+                                        name: '/keranjangbelanja'),
+                                    builder: (context) => Keranjang(),
+                                  ));
                             },
                             icon: Icon(Icons.shopping_cart),
                             // color: Colors.white,
@@ -688,7 +719,32 @@ class _DashboardPageState extends State<DashboardPage>
               ),
             ],
           ),
-        ),
+        ) : _children[_currentIndex] , 
+        bottomNavigationBar: BottomNavigationBar(
+            onTap: onTabTapped, 
+            // type: BottomNavigationBarType.shifting,
+            unselectedItemColor: Colors.grey,
+            selectedItemColor: Color(0xff31B057),
+            currentIndex: _currentIndex,
+            items: [
+              BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.home,
+                ),
+                title: new Text('Shop'),
+              ),
+              BottomNavigationBarItem(
+                  icon: Icon(
+                    Icons.attach_money,
+                  ),
+                  title: new Text('Saldo')),
+              BottomNavigationBarItem(
+                  icon: Icon(
+                    Icons.person,
+                  ),
+                  title: new Text('Profile'))
+            ],
+          ),
       ),
     );
   }
@@ -722,29 +778,25 @@ class _DashboardPageState extends State<DashboardPage>
           children: <Widget>[
             ClipRRect(
               borderRadius: BorderRadius.circular(0),
-              child: entry.gambar != null
-                  ? Image.network(
-                      urladmin(
+              child: Image.network(
+                entry.gambar != null
+                    ? urladmin(
                         'storage/image/master/produk/${entry.gambar}',
+                      )
+                    : url(
+                        'assets/img/noimage.jpg',
                       ),
-                      fit: BoxFit.cover,
-                      height: 130.0,
-                      width: MediaQuery.of(context).size.width,
-                    )
-                  : Image(
-                      image: AssetImage('images/noimage.jpg'),
-                      fit: BoxFit.cover,
-                      height: 130.0,
-                      width: MediaQuery.of(context).size.width,
-                    ),
+                fit: BoxFit.cover,
+                height: 130.0,
+                width: MediaQuery.of(context).size.width,
+              ),
             ),
             // SizedBox(height: 7),
             Padding(
               padding: EdgeInsets.only(left: 5.0, right: 5.0, top: 10.0),
               child: Row(
                 children: <Widget>[
-                  Text(
-                    entry.item == null ? 'Unknown Item' : entry.item,
+                  Text(entry.item == null ? 'Unknown Item' : entry.item,
                     style: TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
@@ -776,8 +828,7 @@ class _DashboardPageState extends State<DashboardPage>
                     ),
                     Expanded(
                       flex: 5,
-                      child: Text(
-                        entry.tipe == null ? 'Unknown Tipe' : entry.tipe,
+                      child: Text(entry.tipe == null ? 'Unknown Tipe' : entry.tipe,
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 13,
@@ -826,21 +877,18 @@ class _DashboardPageState extends State<DashboardPage>
                   children: <Widget>[
                     ClipRRect(
                       borderRadius: BorderRadius.circular(0.0),
-                      child: entry.gambar != null
-                          ? Image.network(
-                              urladmin(
+                      child: Image.network(
+                        entry.gambar != null
+                            ? urladmin(
                                 'storage/image/master/produk/${entry.gambar}',
+                              )
+                            : url(
+                                'assets/img/noimage.jpg',
                               ),
-                              fit: BoxFit.cover,
-                              height: 150.0,
-                              width: MediaQuery.of(context).size.width,
-                            )
-                          : Image(
-                              image: AssetImage('images/noimage.jpg'),
-                              fit: BoxFit.cover,
-                              height: 150.0,
-                              width: MediaQuery.of(context).size.width,
-                            ),
+                        fit: BoxFit.cover,
+                        height: 150.0,
+                        width: MediaQuery.of(context).size.width,
+                      ),
                     ),
                     Positioned(
                         top: 5.0,

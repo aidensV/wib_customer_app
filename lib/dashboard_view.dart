@@ -18,7 +18,7 @@ String tokenType, accessToken;
 Map<String, String> requestHeaders = Map();
 List<ListBanner> listBanner = [];
 List<ListHistory> listHistory = [];
-  var dashboardViewKey = GlobalKey<ScaffoldState>();
+  var dashboardViewKey = new GlobalKey<ScaffoldState>();
 
 class ListHistory {
   final String tanggal;
@@ -31,17 +31,20 @@ class ListHistory {
 }
 
 class DashboardView extends StatefulWidget{
+  final int page;
 
+  DashboardView({Key key,this.page});
   @override
   State<StatefulWidget>createState(){
-    return _DashboardView();
+    return _DashboardView(page:page);
   }
   
 }
 
 class _DashboardView extends State<DashboardView>{
+  int page;
 
-  int _currentIndex = 0;
+  _DashboardView({Key key , this.page});
   final List<Widget> _children = [
     DashboardPage(),
     Saldo(),
@@ -129,10 +132,10 @@ class _DashboardView extends State<DashboardView>{
       // );
     }
   }
-
+  int _currentIndex = 0;
   void onTabTapped(int index) {
-   setState(() {
      _currentIndex = index;
+   setState(() {
    });
  }
 
@@ -171,7 +174,7 @@ class _DashboardView extends State<DashboardView>{
       debugShowCheckedModeBanner: false,
       home: Scaffold(
           backgroundColor: Colors.white,
-          key: dashboardViewKey,
+          // key: dashboardViewKey,
           drawer: Drawer(
             child: ListView(
               padding: EdgeInsets.zero,
@@ -262,13 +265,18 @@ class _DashboardView extends State<DashboardView>{
             ),
           ),
           // Body Section Here
-           body:
-          _children[_currentIndex],
-          bottomNavigationBar: BottomNavigationBar(
+           body: _children[_currentIndex],
+          bottomNavigationBar: _currentIndex == 0 ?  
+          null
+          //true
+          :
+          //false
+          BottomNavigationBar(
             onTap: onTabTapped, 
             // type: BottomNavigationBarType.shifting,
             unselectedItemColor: Colors.grey,
             selectedItemColor: Color(0xff31B057),
+            currentIndex: _currentIndex,
             items: [
               BottomNavigationBarItem(
                 icon: Icon(

@@ -3,7 +3,9 @@ import 'package:intl/intl.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:wib_customer_app/dashboard.dart';
 import 'package:wib_customer_app/env.dart';
+import 'package:wib_customer_app/pages/profile/profile.dart';
 import 'package:wib_customer_app/storage/storage.dart';
 // import 'package:shimmer/shimmer.dart';
 // import 'dashboard.dart';
@@ -13,6 +15,8 @@ import 'storage/storage.dart';
 String tokenType, accessToken;
 Map<String, String> requestHeaders = Map();
 List<History> history = [];
+// GlobalKey<ScaffoldState> _scaffoldKeysaldo = new GlobalKey<ScaffoldState>() ;
+
 
 class History{
   final nota;
@@ -43,9 +47,65 @@ class _Saldo extends State<Saldo>{
   final customer;
   var total;
   _Saldo({Key key , this.customer});
+
+  
+  int _currentIndex = 1;
+  void onTabTapped(int index) {
+    _currentIndex = index;
+   if(index == 0){
+     Navigator.push(context,
+      MaterialPageRoute(
+        builder: (context) => DashboardPage(),
+    ),);
+   }else if(index == 1){
+   }else if(index == 2){
+     Navigator.push(context,
+      MaterialPageRoute(
+        builder: (context) => ProfilePage(),
+    ),);
+   }
+ }
+
+  Future<Null> getsaldo() async{
+    try {
+      var storage = new DataStore();
+      _id = await storage.getDataInteger("id");
+      _user = await storage.getDataString("username");
+      var tokenTypeStorage = await storage.getDataString('token_type');
+      var accessTokenStorage = await storage.getDataString('access_token');
+
+      tokenType = tokenTypeStorage;
+      accessToken = accessTokenStorage;
+      requestHeaders['Accept'] = 'application/json';
+      requestHeaders['Authorization'] = '$tokenType $accessToken';
+
+      final getHistory = await http.post(
+        url('api/detail_saldo_android'),
+        body : {'member' : _id.toString()},
+        headers: requestHeaders,
+      );
+
+      if (getHistory.statusCode == 200) {
+        // return nota;
+        var getHistoryJson = json.decode(getHistory.body);
+        // var getHistorys = getHistoryJson['getHistory'];
+        double saldototal = double.parse(getHistoryJson[0]['hsm_total']);
+        var parserupiah = rupiah.format(saldototal);
+        this.setState(() {
+        total = parserupiah;          
+        });
+          return total;          
+      } else {
+        return null;
+      }
+    } on TimeoutException catch (_) {} catch (e) {
+      debugPrint('$e');
+    }
+
+  }
   
   Future<List<History>> historyAndroid() async {
-
+    
     try {
       var storage = new DataStore();
       _id = await storage.getDataInteger("id");
@@ -68,9 +128,6 @@ class _Saldo extends State<Saldo>{
         // return nota;
         var getHistoryJson = json.decode(getHistory.body);
         // var getHistorys = getHistoryJson['getHistory'];
-        double saldototal = double.parse(getHistoryJson[0]['hsm_total']);
-        var parserupiah = rupiah.format(saldototal);
-        total = parserupiah;
         history = [];
         for (var i in getHistoryJson) {
           History getHistoryx = History(
@@ -83,7 +140,7 @@ class _Saldo extends State<Saldo>{
           );
           history.add(getHistoryx);
         }
-        return history;
+          return history;          
       } else {
         return null;
       }
@@ -96,15 +153,17 @@ class _Saldo extends State<Saldo>{
   @override
 
   void initState() {
+    getsaldo();
     historyAndroid();
-
-    if(total != null){
     super.initState();
-    }
   }
 
+  @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return Scaffold(
+    // key: _scaffoldKeysaldo ,
+      body: SafeArea(
+        child: SingleChildScrollView(
         child: Column(
           children: <Widget>[
               Container(
@@ -247,8 +306,35 @@ class _Saldo extends State<Saldo>{
               )
             )
           ],
+        ),
       ),
-    );
+      ),
+      // bottomNavigationBar: BottomNavigationBar(
+      //       onTap: onTabTapped, 
+      //       // type: BottomNavigationBarType.shifting,
+      //       unselectedItemColor: Colors.grey,
+      //       selectedItemColor: Color(0xff31B057),
+      //       currentIndex: _currentIndex,
+      //       items: [
+      //         BottomNavigationBarItem(
+      //           icon: Icon(
+      //             Icons.home,
+      //           ),
+      //           title: new Text('Shop'),
+      //         ),
+      //         BottomNavigationBarItem(
+      //             icon: Icon(
+      //               Icons.attach_money,
+      //             ),
+      //             title: new Text('Saldo')),
+      //         BottomNavigationBarItem(
+      //             icon: Icon(
+      //               Icons.person,
+      //             ),
+      //             title: new Text('Profile'))
+      //       ],
+      //     ),
+    ); 
   }
 }
 
