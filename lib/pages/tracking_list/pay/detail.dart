@@ -4,11 +4,13 @@ import 'package:http/http.dart' as http;
 import 'package:wib_customer_app/env.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
-// import 'package:image_picker/image_picker.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../utils/Navigator.dart';
 import 'dart:convert';
+import 'package:path/path.dart';
 import 'package:wib_customer_app/pages/checkout/checkout.dart';
 import 'package:wib_customer_app/storage/storage.dart';
+import 'package:async/async.dart';
 
 var idX, notaX, customerX, statusX;
 String accessToken, tokenType, stockiesX, ongkirX;
@@ -43,21 +45,63 @@ class Detail extends StatefulWidget {
 class _DetailState extends State<Detail> {
   final String id, nota, customer, status, total;
   File _image;
+  bool loading;
 
   Future getimagegallery() async {
-    // var imagefile = await ImagePicker.pickImage(source:ImageSource.gallery);
-
     setState(() {
-      // _image = imagefile;
+      loading = true;
+    });
+    _image = null;
+    var imagefile = await ImagePicker.pickImage(source:ImageSource.gallery);
+    _image = imagefile;
+    setState(() {
+      loading = false;
     });
   }
 
   Future getimagecamera() async {
-    // var imagefile = await ImagePicker.pickImage(source:ImageSource.camera);
-
     setState(() {
-      // _image = imagefile;
+      loading = true;
     });
+    _image = null;
+    var imagefile = await ImagePicker.pickImage(source:ImageSource.camera);
+
+      _image = imagefile;
+    setState(() {
+      loading = false;
+    });
+  }
+
+  Future upload(File imageFile) async {
+    var storage = new DataStore();
+
+    var tokenTypeStorage = await storage.getDataString('token_type');
+    var accessTokenStorage = await storage.getDataString('access_token');
+    tokenType = tokenTypeStorage;
+    accessToken = accessTokenStorage;
+    requestHeaders['Accept'] = 'application/json';
+    requestHeaders['Authorization'] = '$tokenType $accessToken';
+    Map<String, String> headers = requestHeaders;
+
+    var stream = new http.ByteStream(DelegatingStream.typed(imageFile.openRead()));
+    var length = await imageFile.length(); 
+    var request = new http.MultipartRequest("POST" , urlpath('api/bayar'));
+    var kirimfile = new http.MultipartFile("gambar", stream, length,filename: basename(imageFile.path));
+    request.headers.addAll(headers);
+    request.fields['android'] = "true";
+    request.fields['nota'] = nota;
+    request.files.add(kirimfile);
+
+    var response = await request.send();
+    final respStr = await response.stream.bytesToString();
+
+    print(json.decode(respStr));
+    if(response.statusCode == 200){
+      print('gambar berhasil di upload');
+    }else{
+      var i = response.statusCode;
+      print('gambar gagal di upload code $i');
+    }
   }
   
   _DetailState({
@@ -98,7 +142,7 @@ class _DetailState extends State<Detail> {
       isLoading = true;
     });
     try {
-      final item = await http.post(url('api/detailTransaksiAndroid'),
+      final item = await http.post(urlpath('api/detailTransaksiAndroid'),
           headers: requestHeaders, body: {'nota': '$notaX'});
 
       if (item.statusCode == 200) {
@@ -161,7 +205,7 @@ class _DetailState extends State<Detail> {
 
   void _showAlamatNull() {
     showDialog(
-        context: context,
+        context: null,
         builder: (context) {
           return AlertDialog(
             title: Text('Peringatan'),
@@ -359,7 +403,7 @@ class _DetailState extends State<Detail> {
                                                         try {
                                                           final adcart =
                                                               await http.post(
-                                                                  url(
+                                                                  urlpath(
                                                                       'api/addCartAndroid'),
                                                                   headers:
                                                                       requestHeaders,
@@ -434,7 +478,7 @@ class _DetailState extends State<Detail> {
                                                   ? urladmin(
                                                       'storage/image/master/produk/${listItem[index].image}',
                                                     )
-                                                  : url(
+                                                  : urlpath(
                                                       'assets/img/noimage.jpg',
                                                     ),
                                               width: 80.0,
@@ -637,6 +681,27 @@ class _DetailState extends State<Detail> {
                       ),
                     ),
                   ),
+                  Container(
+                    margin: EdgeInsets.only(top: 2),
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      child: _image != null ? 
+                      loading == false ? new Text(
+                        "Gambar Telah Dipilih",
+                        style: TextStyle(
+                            fontFamily: 'TitilliumWeb', fontSize: 14.0),
+                      ) : new Text(
+                        "Loading...",
+                        style: TextStyle(
+                            fontFamily: 'TitilliumWeb', fontSize: 14.0),
+                      )
+                      : new Text(
+                        "Gambar Belum Dipilih",
+                        style: TextStyle(
+                            fontFamily: 'TitilliumWeb', fontSize: 14.0),
+                      ),
+                    ),
+                  ),
                   SizedBox(
                     height: 3.0,
                   ),
@@ -669,6 +734,28 @@ class _DetailState extends State<Detail> {
                             color: Colors.transparent,
                             elevation: 0.0,
                             child: Text("Ambil Foto",
+                                style: TextStyle(
+                                    fontFamily: 'TitilliumWeb',
+                                    fontSize: 16.0,
+                                    color: Color(0xff31B057))),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: new BorderRadius.circular(2.0),
+                                side: BorderSide(color: Color(0xff31B057))),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 10.0,
+                        ),
+                        _image == null ? 
+                        Container() : Container(
+                          height: 40.0,
+                          child: RaisedButton(
+                            onPressed: (){
+                              upload(_image);
+                            } ,
+                            color: Colors.transparent,
+                            elevation: 0.0,
+                            child: Text("Upload",
                                 style: TextStyle(
                                     fontFamily: 'TitilliumWeb',
                                     fontSize: 16.0,

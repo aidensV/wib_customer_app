@@ -33,6 +33,14 @@ url(pathname){
 
 	return outp;
 }
+
+urlpath(pathname){
+  var path = pathname;  
+	var outp = host + path;
+
+	return Uri.parse(outp);
+}
+
 urladmin(pathname){
   var path = pathname;  
 	var outp = hostadmin + path;
