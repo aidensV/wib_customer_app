@@ -13,6 +13,7 @@ import 'package:intl/intl.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:http/http.dart' as http;
 import 'package:wib_customer_app/env.dart';
+import 'package:wib_customer_app/utils/Navigator.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:wib_customer_app/pages/shops/category_item.dart';
@@ -59,8 +60,6 @@ class _DashboardPageState extends State<DashboardPage>
   Future<Null> removeSharedPrefs() async {
     DataStore dataStore = new DataStore();
     dataStore.clearData();
-    _username = await dataStore.getDataString("username");
-    print(_username);
   }
 
   List category;
@@ -1060,6 +1059,7 @@ class BackendService {
         return null;
       } else {
         showInSnackBarDashboard('Error Code : ${responseBody.statusCode}');
+        print('Error Code : ${responseBody.statusCode}');
         return null;
       }
     } on TimeoutException catch (_) {
@@ -1095,6 +1095,7 @@ class BackendService {
         return null;
       } else {
         showInSnackBarDashboard('Error code : ${responseBody.statusCode}');
+        print('Error Code : ${responseBody.statusCode}');
         print(jsonDecode(responseBody.body));
         return null;
       }
