@@ -1,8 +1,10 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:wib_customer_app/env.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
+// import 'package:image_picker/image_picker.dart';
 import '../../../utils/Navigator.dart';
 import 'dart:convert';
 import 'package:wib_customer_app/pages/checkout/checkout.dart';
@@ -40,6 +42,24 @@ class Detail extends StatefulWidget {
 
 class _DetailState extends State<Detail> {
   final String id, nota, customer, status, total;
+  File _image;
+
+  Future getimagegallery() async {
+    // var imagefile = await ImagePicker.pickImage(source:ImageSource.gallery);
+
+    setState(() {
+      // _image = imagefile;
+    });
+  }
+
+  Future getimagecamera() async {
+    // var imagefile = await ImagePicker.pickImage(source:ImageSource.camera);
+
+    setState(() {
+      // _image = imagefile;
+    });
+  }
+  
   _DetailState({
     Key key,
     @required this.id,
@@ -580,7 +600,7 @@ class _DetailState extends State<Detail> {
           ),
           child: Center(
             child: Text(
-              'Salin Ke Nota Baru',
+              'Kirim Foto',
               style: new TextStyle(
                   fontFamily: 'TitilliumWeb',
                   fontSize: 14.0,
@@ -611,7 +631,7 @@ class _DetailState extends State<Detail> {
                     child: Align(
                       alignment: Alignment.topLeft,
                       child: Text(
-                        "Apa anda yakin?",
+                        "pilih Metode!",
                         style: TextStyle(
                             fontFamily: 'TitilliumWeb', fontSize: 20.0),
                       ),
@@ -619,15 +639,6 @@ class _DetailState extends State<Detail> {
                   ),
                   SizedBox(
                     height: 3.0,
-                  ),
-                  Container(
-                    child: Text(
-                      "Item pada transaksi ini akan langsung diarahkan ke checkout !",
-                      style: TextStyle(
-                          fontFamily: 'TitilliumWeb',
-                          fontSize: 16.0,
-                          color: Colors.grey[400]),
-                    ),
                   ),
                   SizedBox(
                     height: 5.0,
@@ -639,69 +650,9 @@ class _DetailState extends State<Detail> {
                           height: 40.0,
                           width: 80.0,
                           child: RaisedButton(
-                            onPressed: () async {
-                              formSerialize = Map<String, dynamic>();
-                              formSerialize['cabang'] = null;
-                              formSerialize['item'] = List();
-                              formSerialize['qty'] = List();
-                              formSerialize['berat'] = List();
-
-                              formSerialize['cabang'] = stockiesX;
-                              for (int i = 0; i < listItem.length; i++) {
-                                formSerialize['item'].add(listItem[i].code);
-                                formSerialize['qty'].add(listItem[i].qty);
-                                formSerialize['berat'].add(listItem[i].berat);
-                              }
-
-                              print(formSerialize);
-
-                              Map<String, dynamic> requestHeadersX =
-                                  requestHeaders;
-
-                              requestHeadersX['Content-Type'] =
-                                  "application/x-www-form-urlencoded";
-                              try {
-                                final response = await http.post(
-                                  url('api/checkout_repeat_order_android'),
-                                  headers: requestHeadersX,
-                                  body: {
-                                    'type_platform': 'android',
-                                    'data': jsonEncode(formSerialize),
-                                  },
-                                  encoding: Encoding.getByName("utf-8"),
-                                );
-
-                                if (response.statusCode == 200) {
-                                  dynamic responseJson =
-                                      jsonDecode(response.body);
-                                  if (responseJson['status'] == 'success') {
-                                    Navigator.pop(context);
-                                    Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Checkout(),
-                              ));
-                                  } else {
-                                    showInSnackBar(
-                                        'Hubungi Pengembang Software');
-                                    print('${response.body}');
-                                  }
-                                  print('response decoded $responseJson');
-                                } else {
-                                  print('${response.body}');
-                                  showInSnackBar(
-                                      'Request failed with status: ${response.statusCode}');
-                                  Navigator.pop(context);
-                                }
-                              } on TimeoutException catch (_) {
-                                Navigator.pop(context);
-                                showInSnackBar('Timed out, Try again');
-                              } catch (e) {
-                                print(e);
-                              }
-                            },
+                            onPressed: getimagegallery,
                             color: Color(0xff31B057),
-                            child: Text("Ya",
+                            child: Text("Galeri",
                                 style: TextStyle(
                                     fontFamily: 'TitilliumWeb',
                                     fontSize: 16.0,
@@ -713,14 +664,11 @@ class _DetailState extends State<Detail> {
                         ),
                         Container(
                           height: 40.0,
-                          width: 80.0,
                           child: RaisedButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
+                            onPressed: getimagecamera ,
                             color: Colors.transparent,
                             elevation: 0.0,
-                            child: Text("Tidak!",
+                            child: Text("Ambil Foto",
                                 style: TextStyle(
                                     fontFamily: 'TitilliumWeb',
                                     fontSize: 16.0,
