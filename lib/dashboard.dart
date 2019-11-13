@@ -131,14 +131,15 @@ class _DashboardPageState extends State<DashboardPage>
       accessToken = accessTokenStorage;
       requestHeaders['Accept'] = 'application/json';
       requestHeaders['Authorization'] = '$tokenType $accessToken';
-      setState(() {
+      this.setState(() {
         isLoading = true;
       });
       final banner = await http.get(
-        url('api/produk_beranda_android'),
+        url('api/produk_beranda_android?_limit=6&count=1'),
         headers: requestHeaders,
       );
 
+      print(banner.statusCode);
       if (banner.statusCode == 200) {
         // return nota;
         var bannerJson = json.decode(banner.body);
@@ -154,7 +155,7 @@ class _DashboardPageState extends State<DashboardPage>
           );
           listBanner.add(bannerx);
         }
-        setState(() {
+        this.setState(() {
           isLoading = false;
         });
         return listBanner;
@@ -206,7 +207,6 @@ class _DashboardPageState extends State<DashboardPage>
     isLoading = false;
     dataProfile();
     print(requestHeaders);
-
     super.initState();
   }
 
