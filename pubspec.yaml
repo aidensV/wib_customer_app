@@ -40,6 +40,7 @@ dependencies:
   autocomplete_textfield: ^1.7.3
   image_picker:
   flutter_pagewise:
+  background_fetch: ^0.3.2
 
 dev_dependencies:
   flutter_test:

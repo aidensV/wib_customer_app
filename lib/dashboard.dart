@@ -90,7 +90,7 @@ class _DashboardPageState extends State<DashboardPage>
     accessToken = accessTokenStorage;
     requestHeaders['Accept'] = 'application/json';
     requestHeaders['Authorization'] = '$tokenType $accessToken';
-    print(requestHeaders);
+    // print(requestHeaders);
     try {
       final response = await http.get(
         url('api/listKategoriAndroid'),
@@ -103,7 +103,7 @@ class _DashboardPageState extends State<DashboardPage>
         });
       } else if (response.statusCode == 401) {}
 
-      print(category[1]["ity_code"]);
+      // print(category[1]["ity_code"]);
 
       return "Success!";
     } catch (e) {
@@ -138,13 +138,13 @@ class _DashboardPageState extends State<DashboardPage>
         headers: requestHeaders,
       );
 
-      print(banner.statusCode);
+      // print(banner.statusCode);
       if (banner.statusCode == 200) {
         // return nota;
         var bannerJson = json.decode(banner.body);
         var banners = bannerJson['banner'];
 
-        print('Banner $banners');
+        // print('Banner $banners');
 
         listBanner = [];
         for (var i in banners) {
@@ -217,7 +217,7 @@ class _DashboardPageState extends State<DashboardPage>
     getCategory();
     isLoading = false;
     dataProfile();
-    print(requestHeaders);
+    // print(requestHeaders);
     super.initState();
   }
 
@@ -1090,8 +1090,8 @@ class BackendService {
     var tokenTypeStorage = await storage.getDataString('token_type');
     var accessTokenStorage = await storage.getDataString('access_token');
     var hitung = index;
-    print(hitung);
-    print(limit);
+    // print(hitung);
+    // print(limit);
     try {
       final responseBody = await http.get(
           url('api/produk_beranda_android?_limit=$limit&count=$hitung'),
@@ -1123,7 +1123,7 @@ class BackendService {
   static Future<List<RecomendationModel>> getDataRecom(index, limit) async {
     var storage = new DataStore();
 
-    print('index $index');
+    // print('index $index');
 
     var tokenTypeStorage = await storage.getDataString('token_type');
     var accessTokenStorage = await storage.getDataString('access_token');
