@@ -94,10 +94,13 @@ class _DetailState extends State<Detail> {
 
     var response = await request.send();
     final respStr = await response.stream.bytesToString();
-
-    print(json.decode(respStr));
+    var resp = json.decode(respStr);
     if(response.statusCode == 200){
-      print('gambar berhasil di upload');
+      if(resp['error'] != null){
+      print(resp['error']);
+      }else{
+      print(resp['success']);
+      }
     }else{
       var i = response.statusCode;
       print('gambar gagal di upload code $i');
