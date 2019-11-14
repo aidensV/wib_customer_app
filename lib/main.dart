@@ -1,3 +1,4 @@
+import 'package:background_fetch/background_fetch.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:wib_customer_app/notification_service/notification_service.dart';
@@ -42,10 +43,18 @@ Map<String, WidgetBuilder> routesX = <String, WidgetBuilder>{
 
 };
 
+void backgroundFetchHeadlessTask() async {
+  print('[BackgroundFetch] Headless event received.');
+  print('AR background fetch headless is success');
+  BackgroundFetch.finish();
+}
+
 void main() {
   flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
   runApp(MyApp());
+
+  BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
 }
 
 class MyApp extends StatelessWidget {
