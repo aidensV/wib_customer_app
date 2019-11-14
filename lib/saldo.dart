@@ -46,6 +46,7 @@ class _Saldo extends State<Saldo>{
   var _user;
   final customer;
   var total;
+  bool loading = true;
   _Saldo({Key key , this.customer});
 
   
@@ -94,6 +95,11 @@ class _Saldo extends State<Saldo>{
         this.setState(() {
         total = parserupiah;          
         });
+        
+        this.setState((){
+          loading = false;
+        });
+          
           return total;          
       } else {
         return null;
@@ -162,7 +168,7 @@ class _Saldo extends State<Saldo>{
   Widget build(BuildContext context) {
     return Scaffold(
     // key: _scaffoldKeysaldo ,
-      body: SafeArea(
+      body: loading ?Center( child: CircularProgressIndicator() ) : SafeArea(
         child: SingleChildScrollView(
         child: Column(
           children: <Widget>[
