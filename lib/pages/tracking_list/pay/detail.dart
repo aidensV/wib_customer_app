@@ -5,10 +5,10 @@ import 'package:wib_customer_app/env.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
 import 'package:image_picker/image_picker.dart';
-import '../../../utils/Navigator.dart';
+// import '../../../utils/Navigator.dart';
 import 'dart:convert';
 import 'package:path/path.dart';
-import 'package:wib_customer_app/pages/checkout/checkout.dart';
+// import 'package:wib_customer_app/pages/checkout/checkout.dart';
 import 'package:wib_customer_app/storage/storage.dart';
 import 'package:async/async.dart';
 
@@ -48,26 +48,29 @@ class _DetailState extends State<Detail> {
   bool loading;
 
   Future getimagegallery() async {
-    setState(() {
-      loading = true;
-    });
+    // this.setState(() {
+    //   print('loading true');
+    //   loading = true;
+    // });
     _image = null;
     var imagefile = await ImagePicker.pickImage(source:ImageSource.gallery);
     _image = imagefile;
-    setState(() {
+    showInSnackBar('Tekan Upload Sekarang Untuk Mengupload');
+    this.setState(() {
       loading = false;
     });
   }
 
   Future getimagecamera() async {
-    setState(() {
-      loading = true;
-    });
+    // this.setState(() {
+    //   loading = true;
+    // });
     _image = null;
     var imagefile = await ImagePicker.pickImage(source:ImageSource.camera);
 
       _image = imagefile;
-    setState(() {
+    showInSnackBar('Tekan Upload Sekarang Untuk Mengupload');
+    this.setState(() {
       loading = false;
     });
   }
@@ -97,12 +100,13 @@ class _DetailState extends State<Detail> {
     var resp = json.decode(respStr);
     if(response.statusCode == 200){
       if(resp['error'] != null){
-      print(resp['error']);
+      showInSnackBar((resp['error']).toString());
       }else{
-      print(resp['success']);
+      showInSnackBar((resp['success']).toString());
       }
     }else{
       var i = response.statusCode;
+      print(resp);
       print('gambar gagal di upload code $i');
     }
   }
@@ -156,7 +160,6 @@ class _DetailState extends State<Detail> {
         var ongkir = itemJson['ongkir'];
         print('biaya ${ongkir}');
         print(itemproduct);
-        print(itemJson);
         listItem = [];
         for (var i in itemJson['item']) {
           ListItem notax = ListItem(
@@ -169,7 +172,7 @@ class _DetailState extends State<Detail> {
             image: i['ip_path'],
             code: i['i_code'],
             berat: i['itp_weight'].toString(),
-            hargadiskon : i['sd_discvalue'].toString(),
+            hargadiskon : i['sd_discvalue'] == null ? '0' :  i['sd_discvalue'],
           );
           listItem.add(notax);
         }
@@ -226,6 +229,8 @@ class _DetailState extends State<Detail> {
 
   @override
   void initState() {
+    getHeaderHTTP();
+    _image = null;
     listItem = [];
     isLoading = false;
     idX = id;
@@ -235,7 +240,6 @@ class _DetailState extends State<Detail> {
     ongkirX = null;
     stockiesX = null;
     listItemNotaAndroid();
-    getHeaderHTTP();
     super.initState();
   }
 
@@ -315,7 +319,7 @@ class _DetailState extends State<Detail> {
                         ),
                         Expanded(
                           flex: 5,
-                          child: Text(ongkirX == null ? 'Rp. 0.00' : _numberFormat.format(double.parse(ongkirX.toString())),
+                          child: Text(ongkirX == null ? 'Rp. 0.00' : _numberFormat.format(double.parse(ongkirX)).toString(),
                             style: TextStyle(color: Colors.black54),
                           ),
                         ),
@@ -352,9 +356,9 @@ class _DetailState extends State<Detail> {
                                   new NumberFormat.simpleCurrency(
                                       decimalDigits: 2, name: 'Rp. ');
                               String finaltotalitem =
-                                  _numberFormat.format(totalperitem);
+                                  _numberFormat.format(totalperitem).toString();
                               String finalhargaperitem =
-                                  _numberFormat.format(hargaperitem);
+                                  _numberFormat.format(hargaperitem).toString();
                               return Card(
                                 child: Column(
                                   children: <Widget>[
@@ -525,7 +529,7 @@ class _DetailState extends State<Detail> {
                                                                       .hargasales ==
                                                                   null
                                                               ? 'Rp. 0.00'
-                                                              : _numberFormat.format(double.parse(listItem[index].hargasales.toString())),
+                                                              : _numberFormat.format((double.parse(listItem[index].hargasales))),
                                                           style: TextStyle(
                                                               color: Colors
                                                                   .black,
@@ -543,9 +547,10 @@ class _DetailState extends State<Detail> {
                                                       Text(
                                                           listItem[index]
                                                                       .hargadiskon ==
-                                                                  null
-                                                              ? 'Rp. 0.00'
-                                                              : _numberFormat.format(double.parse(listItem[index].hargasales.toString())),
+                                                                  null || listItem[index]
+                                                                      .hargadiskon == '0'
+                                                              ? _numberFormat.format(double.parse(listItem[index].hargasales))
+                                                              : _numberFormat.format(double.parse(listItem[index].hargasales) - double.parse(listItem[index].hargadiskon)),
                                                           style: TextStyle(
                                                               color: Colors
                                                                   .black)),
@@ -575,9 +580,10 @@ class _DetailState extends State<Detail> {
                                                       Text(
                                                           listItem[index]
                                                                       .hargadiskon ==
-                                                                  null
+                                                                  null || listItem[index]
+                                                                      .hargadiskon == '0'
                                                               ? 'Rp. 0.00'
-                                                              : _numberFormat.format(double.parse(listItem[index].hargasales.toString()) - (double.parse(listItem[index].hargadiskon.toString()) / int.parse(listItem[index].qty)) ),
+                                                              : _numberFormat.format(double.parse(listItem[index].hargasales) - double.parse(listItem[index].hargadiskon) / int.parse(listItem[index].qty)),
                                                           style: TextStyle(
                                                               color: Colors
                                                                   .black)),
@@ -647,7 +653,7 @@ class _DetailState extends State<Detail> {
           ),
           child: Center(
             child: Text(
-              'Kirim Foto',
+              _image != null ? 'Upload Sekarang' : 'Kirim Foto',
               style: new TextStyle(
                   fontFamily: 'TitilliumWeb',
                   fontSize: 14.0,
@@ -660,6 +666,8 @@ class _DetailState extends State<Detail> {
   }
 
   void _confirmationModalBottomSheet(context) {
+    this.setState((){
+    });
     showModalBottomSheet(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
@@ -689,15 +697,11 @@ class _DetailState extends State<Detail> {
                     child: Align(
                       alignment: Alignment.topLeft,
                       child: _image != null ? 
-                      loading == false ? new Text(
+                      new Text(
                         "Gambar Telah Dipilih",
                         style: TextStyle(
                             fontFamily: 'TitilliumWeb', fontSize: 14.0),
-                      ) : new Text(
-                        "Loading...",
-                        style: TextStyle(
-                            fontFamily: 'TitilliumWeb', fontSize: 14.0),
-                      )
+                      ) 
                       : new Text(
                         "Gambar Belum Dipilih",
                         style: TextStyle(
@@ -718,7 +722,10 @@ class _DetailState extends State<Detail> {
                           height: 40.0,
                           width: 80.0,
                           child: RaisedButton(
-                            onPressed: getimagegallery,
+                            onPressed:(){
+                              getimagegallery();
+                              Navigator.pop(context);
+                            },
                             color: Color(0xff31B057),
                             child: Text("Galeri",
                                 style: TextStyle(
@@ -733,7 +740,10 @@ class _DetailState extends State<Detail> {
                         Container(
                           height: 40.0,
                           child: RaisedButton(
-                            onPressed: getimagecamera ,
+                            onPressed:(){
+                              getimagecamera();
+                              Navigator.pop(context);
+                            }  ,
                             color: Colors.transparent,
                             elevation: 0.0,
                             child: Text("Ambil Foto",
@@ -755,6 +765,7 @@ class _DetailState extends State<Detail> {
                           child: RaisedButton(
                             onPressed: (){
                               upload(_image);
+                              Navigator.pop(context);
                             } ,
                             color: Colors.transparent,
                             elevation: 0.0,
