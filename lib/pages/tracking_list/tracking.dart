@@ -5,7 +5,7 @@ import 'pay/pay.dart' as tab2;
 import 'process/process.dart' as tab3;
 import 'send/send.dart' as tab4;
 
-GlobalKey<ScaffoldState> _scaffoldBM;
+var _scaffoldBM;
 TabController _tabController;
 
 class TrackingList extends StatefulWidget {
