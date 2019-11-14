@@ -7,8 +7,8 @@ import 'package:intl/intl.dart';
 import 'dart:async';
 import 'dart:convert';
 
-GlobalKey<ScaffoldState> _scaffoldKeyX = new GlobalKey<ScaffoldState>();
-List<ListNota> listNota = [];
+GlobalKey<ScaffoldState> _scaffoldKeyX;
+List<ListNota> listNota;
 String tokenType, accessToken;
 Map<String, String> requestHeaders = Map();
 
@@ -18,6 +18,17 @@ void showInSnackBar(String value) {
 }
 
 Future<List<ListNota>> listNotaAndroid() async {
+  DataStore storage = new DataStore();
+
+  String tokenTypeStorage = await storage.getDataString('token_type');
+  String accessTokenStorage = await storage.getDataString('access_token');
+
+  tokenType = tokenTypeStorage;
+  accessToken = accessTokenStorage;
+  requestHeaders['Accept'] = 'application/json';
+  requestHeaders['Authorization'] = '$tokenType $accessToken';
+  // print(requestHeaders);
+
   try {
     final nota = await http.get(
       url('api/SemuaTransaksiAndroid'),
@@ -41,7 +52,7 @@ Future<List<ListNota>> listNotaAndroid() async {
           statusPembayaran: i['s_paystatus'],
           statusMetodePembayaran: i['s_paymethod'],
           statusSetuju: i['s_isapprove'],
-          total : i['s_total'],
+          total: i['s_total'],
           customer: i['cm_name'],
         );
         listNota.add(notax);
@@ -50,9 +61,9 @@ Future<List<ListNota>> listNotaAndroid() async {
       print('listnota $listNota');
       print('listnota length ${listNota.length}');
       return listNota;
-    } else if(nota.statusCode == 500) {
-     showInSnackBar('Request failed with status: ${nota.statusCode}');
-     print(nota.body);
+    } else if (nota.statusCode == 500) {
+      showInSnackBar('Request failed with status: ${nota.statusCode}');
+      print(nota.body);
       return null;
     }
   } on TimeoutException catch (_) {
@@ -63,21 +74,34 @@ Future<List<ListNota>> listNotaAndroid() async {
   return null;
 }
 
-Widget statusNota(statusDeliver, statusPacking, statusPembayaran, statusMetodePembayaran, statusSetuju) {
+Widget statusNota(statusDeliver, statusPacking, statusPembayaran,
+    statusMetodePembayaran, statusSetuju) {
   if (statusSetuju == 'C') {
-    return Text("Menunggu Konfirmasi", style: TextStyle(color: Colors.orange),);
+    return Text(
+      "Menunggu Konfirmasi",
+      style: TextStyle(color: Colors.orange),
+    );
   }
 
   if (statusSetuju == 'N') {
-    return Text("Denied", style: TextStyle(color: Colors.red),);
+    return Text(
+      "Denied",
+      style: TextStyle(color: Colors.red),
+    );
   }
 
   if (statusDeliver == 'Y') {
-    return Text("Transaksi Selesai", style: TextStyle(color: Colors.green),);
+    return Text(
+      "Transaksi Selesai",
+      style: TextStyle(color: Colors.green),
+    );
   }
 
   if (statusDeliver == 'L') {
-    return Text("Pengiriman Terlambat", style: TextStyle(color: Colors.orange),);
+    return Text(
+      "Pengiriman Terlambat",
+      style: TextStyle(color: Colors.orange),
+    );
   }
 
   if (statusDeliver == 'P') {
@@ -115,18 +139,6 @@ class AllNota extends StatefulWidget {
 }
 
 class _AllNotaState extends State<AllNota> {
-  Future<Null> getHeaderHTTP() async {
-    var storage = new DataStore();
-
-    var tokenTypeStorage = await storage.getDataString('token_type');
-    var accessTokenStorage = await storage.getDataString('access_token');
-      tokenType = tokenTypeStorage;
-      accessToken = accessTokenStorage;
-      requestHeaders['Accept'] = 'application/json';
-      requestHeaders['Authorization'] = '$tokenType $accessToken';
-      print(requestHeaders);
-  }
-
   int totalRefresh = 0;
   refreshFunction() async {
     setState(() {
@@ -136,9 +148,18 @@ class _AllNotaState extends State<AllNota> {
 
   @override
   void initState() {
-    getHeaderHTTP();
+    _scaffoldKeyX = new GlobalKey<ScaffoldState>();
+
     print(requestHeaders);
     super.initState();
+  }
+
+  @override
+  void setState(fn) {
+    // Cek if widget is mounted in tree widget
+    if (mounted) {
+      super.setState(fn);
+    }
   }
 
   @override
@@ -159,9 +180,9 @@ class _AllNotaState extends State<AllNota> {
                   );
                 case ConnectionState.active:
                 case ConnectionState.waiting:
-                 return Center(
-                   child: CircularProgressIndicator(),
-                 );
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
                 case ConnectionState.done:
                   if (snapshot.hasError) {
                     return Text('Error: ${snapshot.error}');
@@ -184,9 +205,13 @@ class _AllNotaState extends State<AllNota> {
                     return ListView.builder(
                       itemCount: snapshot.data.length,
                       itemBuilder: (BuildContext context, int index) {
-                          double totalpembelian = double.parse(snapshot.data[index].total);
-                          NumberFormat _numberFormat = new NumberFormat.simpleCurrency(decimalDigits: 2, name: 'Rp. ');
-                          String hargaTotal = _numberFormat.format(totalpembelian);
+                        double totalpembelian =
+                            double.parse(snapshot.data[index].total);
+                        NumberFormat _numberFormat =
+                            new NumberFormat.simpleCurrency(
+                                decimalDigits: 2, name: 'Rp. ');
+                        String hargaTotal =
+                            _numberFormat.format(totalpembelian);
                         return Container(
                           color: Colors.white,
                           child: ListTile(
@@ -197,8 +222,7 @@ class _AllNotaState extends State<AllNota> {
                                 snapshot.data[index].statusPacking,
                                 snapshot.data[index].statusPembayaran,
                                 snapshot.data[index].statusMetodePembayaran,
-                                snapshot.data[index].statusSetuju
-                            ),
+                                snapshot.data[index].statusSetuju),
                             onTap: () {
                               Navigator.push(
                                 context,
@@ -239,5 +263,15 @@ class ListNota {
   final String statusMetodePembayaran;
   final String statusSetuju;
 
-  ListNota({this.id, this.nota, this.status, this.customer, this.total, this.statusDeliver, this.statusPacking, this.statusPembayaran, this.statusMetodePembayaran, this.statusSetuju});
+  ListNota(
+      {this.id,
+      this.nota,
+      this.status,
+      this.customer,
+      this.total,
+      this.statusDeliver,
+      this.statusPacking,
+      this.statusPembayaran,
+      this.statusMetodePembayaran,
+      this.statusSetuju});
 }

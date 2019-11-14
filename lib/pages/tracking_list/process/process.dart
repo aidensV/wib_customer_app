@@ -7,8 +7,8 @@ import 'package:intl/intl.dart';
 import 'dart:async';
 import 'dart:convert';
 
-GlobalKey<ScaffoldState> _scaffoldKeyX = new GlobalKey<ScaffoldState>();
-List<ListNota> listNota = [];
+GlobalKey<ScaffoldState> _scaffoldKeyX;
+List<ListNota> listNota;
 String tokenType, accessToken;
 Map<String, String> requestHeaders = Map();
 
@@ -18,6 +18,15 @@ void showInSnackBar(String value) {
 }
 
 Future<List<ListNota>> listNotaAndroid() async {
+  DataStore storage = new DataStore();
+
+  String tokenTypeStorage = await storage.getDataString('token_type');
+  String accessTokenStorage = await storage.getDataString('access_token');
+
+  tokenType = tokenTypeStorage;
+  accessToken = accessTokenStorage;
+  requestHeaders['Accept'] = 'application/json';
+  requestHeaders['Authorization'] = '$tokenType $accessToken';
   try {
     final nota = await http.get(
       url('api/TransaksiProsesAndroid'),
@@ -41,7 +50,7 @@ Future<List<ListNota>> listNotaAndroid() async {
           statusPembayaran: i['s_paystatus'],
           statusMetodePembayaran: i['s_paymethod'],
           statusSetuju: i['s_isapprove'],
-          total : i['s_total'],
+          total: i['s_total'],
           customer: i['cm_name'],
         );
         listNota.add(notax);
@@ -62,21 +71,34 @@ Future<List<ListNota>> listNotaAndroid() async {
   return null;
 }
 
-Widget statusNota(statusDeliver, statusPacking, statusPembayaran, statusMetodePembayaran, statusSetuju) {
+Widget statusNota(statusDeliver, statusPacking, statusPembayaran,
+    statusMetodePembayaran, statusSetuju) {
   if (statusSetuju == 'C') {
-    return Text("Menunggu Konfirmasi", style: TextStyle(color: Colors.orange),);
+    return Text(
+      "Menunggu Konfirmasi",
+      style: TextStyle(color: Colors.orange),
+    );
   }
 
   if (statusSetuju == 'N') {
-    return Text("Denied", style: TextStyle(color: Colors.red),);
+    return Text(
+      "Denied",
+      style: TextStyle(color: Colors.red),
+    );
   }
 
   if (statusDeliver == 'Y') {
-    return Text("Transaksi Selesai", style: TextStyle(color: Colors.green),);
+    return Text(
+      "Transaksi Selesai",
+      style: TextStyle(color: Colors.green),
+    );
   }
 
   if (statusDeliver == 'L') {
-    return Text("Pengiriman Terlambat", style: TextStyle(color: Colors.orange),);
+    return Text(
+      "Pengiriman Terlambat",
+      style: TextStyle(color: Colors.orange),
+    );
   }
 
   if (statusDeliver == 'P') {
@@ -115,19 +137,6 @@ class ProcessNota extends StatefulWidget {
 }
 
 class _ProcessNotaState extends State<ProcessNota> {
-  Future<Null> getHeaderHTTP() async {
-    var storage = new DataStore();
-
-    var tokenTypeStorage = await storage.getDataString('token_type');
-    var accessTokenStorage = await storage.getDataString('access_token');
-      tokenType = tokenTypeStorage;
-      accessToken = accessTokenStorage;
-
-      requestHeaders['Accept'] = 'application/json';
-      requestHeaders['Authorization'] = '$tokenType $accessToken';
-      print(requestHeaders);
-  }
-
   int totalRefresh = 0;
   refreshFunction() async {
     setState(() {
@@ -137,9 +146,16 @@ class _ProcessNotaState extends State<ProcessNota> {
 
   @override
   void initState() {
-    getHeaderHTTP();
+    _scaffoldKeyX = new GlobalKey<ScaffoldState>();
     print(requestHeaders);
     super.initState();
+  }
+
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
   }
 
   @override
@@ -185,21 +201,26 @@ class _ProcessNotaState extends State<ProcessNota> {
                     return ListView.builder(
                       itemCount: snapshot.data.length,
                       itemBuilder: (BuildContext context, int index) {
-                        double totalpembelian = double.parse(snapshot.data[index].total);
-                        NumberFormat _numberFormat = new NumberFormat.simpleCurrency(decimalDigits: 2, name: 'Rp. ');
-                        String hargaTotal = _numberFormat.format(totalpembelian);
+                        double totalpembelian =
+                            double.parse(snapshot.data[index].total);
+                        NumberFormat _numberFormat =
+                            new NumberFormat.simpleCurrency(
+                                decimalDigits: 2, name: 'Rp. ');
+                        String hargaTotal =
+                            _numberFormat.format(totalpembelian);
                         return Container(
                           color: Colors.white,
                           child: ListTile(
                             title: Text(snapshot.data[index].nota),
-                            subtitle: Text(snapshot.data[index].total == null ? 'Rp. 0.00' : hargaTotal), 
+                            subtitle: Text(snapshot.data[index].total == null
+                                ? 'Rp. 0.00'
+                                : hargaTotal),
                             trailing: statusNota(
                                 snapshot.data[index].statusDeliver,
                                 snapshot.data[index].statusPacking,
                                 snapshot.data[index].statusPembayaran,
                                 snapshot.data[index].statusMetodePembayaran,
-                                snapshot.data[index].statusSetuju
-                            ),
+                                snapshot.data[index].statusSetuju),
                             onTap: () {
                               Navigator.push(
                                 context,
@@ -240,5 +261,15 @@ class ListNota {
   final String statusMetodePembayaran;
   final String statusSetuju;
 
-  ListNota({this.id, this.nota, this.status, this.customer, this.total, this.statusDeliver, this.statusPacking, this.statusPembayaran, this.statusMetodePembayaran, this.statusSetuju});
+  ListNota(
+      {this.id,
+      this.nota,
+      this.status,
+      this.customer,
+      this.total,
+      this.statusDeliver,
+      this.statusPacking,
+      this.statusPembayaran,
+      this.statusMetodePembayaran,
+      this.statusSetuju});
 }

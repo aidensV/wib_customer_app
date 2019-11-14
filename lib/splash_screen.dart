@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 // import 'utils/Navigator.dart';
-import 'dashboard_view.dart';
+// import 'dashboard_view.dart';
 import 'storage/storage.dart';
 import 'dart:async';
 
@@ -23,10 +23,6 @@ class _SplashScreenState extends State<SplashScreen> {
     } else {
       Timer(Duration(seconds: 2),
               () => Navigator.pushReplacementNamed(context, "/dashboard"));
-              // () => Navigator.push(context,
-              //                             MaterialPageRoute(
-              //                               builder: (context) => DashboardView(),
-              //                             ),));
     }
   }
 

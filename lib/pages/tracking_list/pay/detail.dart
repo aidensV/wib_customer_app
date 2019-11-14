@@ -1,11 +1,18 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:wib_customer_app/env.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
+
+import 'package:image_picker/image_picker.dart';
+// import '../../../utils/Navigator.dart';
 import 'dart:convert';
-import 'package:wib_customer_app/pages/checkout/checkout.dart';
+import 'package:path/path.dart';
+import 'package:wib_customer_app/env.dart' as prefix0;
+// import 'package:wib_customer_app/pages/checkout/checkout.dart';
 import 'package:wib_customer_app/storage/storage.dart';
+import 'package:async/async.dart';
 
 var idX, notaX, customerX, statusX;
 String accessToken,
@@ -50,6 +57,73 @@ class Detail extends StatefulWidget {
 
 class _DetailState extends State<Detail> {
   final String id, nota, customer, status, total;
+  File _image;
+  bool loading;
+
+  Future getimagegallery() async {
+    // this.setState(() {
+    //   print('loading true');
+    //   loading = true;
+    // });
+    _image = null;
+    var imagefile = await ImagePicker.pickImage(source:ImageSource.gallery);
+    _image = imagefile;
+    showInSnackBar('Tekan Upload Sekarang Untuk Mengupload');
+    this.setState(() {
+      loading = false;
+    });
+  }
+
+  Future getimagecamera() async {
+    // this.setState(() {
+    //   loading = true;
+    // });
+    _image = null;
+    var imagefile = await ImagePicker.pickImage(source:ImageSource.camera);
+
+      _image = imagefile;
+    showInSnackBar('Tekan Upload Sekarang Untuk Mengupload');
+    this.setState(() {
+      loading = false;
+    });
+  }
+
+  Future upload(File imageFile) async {
+    var storage = new DataStore();
+
+    var tokenTypeStorage = await storage.getDataString('token_type');
+    var accessTokenStorage = await storage.getDataString('access_token');
+    tokenType = tokenTypeStorage;
+    accessToken = accessTokenStorage;
+    requestHeaders['Accept'] = 'application/json';
+    requestHeaders['Authorization'] = '$tokenType $accessToken';
+    Map<String, String> headers = requestHeaders;
+
+    var stream = new http.ByteStream(DelegatingStream.typed(imageFile.openRead()));
+    var length = await imageFile.length(); 
+    var request = new http.MultipartRequest("POST" , urlpath('api/bayar'));
+    var kirimfile = new http.MultipartFile("gambar", stream, length,filename: basename(imageFile.path));
+    request.headers.addAll(headers);
+    request.fields['android'] = "true";
+    request.fields['nota'] = nota;
+    request.files.add(kirimfile);
+
+    var response = await request.send();
+    final respStr = await response.stream.bytesToString();
+    var resp = json.decode(respStr);
+    if(response.statusCode == 200){
+      if(resp['error'] != null){
+      showInSnackBar((resp['error']).toString());
+      }else{
+      showInSnackBar((resp['success']).toString());
+      }
+    }else{
+      var i = response.statusCode;
+      print(resp);
+      print('gambar gagal di upload code $i');
+    }
+  }
+  
   _DetailState({
     Key key,
     @required this.id,
@@ -88,7 +162,7 @@ class _DetailState extends State<Detail> {
       isLoading = true;
     });
     try {
-      final item = await http.post(url('api/detailTransaksiAndroid'),
+      final item = await http.post(urlpath('api/detailTransaksiAndroid'),
           headers: requestHeaders, body: {'nota': '$notaX'});
 
       if (item.statusCode == 200) {
@@ -166,7 +240,7 @@ class _DetailState extends State<Detail> {
 
   void _showAlamatNull() {
     showDialog(
-        context: context,
+        context: null,
         builder: (context) {
           return AlertDialog(
             title: Text('Peringatan'),
@@ -184,6 +258,8 @@ class _DetailState extends State<Detail> {
 
   @override
   void initState() {
+    getHeaderHTTP();
+    _image = null;
     listItem = [];
     isLoading = false;
     idX = id;
@@ -201,7 +277,6 @@ class _DetailState extends State<Detail> {
     deliveredX = null;
     resiX = null;
     listItemNotaAndroid();
-    getHeaderHTTP();
     super.initState();
   }
 
@@ -413,9 +488,8 @@ class _DetailState extends State<Detail> {
                                                       _showAlamatNull();
                                                     } else {
                                                       try {
-                                                        final adcart = await http.post(
-                                                            url(
-                                                                'api/addCartAndroid'),
+                                                        var post = http.post(
+                                                            prefix0.url('api/addCartAndroid'),
                                                             headers:
                                                                 requestHeaders,
                                                             body: {
@@ -425,6 +499,7 @@ class _DetailState extends State<Detail> {
                                                               'cart_location':
                                                                   stockiesX,
                                                             });
+                                                        final adcart = await post;
 
                                                         if (adcart.statusCode ==
                                                             200) {
@@ -482,7 +557,7 @@ class _DetailState extends State<Detail> {
                                                 ? urladmin(
                                                     'storage/image/master/produk/${item.image}',
                                                   )
-                                                : url(
+                                                : prefix0.url(
                                                     'assets/img/noimage.jpg',
                                                   ),
                                             width: 80.0,
@@ -581,7 +656,7 @@ class _DetailState extends State<Detail> {
                                                         children: <Widget>[
                                                           Text(
                                                               item.hargadiskon ==
-                                                                      null
+                                                                      '0'
                                                                   ? 'Rp. 0.00'
                                                                   : _numberFormat.format(double.parse(item
                                                                           .hargasales
@@ -658,7 +733,7 @@ class _DetailState extends State<Detail> {
           ),
           child: Center(
             child: Text(
-              'Salin Ke Nota Baru',
+              _image != null ? 'Upload Sekarang' : 'Kirim Foto',
               style: new TextStyle(
                   fontFamily: 'TitilliumWeb',
                   fontSize: 14.0,
@@ -671,6 +746,8 @@ class _DetailState extends State<Detail> {
   }
 
   void _confirmationModalBottomSheet(context) {
+    this.setState((){
+    });
     showModalBottomSheet(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
@@ -689,23 +766,31 @@ class _DetailState extends State<Detail> {
                     child: Align(
                       alignment: Alignment.topLeft,
                       child: Text(
-                        "Apa anda yakin?",
+                        "pilih Metode!",
                         style: TextStyle(
                             fontFamily: 'TitilliumWeb', fontSize: 20.0),
                       ),
                     ),
                   ),
+                  Container(
+                    margin: EdgeInsets.only(top: 2),
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      child: _image != null ? 
+                      new Text(
+                        "Gambar Telah Dipilih",
+                        style: TextStyle(
+                            fontFamily: 'TitilliumWeb', fontSize: 14.0),
+                      ) 
+                      : new Text(
+                        "Gambar Belum Dipilih",
+                        style: TextStyle(
+                            fontFamily: 'TitilliumWeb', fontSize: 14.0),
+                      ),
+                    ),
+                  ),
                   SizedBox(
                     height: 3.0,
-                  ),
-                  Container(
-                    child: Text(
-                      "Item pada transaksi ini akan langsung diarahkan ke checkout !",
-                      style: TextStyle(
-                          fontFamily: 'TitilliumWeb',
-                          fontSize: 16.0,
-                          color: Colors.grey[400]),
-                    ),
                   ),
                   SizedBox(
                     height: 5.0,
@@ -717,70 +802,12 @@ class _DetailState extends State<Detail> {
                           height: 40.0,
                           width: 80.0,
                           child: RaisedButton(
-                            onPressed: () async {
-                              formSerialize = Map<String, dynamic>();
-                              formSerialize['cabang'] = null;
-                              formSerialize['item'] = List();
-                              formSerialize['qty'] = List();
-                              formSerialize['berat'] = List();
-
-                              formSerialize['cabang'] = stockiesX;
-                              for (int i = 0; i < listItem.length; i++) {
-                                formSerialize['item'].add(listItem[i].code);
-                                formSerialize['qty'].add(listItem[i].qty);
-                                formSerialize['berat'].add(listItem[i].berat);
-                              }
-
-                              print(formSerialize);
-
-                              Map<String, dynamic> requestHeadersX =
-                                  requestHeaders;
-
-                              requestHeadersX['Content-Type'] =
-                                  "application/x-www-form-urlencoded";
-                              try {
-                                final response = await http.post(
-                                  url('api/checkout_repeat_order_android'),
-                                  headers: requestHeadersX,
-                                  body: {
-                                    'type_platform': 'android',
-                                    'data': jsonEncode(formSerialize),
-                                  },
-                                  encoding: Encoding.getByName("utf-8"),
-                                );
-
-                                if (response.statusCode == 200) {
-                                  dynamic responseJson =
-                                      jsonDecode(response.body);
-                                  if (responseJson['status'] == 'success') {
-                                    Navigator.pop(context);
-                                    Navigator.pushReplacementNamed(context, "/checkout");
-                                    // Navigator.push(
-                                    //     context,
-                                    //     MaterialPageRoute(
-                                    //       builder: (context) => Checkout(),
-                                    //     ));
-                                  } else {
-                                    showInSnackBar(
-                                        'Hubungi Pengembang Software');
-                                    print('${response.body}');
-                                  }
-                                  print('response decoded $responseJson');
-                                } else {
-                                  print('${response.body}');
-                                  showInSnackBar(
-                                      'Request failed with status: ${response.statusCode}');
-                                  Navigator.pop(context);
-                                }
-                              } on TimeoutException catch (_) {
-                                Navigator.pop(context);
-                                showInSnackBar('Timed out, Try again');
-                              } catch (e) {
-                                print(e);
-                              }
+                            onPressed:(){
+                              getimagegallery();
+                              Navigator.pop(context);
                             },
                             color: Color(0xff31B057),
-                            child: Text("Ya",
+                            child: Text("Galeri",
                                 style: TextStyle(
                                     fontFamily: 'TitilliumWeb',
                                     fontSize: 16.0,
@@ -792,14 +819,37 @@ class _DetailState extends State<Detail> {
                         ),
                         Container(
                           height: 40.0,
-                          width: 80.0,
                           child: RaisedButton(
-                            onPressed: () {
+                            onPressed:(){
+                              getimagecamera();
                               Navigator.pop(context);
-                            },
+                            }  ,
                             color: Colors.transparent,
                             elevation: 0.0,
-                            child: Text("Tidak!",
+                            child: Text("Ambil Foto",
+                                style: TextStyle(
+                                    fontFamily: 'TitilliumWeb',
+                                    fontSize: 16.0,
+                                    color: Color(0xff31B057))),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: new BorderRadius.circular(2.0),
+                                side: BorderSide(color: Color(0xff31B057))),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 10.0,
+                        ),
+                        _image == null ? 
+                        Container() : Container(
+                          height: 40.0,
+                          child: RaisedButton(
+                            onPressed: (){
+                              upload(_image);
+                              Navigator.pop(context);
+                            } ,
+                            color: Colors.transparent,
+                            elevation: 0.0,
+                            child: Text("Upload",
                                 style: TextStyle(
                                     fontFamily: 'TitilliumWeb',
                                     fontSize: 16.0,

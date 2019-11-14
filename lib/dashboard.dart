@@ -13,6 +13,7 @@ import 'package:intl/intl.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:http/http.dart' as http;
 import 'package:wib_customer_app/env.dart';
+import 'package:wib_customer_app/utils/Navigator.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:wib_customer_app/pages/shops/category_item.dart';
@@ -75,8 +76,6 @@ class _DashboardPageState extends State<DashboardPage>
   Future<Null> removeSharedPrefs() async {
     DataStore dataStore = new DataStore();
     dataStore.clearData();
-    _username = await dataStore.getDataString("username");
-    print(_username);
   }
 
   List category;
@@ -120,7 +119,7 @@ class _DashboardPageState extends State<DashboardPage>
     imageprofile = await storage.getDataString('image');
   }
 
-  Future<List<ListBanner>> listBannerAndroid() async {
+  Future<void> listBannerAndroid() async {
     try {
       var storage = new DataStore();
 
@@ -131,14 +130,15 @@ class _DashboardPageState extends State<DashboardPage>
       accessToken = accessTokenStorage;
       requestHeaders['Accept'] = 'application/json';
       requestHeaders['Authorization'] = '$tokenType $accessToken';
-      setState(() {
+      this.setState(() {
         isLoading = true;
       });
       final banner = await http.get(
-        url('api/produk_beranda_android'),
+        url('api/produk_beranda_android?_limit=6&count=1'),
         headers: requestHeaders,
       );
 
+      print(banner.statusCode);
       if (banner.statusCode == 200) {
         // return nota;
         var bannerJson = json.decode(banner.body);
@@ -149,26 +149,38 @@ class _DashboardPageState extends State<DashboardPage>
         listBanner = [];
         for (var i in banners) {
           ListBanner bannerx = ListBanner(
-            idbanner: '${i['b_id']}',
+            idbanner: i['b_id'].toString(),
             banner: i['b_image'],
           );
           listBanner.add(bannerx);
         }
+        this.setState(() {
+          isLoading = false;
+          listBanner = listBanner;
+        });
+      } else if (banner.statusCode == 401) {
+        showInSnackBarProduk('Token kedaluwarsa, silahkan login kembali');
         setState(() {
           isLoading = false;
         });
-        return listBanner;
-      } else if (banner.statusCode == 401) {
-        showInSnackBarProduk('Token kedaluwarsa, silahkan login kembali');
       } else {
         showInSnackBarProduk('Error Code : ${banner.statusCode}');
+        setState(() {
+          isLoading = false;
+        });
       }
     } on TimeoutException catch (_) {
       showInSnackBarProduk('Request Timeout, try again');
+      setState(() {
+        isLoading = false;
+      });
     } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
       print('Error : $e');
     }
-    return null;
+    // return null;
   }
 
   CarouselSlider carouselSlider;
@@ -206,7 +218,6 @@ class _DashboardPageState extends State<DashboardPage>
     isLoading = false;
     dataProfile();
     print(requestHeaders);
-
     super.initState();
   }
 
@@ -442,13 +453,13 @@ class _DashboardPageState extends State<DashboardPage>
                       // ),
                       width: MediaQuery.of(context).size.width,
                       child: PagewiseListView(
-                        pageSize: 4,
+                        pageSize: pageSize,
                         padding: EdgeInsets.all(2.0),
                         scrollDirection: Axis.horizontal,
                         primary: false,
                         itemBuilder: this._recItemBuilder,
                         pageFuture: (pageIndex) =>
-                            BackendService.getDataRecom(pageIndex, 4),
+                            BackendService.getDataRecom(pageIndex, pageSize),
                       ),
                     ),
                     Container(
@@ -678,10 +689,11 @@ class _DashboardPageState extends State<DashboardPage>
                           IconButton(
                             onPressed: () {
                               Navigator.push(
-                              context,
-                              MaterialPageRoute(settings: RouteSettings(name: '/wishlist'),
-                                builder: (context) => Wishlist(),
-                              ));
+                                  context,
+                                  MaterialPageRoute(
+                                    settings: RouteSettings(name: '/wishlist'),
+                                    builder: (context) => Wishlist(),
+                                  ));
                             },
                             icon: Icon(Icons.favorite),
                             // color: Colors.white,
@@ -689,10 +701,12 @@ class _DashboardPageState extends State<DashboardPage>
                           IconButton(
                             onPressed: () {
                               Navigator.push(
-                              context,
-                              MaterialPageRoute(settings: RouteSettings(name: '/keranjangbelanja'),
-                                builder: (context) => Keranjang(),
-                              ));
+                                  context,
+                                  MaterialPageRoute(
+                                    settings: RouteSettings(
+                                        name: '/keranjangbelanja'),
+                                    builder: (context) => Keranjang(),
+                                  ));
                             },
                             icon: Icon(Icons.shopping_cart),
                             // color: Colors.white,
@@ -1078,14 +1092,32 @@ class BackendService {
     var hitung = index;
     print(hitung);
     print(limit);
-    final responseBody = await http.get(
-        url('api/produk_beranda_android?_limit=$limit&count=$hitung'),
-        headers: {"Authorization": "$tokenTypeStorage $accessTokenStorage"});
+    try {
+      final responseBody = await http.get(
+          url('api/produk_beranda_android?_limit=$limit&count=$hitung'),
+          headers: {"Authorization": "$tokenTypeStorage $accessTokenStorage"});
 
-    var data = json.decode(responseBody.body);
-    var product = data['semuaitem'];
+      if (responseBody.statusCode == 200) {
+        var data = json.decode(responseBody.body);
+        var product = data['semuaitem'];
 
-    return ProductModel.fromJsonList(product);
+        return ProductModel.fromJsonList(product);
+      } else if (responseBody.statusCode == 401) {
+        showInSnackBarDashboard('Token kedaluwarsa, silahkan login kembali');
+        return null;
+      } else {
+        showInSnackBarDashboard('Error Code : ${responseBody.statusCode}');
+        print('Error Code : ${responseBody.statusCode}');
+        return null;
+      }
+    } on TimeoutException catch (_) {
+      showInSnackBarDashboard('Request timeout, try again');
+      return null;
+    } catch (e) {
+      print('Error : $e');
+      showInSnackBarDashboard('Error : ${e.toString()}');
+      return null;
+    }
   }
 
   static Future<List<RecomendationModel>> getDataRecom(index, limit) async {
@@ -1096,14 +1128,33 @@ class BackendService {
     var tokenTypeStorage = await storage.getDataString('token_type');
     var accessTokenStorage = await storage.getDataString('access_token');
 
-    final responseBody = await http.get(
-        url('api/produk_beranda_android?_limit=0&_recLimit=$limit'),
-        headers: {"Authorization": "$tokenTypeStorage $accessTokenStorage"});
+    try {
+      final responseBody = await http.get(
+          url('api/produk_beranda_android?_limit=0&_recLimit=$limit'),
+          headers: {"Authorization": "$tokenTypeStorage $accessTokenStorage"});
 
-    var data = json.decode(responseBody.body);
-    var product = data['itemslider'];
+      if (responseBody.statusCode == 200) {
+        var data = json.decode(responseBody.body);
+        var product = data['itemslider'];
 
-    return RecomendationModel.fromJsonList(product);
+        return RecomendationModel.fromJsonList(product);
+      } else if (responseBody.statusCode == 401) {
+        showInSnackBarDashboard('Token kedaluwarsa, silahkan login kembali');
+        return null;
+      } else {
+        showInSnackBarDashboard('Error code : ${responseBody.statusCode}');
+        print('Error Code : ${responseBody.statusCode}');
+        print(jsonDecode(responseBody.body));
+        return null;
+      }
+    } on TimeoutException catch (_) {
+      showInSnackBarDashboard('Request timeout, try again');
+      return null;
+    } catch (e) {
+      print('Error : $e');
+      showInSnackBarDashboard('Error : ${e.toString()}');
+      return null;
+    }
   }
 }
 
