@@ -13,6 +13,7 @@ import 'package:intl/intl.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:http/http.dart' as http;
 import 'package:wib_customer_app/env.dart';
+import 'package:wib_customer_app/utils/Navigator.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:wib_customer_app/pages/shops/category_item.dart';
@@ -75,8 +76,6 @@ class _DashboardPageState extends State<DashboardPage>
   Future<Null> removeSharedPrefs() async {
     DataStore dataStore = new DataStore();
     dataStore.clearData();
-    _username = await dataStore.getDataString("username");
-    print(_username);
   }
 
   List category;
@@ -1093,14 +1092,32 @@ class BackendService {
     var hitung = index;
     print(hitung);
     print(limit);
-    final responseBody = await http.get(
-        url('api/produk_beranda_android?_limit=$limit&count=$hitung'),
-        headers: {"Authorization": "$tokenTypeStorage $accessTokenStorage"});
+    try {
+      final responseBody = await http.get(
+          url('api/produk_beranda_android?_limit=$limit&count=$hitung'),
+          headers: {"Authorization": "$tokenTypeStorage $accessTokenStorage"});
 
-    var data = json.decode(responseBody.body);
-    var product = data['semuaitem'];
+      if (responseBody.statusCode == 200) {
+        var data = json.decode(responseBody.body);
+        var product = data['semuaitem'];
 
-    return ProductModel.fromJsonList(product);
+        return ProductModel.fromJsonList(product);
+      } else if (responseBody.statusCode == 401) {
+        showInSnackBarDashboard('Token kedaluwarsa, silahkan login kembali');
+        return null;
+      } else {
+        showInSnackBarDashboard('Error Code : ${responseBody.statusCode}');
+        print('Error Code : ${responseBody.statusCode}');
+        return null;
+      }
+    } on TimeoutException catch (_) {
+      showInSnackBarDashboard('Request timeout, try again');
+      return null;
+    } catch (e) {
+      print('Error : $e');
+      showInSnackBarDashboard('Error : ${e.toString()}');
+      return null;
+    }
   }
 
   static Future<List<RecomendationModel>> getDataRecom(index, limit) async {
@@ -1111,14 +1128,33 @@ class BackendService {
     var tokenTypeStorage = await storage.getDataString('token_type');
     var accessTokenStorage = await storage.getDataString('access_token');
 
-    final responseBody = await http.get(
-        url('api/produk_beranda_android?_limit=0&_recLimit=$limit'),
-        headers: {"Authorization": "$tokenTypeStorage $accessTokenStorage"});
+    try {
+      final responseBody = await http.get(
+          url('api/produk_beranda_android?_limit=0&_recLimit=$limit'),
+          headers: {"Authorization": "$tokenTypeStorage $accessTokenStorage"});
 
-    var data = json.decode(responseBody.body);
-    var product = data['itemslider'];
+      if (responseBody.statusCode == 200) {
+        var data = json.decode(responseBody.body);
+        var product = data['itemslider'];
 
-    return RecomendationModel.fromJsonList(product);
+        return RecomendationModel.fromJsonList(product);
+      } else if (responseBody.statusCode == 401) {
+        showInSnackBarDashboard('Token kedaluwarsa, silahkan login kembali');
+        return null;
+      } else {
+        showInSnackBarDashboard('Error code : ${responseBody.statusCode}');
+        print('Error Code : ${responseBody.statusCode}');
+        print(jsonDecode(responseBody.body));
+        return null;
+      }
+    } on TimeoutException catch (_) {
+      showInSnackBarDashboard('Request timeout, try again');
+      return null;
+    } catch (e) {
+      print('Error : $e');
+      showInSnackBarDashboard('Error : ${e.toString()}');
+      return null;
+    }
   }
 }
 
