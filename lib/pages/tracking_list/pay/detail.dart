@@ -45,32 +45,25 @@ class Detail extends StatefulWidget {
 class _DetailState extends State<Detail> {
   final String id, nota, customer, status, total;
   File _image;
-  bool loading;
+  bool loading = false;
 
   Future getimagegallery() async {
-    // this.setState(() {
-    //   print('loading true');
-    //   loading = true;
-    // });
     _image = null;
     var imagefile = await ImagePicker.pickImage(source:ImageSource.gallery);
     _image = imagefile;
     showInSnackBar('Tekan Upload Sekarang Untuk Mengupload');
-    this.setState(() {
+    this.setState((){
       loading = false;
     });
   }
 
   Future getimagecamera() async {
-    // this.setState(() {
-    //   loading = true;
-    // });
     _image = null;
     var imagefile = await ImagePicker.pickImage(source:ImageSource.camera);
 
       _image = imagefile;
     showInSnackBar('Tekan Upload Sekarang Untuk Mengupload');
-    this.setState(() {
+    this.setState((){
       loading = false;
     });
   }
@@ -103,6 +96,9 @@ class _DetailState extends State<Detail> {
       showInSnackBar((resp['error']).toString());
       }else{
       showInSnackBar((resp['success']).toString());
+        setState(() {
+          loading = false;
+        });
       }
     }else{
       var i = response.statusCode;
@@ -239,6 +235,7 @@ class _DetailState extends State<Detail> {
     statusX = status;
     ongkirX = null;
     stockiesX = null;
+    loading = false;
     listItemNotaAndroid();
     super.initState();
   }
@@ -253,7 +250,9 @@ class _DetailState extends State<Detail> {
         title: Text("Detail Nota"),
         backgroundColor: Color(0xff31B057),
       ),
-      body: Container(
+      body: loading ? Center(
+        child: Text('Uploading ....'),
+      ) : Container(
         padding: EdgeInsets.all(5.0),
         child: Column(
           children: <Widget>[
@@ -652,7 +651,7 @@ class _DetailState extends State<Detail> {
             borderRadius: new BorderRadius.circular(23.0),
           ),
           child: Center(
-            child: Text(
+            child: loading == true ? CircularProgressIndicator(backgroundColor: Colors.white,) : Text(
               _image != null ? 'Upload Sekarang' : 'Kirim Foto',
               style: new TextStyle(
                   fontFamily: 'TitilliumWeb',
@@ -723,6 +722,9 @@ class _DetailState extends State<Detail> {
                           width: 80.0,
                           child: RaisedButton(
                             onPressed:(){
+                              setState(() {
+                                loading = true;
+                              });
                               getimagegallery();
                               Navigator.pop(context);
                             },
@@ -741,6 +743,9 @@ class _DetailState extends State<Detail> {
                           height: 40.0,
                           child: RaisedButton(
                             onPressed:(){
+                              setState(() {
+                                loading = true;
+                              });
                               getimagecamera();
                               Navigator.pop(context);
                             }  ,
@@ -764,6 +769,9 @@ class _DetailState extends State<Detail> {
                           height: 40.0,
                           child: RaisedButton(
                             onPressed: (){
+                              setState(() {
+                                loading = true;
+                              });
                               upload(_image);
                               Navigator.pop(context);
                             } ,
