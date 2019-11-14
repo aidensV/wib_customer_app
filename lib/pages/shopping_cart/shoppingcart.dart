@@ -8,6 +8,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:flutter_image/network.dart';
+import '../../utils/Navigator.dart';
 
 var _scaffoldKeyCart;
 List<ListKeranjang> listNota = [];
@@ -25,7 +26,7 @@ class Keranjang extends StatefulWidget {
 }
 
 class _KeranjangState extends State<Keranjang> {
-  TextEditingController controllerfile = new TextEditingController();
+  TextEditingController qtyinput = new TextEditingController();
   Future<List<ListKeranjang>> getHeaderHTTP() async {
     var storage = new DataStore();
 
@@ -51,6 +52,35 @@ class _KeranjangState extends State<Keranjang> {
   void showInSnackBar(String value) {
     _scaffoldKeyCart.currentState
         .showSnackBar(new SnackBar(content: new Text(value)));
+  }
+
+  Future<void> totalhargaget() async {
+    var storage = new DataStore();
+
+    try {
+      final nota = await http.get(
+        url('api/listKeranjangAndroid'),
+        headers: requestHeaders,
+      );
+
+      if (nota.statusCode == 200) {
+        // return nota;
+        var notaJson = json.decode(nota.body);
+        var totalharga = notaJson['totalharga'];
+        setState(() {
+          totalhargaX = totalharga;
+        });
+        print('listnota $listNota');
+        return listNota;
+      } else {
+        showInSnackBar('Request failed with status: ${nota.statusCode}');
+        return null;
+      }
+    } on TimeoutException catch (_) {
+      showInSnackBar('Timed out, Try again');
+    } catch (e) {
+      debugPrint('$e');
+    }
   }
 
   Future<List<ListKeranjang>> listNotaAndroid() async {
@@ -83,6 +113,7 @@ class _KeranjangState extends State<Keranjang> {
             satuan: i['iu_name'],
             total: i['hasil'].toString(),
             hargadiskon: i['gpp_sellprice'],
+            qtyinput: TextEditingController(text: i['cart_qty'].toString()),
           );
           listNota.add(notax);
         }
@@ -141,11 +172,12 @@ class _KeranjangState extends State<Keranjang> {
   }
 
   _dismissDialog() {
-    Navigator.pop(context);
+    Navigator.of(context).pop();
   }
 
   Widget build(BuildContext context) {
-    NumberFormat _numberFormat = new NumberFormat.simpleCurrency(decimalDigits: 2, name: 'Rp. ');
+    NumberFormat _numberFormat =
+        new NumberFormat.simpleCurrency(decimalDigits: 2, name: 'Rp. ');
     return Scaffold(
       key: _scaffoldKeyCart,
       backgroundColor: Colors.white,
@@ -197,8 +229,7 @@ class _KeranjangState extends State<Keranjang> {
                             // ),
                             ),
                       )
-                    :
-                    Expanded(
+                    : Expanded(
                         child: Scrollbar(
                           child: RefreshIndicator(
                             onRefresh: () => listNotaAndroid(),
@@ -207,6 +238,7 @@ class _KeranjangState extends State<Keranjang> {
                               padding: EdgeInsets.all(5.0),
                               itemCount: listNota.length,
                               itemBuilder: (BuildContext context, int index) {
+                                qtyinput.text = listNota[index].jumlah;
                                 double totalperitem =
                                     double.parse(listNota[index].total);
                                 double hargaperitem =
@@ -244,10 +276,17 @@ class _KeranjangState extends State<Keranjang> {
                                                                 left: 5.0),
                                                         child: Text(
                                                             listNota[index]
-                                                                        .total ==
+                                                                        .harga ==
                                                                     null
                                                                 ? 'Rp. 0.00'
-                                                                : finaltotalitem,
+                                                                : _numberFormat.format(double.parse(listNota[
+                                                                            index]
+                                                                        .harga
+                                                                        .toString()) *
+                                                                    int.parse(listNota[
+                                                                            index]
+                                                                        .jumlah
+                                                                        .toString())),
                                                             style: TextStyle(
                                                               color:
                                                                   Colors.green,
@@ -263,7 +302,14 @@ class _KeranjangState extends State<Keranjang> {
                                                                         .hargadiskon ==
                                                                     null
                                                                 ? 'Rp. 0.00'
-                                                                : _numberFormat.format(double.parse(listNota[index].hargadiskon.toString()) * int.parse(listNota[index].jumlah.toString())),
+                                                                : _numberFormat.format(double.parse(listNota[
+                                                                            index]
+                                                                        .hargadiskon
+                                                                        .toString()) *
+                                                                    int.parse(listNota[
+                                                                            index]
+                                                                        .jumlah
+                                                                        .toString())),
                                                             style: TextStyle(
                                                               color:
                                                                   Colors.green,
@@ -337,55 +383,6 @@ class _KeranjangState extends State<Keranjang> {
                                           ),
                                         ],
                                       ),
-                                      //  FlatButton(
-                                      //   onPressed: () {
-                                      //     /*...*/
-                                      //   },
-                                      //   child: Text(
-                                      //     "Flat Button",
-                                      //   ),
-                                      // ),
-                                      //  TextField(
-                                      //   keyboardType: TextInputType.number,
-                                      //   onChanged: (text) async {
-                                      //     print("First text field: $text");
-                                      //     var idX = listNota[index].id;
-                                      //     var qtyX = text;
-                                      //     try {
-                                      //       final tambahqty = await http.post(
-                                      //           url('api/updateQtyKeranjangAndroid'),
-                                      //           headers: requestHeaders,
-                                      //           body: {
-                                      //             'id_keranjang': idX,
-                                      //             'qty': qtyX
-                                      //           });
-
-                                      //       if (tambahqty.statusCode == 200) {
-                                      //         var tambahqtyJson =
-                                      //             json.decode(tambahqty.body);
-                                      //         if (tambahqtyJson['status'] ==
-                                      //             'Success') {
-                                      //           setState(() {
-                                      //             totalRefresh += 1;
-                                      //           });
-                                      //         } else if (tambahqtyJson[
-                                      //                 'status'] ==
-                                      //             'Error') {
-                                      //           showInSnackBar(
-                                      //               'Gagal! Hubungi pengembang software!');
-                                      //         }
-                                      //       } else {
-                                      //         showInSnackBar(
-                                      //             'Request failed with status: ${tambahqty.statusCode}');
-                                      //       }
-                                      //     } on TimeoutException catch (_) {
-                                      //       showInSnackBar(
-                                      //           'Timed out, Try again');
-                                      //     } catch (e) {
-                                      //       print(e);
-                                      //     }
-                                      //   },
-                                      // ),
                                       Padding(
                                         padding:
                                             const EdgeInsets.only(top: 0.0),
@@ -394,14 +391,15 @@ class _KeranjangState extends State<Keranjang> {
                                             Expanded(
                                               flex: 5,
                                               child: new Image(
-                                                image: new  NetworkImageWithRetry(
-                                                listNota[index].image != null
-                                                    ? urladmin(
-                                                        'storage/image/master/produk/${listNota[index].image}',
-                                                      )
-                                                    : url(
-                                                        'assets/img/noimage.jpg',
-                                                      ),
+                                                image:
+                                                    new NetworkImageWithRetry(
+                                                  listNota[index].image != null
+                                                      ? urladmin(
+                                                          'storage/image/master/produk/${listNota[index].image}',
+                                                        )
+                                                      : url(
+                                                          'assets/img/noimage.jpg',
+                                                        ),
                                                 ),
                                                 width: 100.0,
                                                 height: 100.0,
@@ -417,7 +415,8 @@ class _KeranjangState extends State<Keranjang> {
                                                     child: Padding(
                                                       padding:
                                                           const EdgeInsets.only(
-                                                              top: 10.0,bottom: 10.0),
+                                                              top: 10.0,
+                                                              bottom: 10.0),
                                                       child: Text(
                                                         listNota[index].item,
                                                         style: TextStyle(
@@ -454,211 +453,358 @@ class _KeranjangState extends State<Keranjang> {
                                                             ],
                                                           ),
                                                         ),
-                                                        listNota[index].hargadiskon ==
-                                                          null ?
-                                                  Container(
-                                                    child: Row(
-                                                      children: <Widget>[
-                                                        Text(
-                                                            listNota[index]
-                                                                        .harga ==
-                                                                    null
-                                                                ? 'Rp. 0.00'
-                                                                : finalhargaperitem,
-                                                            style: TextStyle(
-                                                                color: Colors
-                                                                    .black)),
-                                                        Padding(
+                                                  listNota[index].hargadiskon ==
+                                                          null
+                                                      ? Container(
+                                                          child: Row(
+                                                            children: <Widget>[
+                                                              Text(
+                                                                  listNota[index]
+                                                                              .harga ==
+                                                                          null
+                                                                      ? 'Rp. 0.00'
+                                                                      : finalhargaperitem,
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .black)),
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        left:
+                                                                            0.0),
+                                                                child: Text(
+                                                                    " / " +
+                                                                        listNota[index]
+                                                                            .satuan,
+                                                                    style:
+                                                                        TextStyle(
+                                                                      color: Colors
+                                                                          .green,
+                                                                    )),
+                                                              )
+                                                            ],
+                                                          ),
                                                           padding:
-                                                              const EdgeInsets
-                                                                      .only(
-                                                                  left: 0.0),
-                                                          child: Text(
-                                                              " / " +
-                                                                  listNota[
-                                                                          index]
-                                                                      .satuan,
-                                                              style: TextStyle(
-                                                                color: Colors
-                                                                    .green,
-                                                              )),
+                                                              EdgeInsets.only(
+                                                                  left: 0.0,
+                                                                  top: 10.0),
                                                         )
-                                                      ],
-                                                    ),
-                                                    padding: EdgeInsets.only(
-                                                        left: 0.0, top: 10.0),
-                                                  ):
-                                                  Container(
-                                                    child: Row(
-                                                      children: <Widget>[
-                                                        Text(
-                                                            listNota[index]
-                                                                        .hargadiskon ==
-                                                                    null
-                                                                ? 'Rp. 0.00'
-                                                                : _numberFormat.format(double.parse(listNota[index].hargadiskon.toString())),
-                                                            style: TextStyle(
-                                                                color: Colors
-                                                                    .black)),
-                                                        Padding(
+                                                      : Container(
+                                                          child: Row(
+                                                            children: <Widget>[
+                                                              Text(
+                                                                  listNota[index]
+                                                                              .hargadiskon ==
+                                                                          null
+                                                                      ? 'Rp. 0.00'
+                                                                      : _numberFormat.format(double.parse(listNota[
+                                                                              index]
+                                                                          .hargadiskon
+                                                                          .toString())),
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .black)),
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        left:
+                                                                            0.0),
+                                                                child: Text(
+                                                                    " / " +
+                                                                        listNota[index]
+                                                                            .satuan,
+                                                                    style:
+                                                                        TextStyle(
+                                                                      color: Colors
+                                                                          .green,
+                                                                    )),
+                                                              )
+                                                            ],
+                                                          ),
                                                           padding:
-                                                              const EdgeInsets
-                                                                      .only(
-                                                                  left: 0.0),
-                                                          child: Text(
-                                                              " / " +
-                                                                  listNota[
-                                                                          index]
-                                                                      .satuan,
-                                                              style: TextStyle(
-                                                                color: Colors
-                                                                    .green,
-                                                              )),
-                                                        )
-                                                      ],
-                                                    ),
-                                                    padding: EdgeInsets.only(
-                                                        left: 0.0, top: 10.0),
-                                                  ),
-                                                  Container(
+                                                              EdgeInsets.only(
+                                                                  left: 0.0,
+                                                                  top: 10.0),
+                                                        ),
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            right: 15.0),
                                                     child: Row(
                                                       children: <Widget>[
-                                                        ButtonTheme(
-                                                          minWidth: 0,
-                                                          height: 20.0,
-                                                          buttonColor:
-                                                              Color(0xff388bf2),
-                                                          child: FlatButton(
-                                                            onPressed:
-                                                                () async {
-                                                              var idX =
-                                                                  listNota[
-                                                                          index]
-                                                                      .id;
-                                                              try {
-                                                                final kurangqty =
-                                                                    await http.post(
+                                                        Expanded(
+                                                          flex: 2,
+                                                          child: ButtonTheme(
+                                                              minWidth: 0,
+                                                              buttonColor: Color(
+                                                                  0xff388bf2),
+                                                              child: FlatButton(
+                                                                child: Icon(
+                                                                    Icons
+                                                                        .remove_circle,
+                                                                    color: Colors
+                                                                        .green),
+                                                                color: Colors
+                                                                    .white,
+                                                                padding:
+                                                                    EdgeInsets
+                                                                        .all(
+                                                                  0.0,
+                                                                ),
+                                                                onPressed:
+                                                                    () async {
+                                                                  var idX =
+                                                                      listNota[
+                                                                              index]
+                                                                          .id;
+                                                                  try {
+                                                                    final kurangqty = await http.post(
                                                                         url('api/reduceQtyKeranjangAndroid'),
                                                                         headers: requestHeaders,
                                                                         body: {
-                                                                      'id_keranjang':
-                                                                          idX
-                                                                    });
+                                                                          'id_keranjang':
+                                                                              idX
+                                                                        });
 
-                                                                if (kurangqty
-                                                                        .statusCode ==
-                                                                    200) {
-                                                                  var kurangqtyJson =
-                                                                      json.decode(
-                                                                          kurangqty
-                                                                              .body);
-                                                                  if (kurangqtyJson[
-                                                                          'status'] ==
-                                                                      'Success') {
-                                                                    setState(
-                                                                        () {
-                                                                      getHeaderHTTP();
-                                                                    });
-                                                                  } else if (kurangqtyJson[
-                                                                          'status'] ==
-                                                                      'Error') {
+                                                                    if (kurangqty
+                                                                            .statusCode ==
+                                                                        200) {
+                                                                      var kurangqtyJson =
+                                                                          json.decode(
+                                                                              kurangqty.body);
+                                                                      if (kurangqtyJson[
+                                                                              'status'] ==
+                                                                          'Success') {
+                                                                        setState(
+                                                                            () {
+                                                                          int currentValue = int.parse(listNota[index].jumlah == null
+                                                                              ? '0'
+                                                                              : listNota[index].jumlah);
+                                                                          setState(
+                                                                              () {
+                                                                            currentValue--;
+                                                                            listNota[index].jumlah =
+                                                                                (currentValue).toString();
+                                                                            listNota[index].qtyinput.text =
+                                                                                (currentValue).toString();
+                                                                            totalhargaget();
+                                                                          });
+                                                                        });
+                                                                      } else if (kurangqtyJson[
+                                                                              'status'] ==
+                                                                          'Error') {
+                                                                        showInSnackBar(
+                                                                            'Gagal! Hubungi pengembang software!');
+                                                                      }
+                                                                    } else {
+                                                                      showInSnackBar(
+                                                                          'Request failed with status: ${kurangqty.statusCode}');
+                                                                    }
+                                                                  } on TimeoutException catch (_) {
                                                                     showInSnackBar(
-                                                                        'Gagal! Hubungi pengembang software!');
+                                                                        'Timed out, Try again');
+                                                                  } catch (e) {
+                                                                    print(e);
                                                                   }
-                                                                } else {
-                                                                  showInSnackBar(
-                                                                      'Request failed with status: ${kurangqty.statusCode}');
-                                                                }
-                                                              } on TimeoutException catch (_) {
-                                                                showInSnackBar(
-                                                                    'Timed out, Try again');
-                                                              } catch (e) {
-                                                                print(e);
-                                                              }
-                                                            },
-                                                            child: new Icon(
-                                                                Icons
-                                                                    .remove_circle,
-                                                                color: Colors
-                                                                    .green),
-                                                            color: Colors.white,
-                                                            padding:
-                                                                EdgeInsets.only(
-                                                              right: 0.0,
-                                                            ),
-                                                          ),
+                                                                },
+                                                              )),
                                                         ),
-                                                        new Text(listNota[index]
-                                                            .jumlah),
-                                                        ButtonTheme(
-                                                          minWidth: 0,
-                                                          height: 20.0,
-                                                          buttonColor:
-                                                              Color(0xff388bf2),
-                                                          child: FlatButton(
-                                                            onPressed:
-                                                                () async {
-                                                              var idX =
+                                                        Expanded(
+                                                          flex: 6,
+                                                          child: TextField(
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .center,
+                                                              keyboardType:
+                                                                  TextInputType
+                                                                      .number,
+                                                              controller:
                                                                   listNota[
                                                                           index]
-                                                                      .id;
-                                                              try {
-                                                                final tambahqty =
-                                                                    await http.post(
-                                                                        url('api/addQtyKeranjangAndroid'),
-                                                                        headers: requestHeaders,
-                                                                        body: {
-                                                                      'id_keranjang':
-                                                                          idX
-                                                                    });
-
-                                                                if (tambahqty
-                                                                        .statusCode ==
-                                                                    200) {
-                                                                  var tambahqtyJson =
-                                                                      json.decode(
-                                                                          tambahqty
-                                                                              .body);
-                                                                  if (tambahqtyJson[
-                                                                          'status'] ==
-                                                                      'Success') {
-                                                                    setState(
-                                                                        () {
-                                                                      getHeaderHTTP();
-                                                                    });
-                                                                  } else if (tambahqtyJson[
-                                                                          'status'] ==
-                                                                      'Error') {
+                                                                      .qtyinput,
+                                                              decoration:
+                                                                  InputDecoration(),
+                                                              onChanged:
+                                                                  (text) async {
+                                                                var idX =
+                                                                    listNota[
+                                                                            index]
+                                                                        .id;
+                                                                var jumlah = text
+                                                                            .length ==
+                                                                        0
+                                                                    ? '1'
+                                                                    : int.parse(text) <=
+                                                                            1
+                                                                        ? '1'
+                                                                        : text;
+                                                                try {
+                                                                  final tambahqty =
+                                                                      await http.post(
+                                                                          url('api/updateQtyKeranjangAndroid'),
+                                                                          headers: requestHeaders,
+                                                                          body: {
+                                                                        'id_keranjang':
+                                                                            idX,
+                                                                        'qty':
+                                                                            jumlah
+                                                                      });
+                                                                  if (tambahqty
+                                                                          .statusCode ==
+                                                                      200) {
+                                                                    var tambahqtyJson =
+                                                                        json.decode(
+                                                                            tambahqty.body);
+                                                                    if (tambahqtyJson[
+                                                                            'status'] ==
+                                                                        'Success') {
+                                                                          print(tambahqty
+                                                                          .body);
+                                                                      setState(
+                                                                          () {
+                                                                        listNota[index].jumlah =
+                                                                            jumlah;
+                                                                        if(text.length == 0){
+                                                                          listNota[index]
+                                                                            .qtyinput
+                                                                            .text = '1';
+                                                                        }
+                                                                        
+                                                                      });
+                                                                      totalhargaget();
+                                                                    } else if (tambahqtyJson[
+                                                                            'status'] ==
+                                                                        'Stock') {
+                                                                      totalhargaget();
+                                                                      showInSnackBar(
+                                                                          'Stock Gudang Tinggal ${tambahqtyJson['stock']}');
+                                                                      setState(
+                                                                          () {
+                                                                        listNota[index]
+                                                                            .qtyinput
+                                                                            .text = "${tambahqtyJson['stock']}";
+                                                                        listNota[index].jumlah =
+                                                                            '${tambahqtyJson['stock']}';
+                                                                      });
+                                                                    } else if (tambahqtyJson[
+                                                                            'status'] ==
+                                                                        'Error') {
+                                                                      showInSnackBar(
+                                                                          'Request failed with status: ${tambahqty.statusCode}');
+                                                                      print(tambahqty
+                                                                          .body);
+                                                                    }
+                                                                  } else {
                                                                     showInSnackBar(
-                                                                        'Gagal! Hubungi pengembang software!');
+                                                                        'Request failed with status: ${tambahqty.statusCode}');
+                                                                    print(tambahqty
+                                                                        .body);
                                                                   }
-                                                                } else {
+                                                                } on TimeoutException catch (_) {
                                                                   showInSnackBar(
-                                                                      'Request failed with status: ${tambahqty.statusCode}');
+                                                                      'Timed out, Try again');
+                                                                } catch (e) {
+                                                                  print(e);
                                                                 }
-                                                              } on TimeoutException catch (_) {
-                                                                showInSnackBar(
-                                                                    'Timed out, Try again');
-                                                              } catch (e) {
-                                                                print(e);
-                                                              }
-                                                            },
-                                                            child: new Icon(
-                                                                Icons
-                                                                    .add_circle,
-                                                                color: Colors
-                                                                    .green),
-                                                            color: Colors.white,
-                                                            padding:
-                                                                EdgeInsets.only(
-                                                              right: 0.0,
+                                                              }),
+                                                        ),
+                                                        Expanded(
+                                                          flex: 2,
+                                                          child: ButtonTheme(
+                                                            minWidth: 0,
+                                                            buttonColor: Color(
+                                                                0xff388bf2),
+                                                            child: FlatButton(
+                                                              child: Icon(
+                                                                  Icons
+                                                                      .add_circle,
+                                                                  color: Colors
+                                                                      .green),
+                                                              color:
+                                                                  Colors.white,
+                                                              padding:
+                                                                  EdgeInsets
+                                                                      .all(
+                                                                0.0,
+                                                              ),
+                                                              onPressed:
+                                                                  () async {
+                                                                var idX =
+                                                                    listNota[
+                                                                            index]
+                                                                        .id;
+                                                                try {
+                                                                  final tambahqty =
+                                                                      await http.post(
+                                                                          url('api/addQtyKeranjangAndroid'),
+                                                                          headers: requestHeaders,
+                                                                          body: {
+                                                                        'id_keranjang':
+                                                                            idX
+                                                                      });
+
+                                                                  if (tambahqty
+                                                                          .statusCode ==
+                                                                      200) {
+                                                                    var tambahqtyJson =
+                                                                        json.decode(
+                                                                            tambahqty.body);
+                                                                    if (tambahqtyJson[
+                                                                            'status'] ==
+                                                                        'Success') {
+                                                                      int currentValue = int.parse(listNota[index].jumlah ==
+                                                                              null
+                                                                          ? 0
+                                                                          : listNota[index]
+                                                                              .jumlah);
+                                                                      setState(
+                                                                          () {
+                                                                        currentValue++;
+                                                                        listNota[index].jumlah =
+                                                                            (currentValue).toString();
+                                                                        listNota[index]
+                                                                            .qtyinput
+                                                                            .text = (currentValue).toString();
+                                                                        totalhargaget();
+                                                                      });
+                                                                    }else if(tambahqtyJson['status'] == 'Stock'){
+                                                                      totalhargaget();
+                                                                      showInSnackBar(
+                                                                          'Stock Gudang Tinggal ${tambahqtyJson['stock']}');
+                                                                      setState(
+                                                                          () {
+                                                                        listNota[index]
+                                                                            .qtyinput
+                                                                            .text = "${tambahqtyJson['stock']}";
+                                                                        listNota[index].jumlah =
+                                                                            '${tambahqtyJson['stock']}';
+                                                                      });
+                                                                    } else if (tambahqtyJson[
+                                                                            'status'] ==
+                                                                        'Error') {
+                                                                      showInSnackBar(
+                                                                          'Gagal! Hubungi pengembang software!');
+                                                                    }
+                                                                  } else {
+                                                                    showInSnackBar(
+                                                                        'Request failed with status: ${tambahqty.statusCode}');
+                                                                         print(tambahqty
+                                                                          .body);
+                                                                  }
+                                                                } on TimeoutException catch (_) {
+                                                                  showInSnackBar(
+                                                                      'Timed out, Try again');
+                                                                } catch (e) {
+                                                                  print(e);
+                                                                }
+                                                              },
                                                             ),
                                                           ),
                                                         ),
                                                       ],
                                                     ),
-                                                    padding: EdgeInsets.only(
-                                                        left: 0.0, top: 10.0),
                                                   ),
                                                   Container(
                                                     height: 10.0,
@@ -677,31 +823,40 @@ class _KeranjangState extends State<Keranjang> {
                           ),
                         ),
                       ),
-                      listNota.length == 0 ?
-                      Container(
-                    ):
-                    Container(child:Row(
-                        children: <Widget>[
-                      Expanded(
-                        flex: 4,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left:10.0,top:10.0,bottom: 20.0),
-                          child: Text('Total Harga'),
+            listNota.length == 0
+                ? Container()
+                : Container(
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                          flex: 4,
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                                left: 10.0, top: 10.0, bottom: 20.0),
+                            child: Text('Total Harga'),
+                          ),
                         ),
-                      ),
-                      Expanded(
-                        flex: 6,
-                        child: Padding(
-                          padding: const EdgeInsets.only(right:10.0,top: 10.0,bottom: 20.0),
-                          child: Text(totalhargaX == null ? 'Rp. 0.00' : 'Rp. ' + totalhargaX,textAlign: TextAlign.right,style: TextStyle(color: Colors.green,fontSize: 18),
-                      ),
+                        Expanded(
+                          flex: 6,
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                                right: 10.0, top: 10.0, bottom: 20.0),
+                            child: Text(
+                              totalhargaX == null
+                                  ? 'Rp. 0.00'
+                                  : 'Rp. ' + totalhargaX,
+                              textAlign: TextAlign.right,
+                              style:
+                                  TextStyle(color: Colors.green, fontSize: 18),
+                            ),
+                          ),
                         ),
-                      ),
-                      ],
-                      ),),
                       ],
                     ),
-                    ),
+                  ),
+          ],
+        ),
+      ),
       bottomNavigationBar: BottomAppBar(
         child: new Row(
           mainAxisSize: MainAxisSize.max,
@@ -725,6 +880,7 @@ class _KeranjangState extends State<Keranjang> {
                       if (tambahqty.statusCode == 200) {
                         var tambahqtyJson = json.decode(tambahqty.body);
                         if (tambahqtyJson['status'] == 'Success') {
+                          // Navigator.pushReplacementNamed(context, "/checkout");
                           Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -763,10 +919,11 @@ class ListKeranjang {
   final String harga;
   final String type;
   final String image;
-  final String jumlah;
+  String jumlah;
   final String satuan;
-   String total;
+  String total;
   final String hargadiskon;
+  TextEditingController qtyinput;
   ListKeranjang(
       {this.id,
       this.item,
@@ -776,5 +933,6 @@ class ListKeranjang {
       this.jumlah,
       this.satuan,
       this.total,
+      this.qtyinput,
       this.hargadiskon});
 }

@@ -3,16 +3,26 @@ import 'package:http/http.dart' as http;
 import 'package:wib_customer_app/env.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
-import '../../../utils/Navigator.dart';
 import 'dart:convert';
 import 'package:wib_customer_app/pages/checkout/checkout.dart';
 import 'package:wib_customer_app/storage/storage.dart';
 
 var idX, notaX, customerX, statusX;
-String accessToken, tokenType, stockiesX, ongkirX;
+String accessToken,
+    tokenType,
+    stockiesX,
+    ongkirX,
+    provinsiX,
+    kabupatenX,
+    kecamatanX,
+    kodeposX,
+    alamatX,
+    expedisiX,
+    resiX,
+    deliveredX;
 Map<String, dynamic> formSerialize;
 Map<String, String> requestHeaders = Map();
-List<ListItem> listItem;
+List<ListItem> listItem = [];
 bool isLoading;
 
 class Detail extends StatefulWidget {
@@ -87,23 +97,30 @@ class _DetailState extends State<Detail> {
         String stockies = itemJson['stockies'].toString();
         var itemproduct = itemJson['item'];
         var ongkir = itemJson['ongkir'];
-        print('biaya ${ongkir}');
-        print(itemproduct);
+        String provinsi = itemJson['provinsi'].toString();
+        String kabupaten = itemJson['kabupaten'].toString();
+        String kecamatan = itemJson['kecamatan'].toString();
+        String kodepos = itemJson['kodepos'].toString();
+        String alamat = itemJson['alamat'].toString();
+        String expedisi = itemJson['expedisi'];
+        String resi = itemJson['resi'];
+        String delivered = itemJson['delivered'];
+        print('biaya $ongkir');
+        print('item ini $itemproduct');
         print(itemJson);
         listItem = [];
         for (var i in itemJson['item']) {
           ListItem notax = ListItem(
-            nama: i['i_name'],
-            satuan: i['iu_name'],
-            qty: '${i['sd_qty'].toString()}',
-            hargasales: i['sd_price'].toString(),
-            totalharga: i['sd_total'].toString(),
-            price: i['ipr_sunitprice'].toString(),
-            image: i['ip_path'],
-            code: i['i_code'],
-            berat: i['itp_weight'].toString(),
-            hargadiskon : i['sd_discvalue'].toString(),
-          );
+              nama: i['i_name'],
+              satuan: i['iu_name'],
+              qty: '${i['sd_qty'].toString()}',
+              hargasales: i['sd_price'].toString(),
+              totalharga: i['sd_total'].toString(),
+              price: i['ipr_sunitprice'].toString(),
+              image: i['ip_path'],
+              code: i['i_code'],
+              berat: i['itp_weight'].toString(),
+              hargadiskon: i['sd_discvalue'].toString());
           listItem.add(notax);
         }
 
@@ -112,10 +129,18 @@ class _DetailState extends State<Detail> {
         setState(() {
           stockiesX = stockies;
           ongkirX = ongkir;
+          provinsiX = provinsi;
+          kabupatenX = kabupaten;
+          kecamatanX = kecamatan;
+          kodeposX = kodepos;
+          alamatX = alamat;
+          expedisiX = expedisi;
+          deliveredX = delivered;
+          resiX = resi;
           isLoading = false;
         });
         return listItem;
-      } else if(item.statusCode == 500){
+      } else if (item.statusCode == 500) {
         showInSnackBar('Request failed with status: ${item.statusCode}');
         print(item.body);
         setState(() {
@@ -167,577 +192,459 @@ class _DetailState extends State<Detail> {
     statusX = status;
     ongkirX = null;
     stockiesX = null;
+    provinsiX = null;
+    kabupatenX = null;
+    kecamatanX = null;
+    kodeposX = null;
+    alamatX = null;
+    expedisiX = null;
+    deliveredX = null;
+    resiX = null;
     listItemNotaAndroid();
     getHeaderHTTP();
     super.initState();
   }
 
+  Widget statusNota(deliveredX) {
+    if (deliveredX == 'A') {
+      return Text(
+        "Ambil sendiri",
+        style: TextStyle(color: Colors.orange),
+      );
+    } else if (deliveredX == 'Y') {
+      return Text(
+        "Barang sudah diterima",
+        style: TextStyle(color: Colors.red),
+      );
+    } else if (deliveredX == 'T') {
+      return Text(
+        "Pengiriman terlambat",
+        style: TextStyle(color: Colors.green),
+      );
+    } else if (deliveredX == 'P') {
+      return Text(
+        "Sedang dikirim",
+        style: TextStyle(color: Colors.orange),
+      );
+    } else if (deliveredX == 'P') {
+      return Text("Sedang Dikirim", style: TextStyle(color: Colors.green));
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
-    NumberFormat _numberFormat = new NumberFormat.simpleCurrency(decimalDigits: 2, name: 'Rp. ');
+     var size = MediaQuery.of(context).size;
+    final double itemHeight = (size.height - kToolbarHeight - 24) / 2;
+    final double itemWidth = size.width / 2;
+    NumberFormat _numberFormat =
+        new NumberFormat.simpleCurrency(decimalDigits: 2, name: 'Rp. ');
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text("Detail Nota"),
         backgroundColor: Color(0xff31B057),
       ),
       body: Container(
         padding: EdgeInsets.all(5.0),
-        child: Column(
+        child: ListView(
           children: <Widget>[
             Card(
-              child: Container(
-                padding: EdgeInsets.all(15.0),
-                child: Column(
-                  children: <Widget>[
-                    Row(
-                      children: <Widget>[
-                        Expanded(
-                          flex: 5,
-                          child: Text(
-                            'Nota',
-                            style: TextStyle(
-                              fontSize: 16.0,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 5,
-                          child: Text(
-                            notaX,
-                            style: TextStyle(
-                              color: Colors.black54,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Divider(),
-                    Row(
-                      children: <Widget>[
-                        Expanded(
-                          flex: 5,
-                          child: Text(
-                            'Customer',
-                            style: TextStyle(
-                              fontSize: 16.0,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 5,
-                          child: Text(
-                            customerX,
-                            style: TextStyle(
-                              color: Colors.black54,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Divider(),
-                    Row(
-                      children: <Widget>[
-                        Expanded(
-                          flex: 5,
-                          child: Text(
-                            'Biaya Ongkir',
-                            style: TextStyle(color: Colors.black),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 5,
-                          child: Text(ongkirX == null ? 'Rp. 0.00' : _numberFormat.format(double.parse(ongkirX.toString())),
-                            style: TextStyle(color: Colors.black54),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+              child: ListTile(
+                leading: Icon(Icons.local_mall, color: Colors.green),
+                title: Text(notaX == null ? 'Nota : -' : 'Nota : $notaX'),
               ),
             ),
-            isLoading == true
-                ? Center(
-                    child: CircularProgressIndicator(),
+            Card(
+              child: ListTile(
+                leading: Icon(Icons.person, color: Colors.green),
+                title: Text(customerX == null
+                    ? 'Customer : -'
+                    : 'Customer : $customerX'),
+              ),
+            ),
+            Card(child: ListTile(
+              leading: Icon(Icons.local_shipping, color: Colors.green),
+              title: Text(expedisiX == null ? 'Jasa Pengiriman : -' : 'Jasa Pengiriman : $expedisiX'),
+            ),),
+            Card(child: ListTile(
+              leading: Icon(Icons.call_to_action, color: Colors.green),
+              title: Text(resiX == null ? 'Nomor Resi : -' : 'Nomor Resi : $resiX'),
+            ),),
+            Card(child: ListTile(
+              leading: Icon(Icons.local_atm, color: Colors.green),
+              title: Text(ongkirX == null
+                    ? 'Biaya Ongkir : Rp. 0.00'
+                    : 'Biaya Ongkir : ' +
+                        _numberFormat.format(double.parse(ongkirX.toString()))),
+            ),),
+            Padding(
+              padding:
+                  const EdgeInsets.only(top: 10.0, bottom: 10.0, left: 5.0),
+              child: new Text(
+                 deliveredX == null ? 'Alamat Pengiriman' : deliveredX == 'A' ? 'Alamat Pengiriman ( Ambil Sendiri )' : 'Alamat Pengiriman' ,
+                textAlign: TextAlign.left,
+              ),
+            ),
+            Card(
+              child: ListTile(
+                leading: Icon(Icons.location_on, color: Colors.green),
+                title: Text(deliveredX == null || deliveredX == 'A'
+                    ? 'Provinsi : -'
+                    : 'Provinsi : $provinsiX'),
+              ),
+            ),
+            Card(
+              child: ListTile(
+                leading: Icon(Icons.location_city, color: Colors.green),
+                title: Text(deliveredX == null || deliveredX == 'A'
+                    ? 'Kab/Kota : -'
+                    : 'Kab/Kota : $kabupatenX'),
+              ),
+            ),
+            Card(
+              child: ListTile(
+                leading: Icon(Icons.location_on, color: Colors.green),
+                title: Text(deliveredX == null || deliveredX == 'A'
+                    ? 'Kecamatan : -'
+                    : 'Kecamatan : $kecamatanX'),
+              ),
+            ),
+            Card(
+              child: ListTile(
+                leading: Icon(Icons.local_post_office, color: Colors.green),
+                title: Text(deliveredX == null || deliveredX == 'A'
+                    ? 'Kodepos : -'
+                    : 'Kodepos : $kodeposX'),
+              ),
+            ),
+            Card(
+              child: ListTile(
+                leading: Icon(Icons.streetview, color: Colors.green),
+                title: Text(
+                    deliveredX == null || deliveredX == 'A' ? '-' : alamatX),
+              ),
+            ),
+            
+            listItem.length == 0
+                ? Card(
+                    child: ListTile(
+                      title: Text(
+                        'Tidak ada data',
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
                   )
-                : listItem.length == 0
-                    ? Card(
-                        child: ListTile(
-                          title: Text(
-                            'Tidak ada data',
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      )
-                    : Expanded(
-                        child: Scrollbar(
-                          child: ListView.builder(
-                            // scrollDirection: Axis.horizontal,
-                            itemCount: listItem.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              double totalperitem =
-                                  double.parse(listItem[index].totalharga);
-                              double hargaperitem =
-                                  double.parse(listItem[index].hargasales);
-                              NumberFormat _numberFormat =
-                                  new NumberFormat.simpleCurrency(
-                                      decimalDigits: 2, name: 'Rp. ');
-                              String finaltotalitem =
-                                  _numberFormat.format(totalperitem);
-                              String finalhargaperitem =
-                                  _numberFormat.format(hargaperitem);
-                              return Card(
-                                child: Column(
-                                  children: <Widget>[
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                        left: 10.0,
-                                        right: 10.0,
-                                      ),
-                                      child: Row(
-                                        children: <Widget>[
-                                          Expanded(
-                                            flex: 7,
-                                            child: Row(
-                                              children: <Widget>[
-                                                Padding(
+                :
+                Padding(
+            padding: const EdgeInsets.only(top: 25.0, left: 15.0),
+            child: new Text('Daftar barang checkout'),
+          ),
+          Divider(), Padding(
+                    padding: EdgeInsets.all(0.0),
+                    child: GridView.count(
+                      shrinkWrap: true,
+                      crossAxisCount: 1,
+                      mainAxisSpacing: 0.0,
+                      crossAxisSpacing: 0.0,
+                      physics: NeverScrollableScrollPhysics(),
+                      childAspectRatio: MediaQuery.of(context).orientation == Orientation.portrait
+            ? 2.2
+            : 4.2,
+                      children: listItem.map(
+                        (item) {
+                          var children2 = <Widget>[
+                            Container(
+                              
+                              child: Column(
+                                children: <Widget>[
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      left: 10.0,
+                                      right: 10.0,
+                                      top: 0.0,
+                                    ),
+                                    child: Row(
+                                      children: <Widget>[
+                                        Expanded(
+                                          flex: 7,
+                                          child: Row(
+                                            children: <Widget>[
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    left: 0.0,top: 0.0,),
+                                                child: Text(
+                                                    item.totalharga == null
+                                                        ? "Total : Rp. 0.00"
+                                                        : "Total : " +
+                                                            _numberFormat.format(
+                                                                double.parse(item
+                                                                    .totalharga
+                                                                    .toString())),
+                                                    style: TextStyle(
+                                                        color: Colors.black)),
+                                              ),
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    left: 0.0),
+                                                child: Text(
+                                                    ' | ${item.qty} Qty',
+                                                    style: TextStyle(
+                                                        color: Colors.black)),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 3,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            children: <Widget>[
+                                              ButtonTheme(
+                                                minWidth: 0,
+                                                height: 20.0,
+                                                buttonColor: Color(0xff388bf2),
+                                                child: FlatButton(
+                                                  onPressed: () async {
+                                                    var location = stockiesX;
+                                                    if (location == null) {
+                                                      _showAlamatNull();
+                                                    } else {
+                                                      try {
+                                                        final adcart = await http.post(
+                                                            url(
+                                                                'api/addCartAndroid'),
+                                                            headers:
+                                                                requestHeaders,
+                                                            body: {
+                                                              'code': item.code,
+                                                              'cart_qty':
+                                                                  item.qty,
+                                                              'cart_location':
+                                                                  stockiesX,
+                                                            });
+
+                                                        if (adcart.statusCode ==
+                                                            200) {
+                                                          var addcartJson =
+                                                              json.decode(
+                                                                  adcart.body);
+                                                          if (addcartJson[
+                                                                  'done'] ==
+                                                              'done') {
+                                                            showInSnackBar(
+                                                                '${item.nama} berhasil dimasukkan ke keranjang');
+                                                          } else if (addcartJson[
+                                                                  'error'] ==
+                                                              'stock') {
+                                                            showInSnackBar(
+                                                                'Stock ${item.nama} tersisa ${addcartJson['stock']}');
+                                                          } else if (addcartJson[
+                                                                  'error'] ==
+                                                              'error') {
+                                                            showInSnackBar(
+                                                                '${item.nama} sudah ada dikeranjang');
+                                                          }
+                                                        } else {
+                                                          print(
+                                                              '${adcart.body}');
+                                                        }
+                                                      } on TimeoutException catch (_) {} catch (e) {
+                                                        print(e);
+                                                      }
+                                                    }
+                                                  },
+                                                  child: new Text(
+                                                    'Beli Lagi',
+                                                    style: TextStyle(
+                                                        color: Colors.white),
+                                                  ),
+                                                  padding: EdgeInsets.all(8.0),
+                                                  color: Colors.green,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 0.0),
+                                    child: Row(
+                                      children: <Widget>[
+                                        Expanded(
+                                          flex: 5,
+                                          child: Image.network(
+                                            item.image != null
+                                                ? urladmin(
+                                                    'storage/image/master/produk/${item.image}',
+                                                  )
+                                                : url(
+                                                    'assets/img/noimage.jpg',
+                                                  ),
+                                            width: 80.0,
+                                            height: 80.0,
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 5,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: <Widget>[
+                                              Container(
+                                                child: Padding(
                                                   padding:
                                                       const EdgeInsets.only(
-                                                          left: 0.0),
+                                                          top: 10.0),
                                                   child: Text(
-                                                      listItem[index]
-                                                                  .totalharga ==
-                                                              null
-                                                          ? "Total : Rp. 0.00"
-                                                          : "Total : " +
-                                                              finaltotalitem,
-                                                      style: TextStyle(
-                                                          color: Colors.black)),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Expanded(
-                                            flex: 3,
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.end,
-                                              children: <Widget>[
-                                                ButtonTheme(
-                                                  minWidth: 0,
-                                                  height: 20.0,
-                                                  buttonColor:
-                                                      Color(0xff388bf2),
-                                                  child: FlatButton(
-                                                    onPressed: () async {
-                                                      var location = stockiesX;
-                                                      if (location == null) {
-                                                        _showAlamatNull();
-                                                      } else {
-                                                        try {
-                                                          final adcart =
-                                                              await http.post(
-                                                                  url(
-                                                                      'api/addCartAndroid'),
-                                                                  headers:
-                                                                      requestHeaders,
-                                                                  body: {
-                                                                'code': listItem[
-                                                                        index]
-                                                                    .code,
-                                                                'cart_qty':
-                                                                    listItem[
-                                                                            index]
-                                                                        .qty,
-                                                                'cart_location':
-                                                                    stockiesX,
-                                                              });
-
-                                                          if (adcart
-                                                                  .statusCode ==
-                                                              200) {
-                                                            var addcartJson =
-                                                                json.decode(
-                                                                    adcart
-                                                                        .body);
-                                                            if (addcartJson[
-                                                                    'done'] ==
-                                                                'done') {
-                                                              showInSnackBar(
-                                                                  '${listItem[index].nama} berhasil dimasukkan ke keranjang');
-                                                            } else if (addcartJson[
-                                                                    'error'] ==
-                                                                'stock') {
-                                                              showInSnackBar(
-                                                                  'Stock ${listItem[index].nama} tersisa ${addcartJson['stock']}');
-                                                            } else if (addcartJson[
-                                                                    'error'] ==
-                                                                'error') {
-                                                              showInSnackBar(
-                                                                  '${listItem[index].nama} sudah ada dikeranjang');
-                                                            }
-                                                          } else {
-                                                            print(
-                                                                '${adcart.body}');
-                                                          }
-                                                        } on TimeoutException catch (_) {} catch (e) {
-                                                          print(e);
-                                                        }
-                                                      }
-                                                    },
-                                                    child: new Text(
-                                                      'Beli Lagi',
-                                                      style: TextStyle(
-                                                          color: Colors.white),
-                                                    ),
-                                                    padding:
-                                                        EdgeInsets.all(8.0),
-                                                    color: Colors.green,
+                                                    item.nama,
+                                                    style: TextStyle(
+                                                        color:
+                                                            Color(0xff25282b),
+                                                        fontSize: 15.0,
+                                                        fontWeight:
+                                                            FontWeight.bold),
                                                   ),
                                                 ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 0.0),
-                                      child: Row(
-                                        children: <Widget>[
-                                          Expanded(
-                                            flex: 5,
-                                            child: Image.network(
-                                              listItem[index].image != null
-                                                  ? urladmin(
-                                                      'storage/image/master/produk/${listItem[index].image}',
+                                              ),
+                                              item.hargadiskon == '0'
+                                                  ? Container(
+                                                      height: 30.0,
+                                                      padding: EdgeInsets.only(
+                                                          left: 0.0, top: 10.0),
                                                     )
-                                                  : url(
-                                                      'assets/img/noimage.jpg',
+                                                  : Container(
+                                                      height: 30.0,
+                                                      child: Row(
+                                                        children: <Widget>[
+                                                          Text(
+                                                              item.hargasales ==
+                                                                      null
+                                                                  ? 'Rp. 0.00'
+                                                                  : _numberFormat.format(
+                                                                      double.parse(item
+                                                                          .hargasales
+                                                                          .toString())),
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .black,
+                                                                  decoration:
+                                                                      TextDecoration
+                                                                          .lineThrough)),
+                                                        ],
+                                                      ),
+                                                      padding: EdgeInsets.only(
+                                                          left: 0.0, top: 10.0),
                                                     ),
-                                              width: 80.0,
-                                              height: 80.0,
-                                            ),
-                                          ),
-                                          Expanded(
-                                            flex: 5,
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: <Widget>[
-                                                Container(
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            top: 10.0),
-                                                    child: Text(
-                                                      listItem[index].nama,
-                                                      style: TextStyle(
-                                                          color:
-                                                              Color(0xff25282b),
-                                                          fontSize: 15.0,
-                                                          fontWeight:
-                                                              FontWeight.bold),
+                                              item.hargadiskon == null
+                                                  ? Container(
+                                                      height: 30.0,
+                                                      child: Row(
+                                                        children: <Widget>[
+                                                          Text(
+                                                              item.hargasales ==
+                                                                      null
+                                                                  ? 'Rp. 0.00'
+                                                                  : _numberFormat.format(
+                                                                      double.parse(item
+                                                                          .hargasales
+                                                                          .toString())),
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .black)),
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .only(
+                                                                    left: 0.0),
+                                                            child: Text(
+                                                                " / " +
+                                                                    item.satuan,
+                                                                style:
+                                                                    TextStyle(
+                                                                  color: Colors
+                                                                      .green,
+                                                                )),
+                                                          )
+                                                        ],
+                                                      ),
+                                                      padding: EdgeInsets.only(
+                                                          left: 0.0, top: 10.0),
+                                                    )
+                                                  : Container(
+                                                      height: 30.0,
+                                                      child: Row(
+                                                        children: <Widget>[
+                                                          Text(
+                                                              item.hargadiskon ==
+                                                                      null
+                                                                  ? 'Rp. 0.00'
+                                                                  : _numberFormat.format(double.parse(item
+                                                                          .hargasales
+                                                                          .toString()) -
+                                                                      (double.parse(item
+                                                                              .hargadiskon
+                                                                              .toString()) /
+                                                                          int.parse(item
+                                                                              .qty))),
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .black)),
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .only(
+                                                                    left: 0.0),
+                                                            child: Text(
+                                                                " / " +
+                                                                    item.satuan,
+                                                                style:
+                                                                    TextStyle(
+                                                                  color: Colors
+                                                                      .green,
+                                                                )),
+                                                          )
+                                                        ],
+                                                      ),
+                                                      padding: EdgeInsets.only(
+                                                          left: 0.0),
                                                     ),
-                                                  ),
-                                                ),
-                                                listItem[index].hargadiskon.toString() == '0' ?
-                                                Container(
-                                                  height: 30.0,
-                                                  padding: EdgeInsets.only(
-                                                      left: 0.0, top: 10.0),
-                                                ):
-                                                Container(
-                                                  height: 30.0,
-                                                  child: Row(
-                                                    children: <Widget>[
-                                                      Text(
-                                                          listItem[index]
-                                                                      .hargasales ==
-                                                                  null
-                                                              ? 'Rp. 0.00'
-                                                              : _numberFormat.format(double.parse(listItem[index].hargasales.toString())),
-                                                          style: TextStyle(
-                                                              color: Colors
-                                                                  .black,
-                                                                  decoration: TextDecoration.lineThrough)),
-                                                    ],
-                                                  ),
-                                                  padding: EdgeInsets.only(
-                                                      left: 0.0, top: 10.0),
-                                                ),
-                                                listItem[index].hargadiskon.toString() == '0' ?
-                                                Container(
-                                                  height: 30.0,
-                                                  child: Row(
-                                                    children: <Widget>[
-                                                      Text(
-                                                          listItem[index]
-                                                                      .hargadiskon ==
-                                                                  null
-                                                              ? 'Rp. 0.00'
-                                                              : _numberFormat.format(double.parse(listItem[index].hargasales.toString())),
-                                                          style: TextStyle(
-                                                              color: Colors
-                                                                  .black)),
-                                                      Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .only(
-                                                                left: 0.0),
-                                                        child: Text(
-                                                            " / " +
-                                                                listItem[index]
-                                                                    .satuan,
-                                                            style: TextStyle(
-                                                              color:
-                                                                  Colors.green,
-                                                            )),
-                                                      )
-                                                    ],
-                                                  ),
-                                                  padding: EdgeInsets.only(
-                                                      left: 0.0, top: 10.0),
-                                                ):
-                                                Container(
-                                                  height: 30.0,
-                                                  child: Row(
-                                                    children: <Widget>[
-                                                      Text(
-                                                          listItem[index]
-                                                                      .hargadiskon ==
-                                                                  null
-                                                              ? 'Rp. 0.00'
-                                                              : _numberFormat.format(double.parse(listItem[index].hargasales.toString()) - (double.parse(listItem[index].hargadiskon.toString()) / int.parse(listItem[index].qty)) ),
-                                                          style: TextStyle(
-                                                              color: Colors
-                                                                  .black)),
-                                                      Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .only(
-                                                                left: 0.0),
-                                                        child: Text(
-                                                            " / " +
-                                                                listItem[index]
-                                                                    .satuan,
-                                                            style: TextStyle(
-                                                              color:
-                                                                  Colors.green,
-                                                            )),
-                                                      )
-                                                    ],
-                                                  ),
-                                                  padding: EdgeInsets.only(
-                                                      left: 0.0, top: 10.0),
-                                                ),
-                                                Container(
-                                                  child: Row(
-                                                    children: <Widget>[
-                                                      Text(
-                                                          "Jumlah : ${listItem[index].qty}",
-                                                          style: TextStyle(
-                                                              color: Colors
-                                                                  .black)),
-                                                    ],
-                                                  ),
-                                                  padding: EdgeInsets.only(
-                                                      left: 0.0, top: 10.0),
-                                                ),
-                                                Container(
-                                                  height: 30.0,
-                                                ),
-                                              ],
-                                            ),
+                                            ],
                                           ),
-                                        ],
-                                      ),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ];
+                          return Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.transparent),
+                              
+                            ),
+                            // padding: const EdgeInsets.all(10.0),
+                            // margin: EdgeInsets.all(5.0),
+                            child: Card(
+                              elevation: 0.0,
+                              child: Column(
+                                children: children2,
+                              ),
+                            ),
+                          );
+                        },
+                      ).toList(),
+                    ),
+                  ),
           ],
         ),
       ),
-      
-      floatingActionButton: InkWell(
-        onTap: () {
-          _confirmationModalBottomSheet(context);
-        },
-        child: Container(
-          width: 200.0,
-          height: 50.0,
-          decoration: new BoxDecoration(
-            color: Color(0xff31B057),
-            border: new Border.all(color: Colors.transparent, width: 2.0),
-            borderRadius: new BorderRadius.circular(23.0),
-          ),
-          child: Center(
-            child: Text(
-              'Salin Ke Nota Baru',
-              style: new TextStyle(
-                  fontFamily: 'TitilliumWeb',
-                  fontSize: 14.0,
-                  color: Colors.white),
-            ),
-          ),
-        ),
-      ),
     );
-  }
-
-  void _confirmationModalBottomSheet(context) {
-    showModalBottomSheet(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(5.0), topRight: Radius.circular(5.0)),
-        ),
-        context: context,
-        builder: (BuildContext bc) {
-          return Padding(
-            padding: EdgeInsets.all(10.0),
-            child: Container(
-              height: 130.0,
-              color: Colors.white,
-              child: Column(
-                children: <Widget>[
-                  Container(
-                    child: Align(
-                      alignment: Alignment.topLeft,
-                      child: Text(
-                        "Apa anda yakin?",
-                        style: TextStyle(
-                            fontFamily: 'TitilliumWeb', fontSize: 20.0),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 3.0,
-                  ),
-                  Container(
-                    child: Text(
-                      "Item pada transaksi ini akan langsung diarahkan ke checkout !",
-                      style: TextStyle(
-                          fontFamily: 'TitilliumWeb',
-                          fontSize: 16.0,
-                          color: Colors.grey[400]),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 5.0,
-                  ),
-                  Container(
-                    child: Row(
-                      children: <Widget>[
-                        Container(
-                          height: 40.0,
-                          width: 80.0,
-                          child: RaisedButton(
-                            onPressed: () async {
-                              formSerialize = Map<String, dynamic>();
-                              formSerialize['cabang'] = null;
-                              formSerialize['item'] = List();
-                              formSerialize['qty'] = List();
-                              formSerialize['berat'] = List();
-
-                              formSerialize['cabang'] = stockiesX;
-                              for (int i = 0; i < listItem.length; i++) {
-                                formSerialize['item'].add(listItem[i].code);
-                                formSerialize['qty'].add(listItem[i].qty);
-                                formSerialize['berat'].add(listItem[i].berat);
-                              }
-
-                              print(formSerialize);
-
-                              Map<String, dynamic> requestHeadersX =
-                                  requestHeaders;
-
-                              requestHeadersX['Content-Type'] =
-                                  "application/x-www-form-urlencoded";
-                              try {
-                                final response = await http.post(
-                                  url('api/checkout_repeat_order_android'),
-                                  headers: requestHeadersX,
-                                  body: {
-                                    'type_platform': 'android',
-                                    'data': jsonEncode(formSerialize),
-                                  },
-                                  encoding: Encoding.getByName("utf-8"),
-                                );
-
-                                if (response.statusCode == 200) {
-                                  dynamic responseJson =
-                                      jsonDecode(response.body);
-                                  if (responseJson['status'] == 'success') {
-                                    Navigator.pop(context);
-                                    Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Checkout(),
-                              ));
-                                  } else {
-                                    showInSnackBar(
-                                        'Hubungi Pengembang Software');
-                                    print('${response.body}');
-                                  }
-                                  print('response decoded $responseJson');
-                                } else {
-                                  print('${response.body}');
-                                  showInSnackBar(
-                                      'Request failed with status: ${response.statusCode}');
-                                  Navigator.pop(context);
-                                }
-                              } on TimeoutException catch (_) {
-                                Navigator.pop(context);
-                                showInSnackBar('Timed out, Try again');
-                              } catch (e) {
-                                print(e);
-                              }
-                            },
-                            color: Color(0xff31B057),
-                            child: Text("Ya",
-                                style: TextStyle(
-                                    fontFamily: 'TitilliumWeb',
-                                    fontSize: 16.0,
-                                    color: Colors.white)),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 10.0,
-                        ),
-                        Container(
-                          height: 40.0,
-                          width: 80.0,
-                          child: RaisedButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            color: Colors.transparent,
-                            elevation: 0.0,
-                            child: Text("Tidak!",
-                                style: TextStyle(
-                                    fontFamily: 'TitilliumWeb',
-                                    fontSize: 16.0,
-                                    color: Color(0xff31B057))),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: new BorderRadius.circular(2.0),
-                                side: BorderSide(color: Color(0xff31B057))),
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            ),
-          );
-        });
   }
 }
 

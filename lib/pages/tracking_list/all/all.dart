@@ -123,6 +123,9 @@ Widget statusNota(statusDeliver, statusPacking, statusPembayaran,
   if (statusPembayaran == 'N') {
     return Text("Pembayaran", style: TextStyle(color: Colors.green));
   }
+  if(statusDeliver == 'A'){
+    return Text("Ambil Sendiri", style: TextStyle(color: Colors.green));
+  }
   return null;
 }
 

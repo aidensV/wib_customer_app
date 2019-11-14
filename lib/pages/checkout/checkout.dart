@@ -10,6 +10,7 @@ import '../../utils/Navigator.dart';
 import 'listkabupaten.dart';
 import 'listkecamatan.dart';
 import 'listprovinsi.dart';
+import '../tracking_list/tracking.dart';
 import 'model.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_image/network.dart';
@@ -322,7 +323,7 @@ class _CheckoutState extends State<Checkout> {
   }
 
   _dismissDialog() {
-    Navigator.pop(context);
+    Navigator.of(context).pop();
   }
 
   @override
@@ -567,7 +568,9 @@ class _CheckoutState extends State<Checkout> {
               mainAxisSpacing: 0.0,
               crossAxisSpacing: 0.0,
               physics: NeverScrollableScrollPhysics(),
-              childAspectRatio: 2,
+              childAspectRatio: MediaQuery.of(context).orientation == Orientation.portrait
+            ? 2
+            : 4.2,
               children: listNota
                   .map(
                     (item) {
@@ -892,7 +895,14 @@ class _CheckoutState extends State<Checkout> {
       if (response.statusCode == 200) {
         dynamic responseJson = jsonDecode(response.body);
         if (responseJson['status'] == 'success') {
-          Navigator.pushNamed(context, "/tracking_list");
+          Navigator.pushReplacementNamed(context, "/tracking_list");
+          // Navigator.push(
+          //                     context,
+          //                     MaterialPageRoute(
+          //                       builder: (BuildContext context) => TrackingList(),
+          //                       settings: RouteSettings(name: '/tracking_list'),
+          //                     ),
+          //                   );
         } else if (responseJson['status'] == 'saldokurang') {
           showInSnackBar('Saldo anda tidak mencukupi');
         } else if (responseJson['error'] == 'Saldo Anda Tidak Cukup') {
