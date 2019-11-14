@@ -12,6 +12,8 @@ String accessToken,
     tokenType,
     stockiesX,
     ongkirX,
+    totalhargasemuabarangX,
+    totalpembelianX,
     provinsiX,
     kabupatenX,
     kecamatanX,
@@ -97,15 +99,18 @@ class _DetailState extends State<Detail> {
         String stockies = itemJson['stockies'].toString();
         var itemproduct = itemJson['item'];
         var ongkir = itemJson['ongkir'];
-        String provinsi = itemJson['provinsi'].toString();
-        String kabupaten = itemJson['kabupaten'].toString();
-        String kecamatan = itemJson['kecamatan'].toString();
-        String kodepos = itemJson['kodepos'].toString();
-        String alamat = itemJson['alamat'].toString();
+        var totalhargasemuabarang = itemJson['totalhargabarang'];
+        var totalpembelian = itemJson['totalpembelian'];
+        var provinsi = itemJson['provinsi'];
+        var kabupaten = itemJson['kabupaten'];
+        var kecamatan = itemJson['kecamatan'];
+        var kodepos = itemJson['kodepos'];
+        var alamat = itemJson['alamat'];
         String expedisi = itemJson['expedisi'];
         String resi = itemJson['resi'];
         String delivered = itemJson['delivered'];
         print('biaya $ongkir');
+        print('provinsi $provinsi');
         print('item ini $itemproduct');
         print(itemJson);
         listItem = [];
@@ -137,6 +142,8 @@ class _DetailState extends State<Detail> {
           expedisiX = expedisi;
           deliveredX = delivered;
           resiX = resi;
+          totalpembelianX = totalpembelian;
+          totalhargasemuabarangX = totalhargasemuabarang;
           isLoading = false;
         });
         return listItem;
@@ -200,6 +207,8 @@ class _DetailState extends State<Detail> {
     expedisiX = null;
     deliveredX = null;
     resiX = null;
+    totalhargasemuabarangX = null;
+    totalpembelianX = null;
     listItemNotaAndroid();
     getHeaderHTTP();
     super.initState();
@@ -273,11 +282,23 @@ class _DetailState extends State<Detail> {
               title: Text(resiX == null ? 'Nomor Resi : -' : 'Nomor Resi : $resiX'),
             ),),
             Card(child: ListTile(
+              leading: Icon(Icons.shop, color: Colors.green),
+              title: Text(totalhargasemuabarangX == null || totalhargasemuabarangX == '0'
+                    ? 'Total Harga Barang : Rp. 0.00'
+                    : 'Total Harga Barang : Rp. ${totalhargasemuabarangX} '),
+            ),),
+            Card(child: ListTile(
               leading: Icon(Icons.local_atm, color: Colors.green),
-              title: Text(ongkirX == null
+              title: Text(ongkirX == null || ongkirX == '0'
                     ? 'Biaya Ongkir : Rp. 0.00'
                     : 'Biaya Ongkir : ' +
                         _numberFormat.format(double.parse(ongkirX.toString()))),
+            ),),
+            Card(child: ListTile(
+              leading: Icon(Icons.shopping_basket, color: Colors.green),
+              title: Text(totalpembelianX == null || totalpembelianX == '0'
+                    ? 'Total Pembelian : Rp. 0.00'
+                    : 'Total Pembelian : Rp. ${totalpembelianX}' ),
             ),),
             Padding(
               padding:
@@ -291,39 +312,36 @@ class _DetailState extends State<Detail> {
               child: ListTile(
                 leading: Icon(Icons.location_on, color: Colors.green),
                 title: Text(deliveredX == null || deliveredX == 'A'
-                    ? 'Provinsi : -'
-                    : 'Provinsi : $provinsiX'),
+                    ? 'Provinsi : -' : provinsiX == null || provinsiX == '0'?
+                     'Provinsi : -' : 'Provinsi : $provinsiX'),
               ),
             ),
             Card(
               child: ListTile(
                 leading: Icon(Icons.location_city, color: Colors.green),
                 title: Text(deliveredX == null || deliveredX == 'A'
-                    ? 'Kab/Kota : -'
-                    : 'Kab/Kota : $kabupatenX'),
+                    ? 'Kab/Kota : -': kabupatenX == null || kabupatenX == '0' ? 'Kabupaten : -' : 'Kab/Kota : $kabupatenX'),
               ),
             ),
             Card(
               child: ListTile(
                 leading: Icon(Icons.location_on, color: Colors.green),
                 title: Text(deliveredX == null || deliveredX == 'A'
-                    ? 'Kecamatan : -'
-                    : 'Kecamatan : $kecamatanX'),
+                    ? 'Kecamatan : -': kecamatanX == null || kecamatanX == '0' ? 'Kecamatan : -'  : 'Kecamatan : $kecamatanX'),
               ),
             ),
             Card(
               child: ListTile(
                 leading: Icon(Icons.local_post_office, color: Colors.green),
                 title: Text(deliveredX == null || deliveredX == 'A'
-                    ? 'Kodepos : -'
-                    : 'Kodepos : $kodeposX'),
+                    ? 'Kodepos : -' : kodeposX == null || kodeposX == '0' ? 'Kodepos : -'  : 'Kodepos : $kodeposX'),
               ),
             ),
             Card(
               child: ListTile(
                 leading: Icon(Icons.streetview, color: Colors.green),
                 title: Text(
-                    deliveredX == null || deliveredX == 'A' ? '-' : alamatX),
+                    deliveredX == null || deliveredX == 'A' ? '-' : alamatX == null || alamatX == '' ? '' : alamatX),
               ),
             ),
             
@@ -339,7 +357,7 @@ class _DetailState extends State<Detail> {
                 :
                 Padding(
             padding: const EdgeInsets.only(top: 25.0, left: 15.0),
-            child: new Text('Daftar barang checkout'),
+            child: new Text('Daftar Barang'),
           ),
           Divider(), Padding(
                     padding: EdgeInsets.all(0.0),
@@ -375,7 +393,7 @@ class _DetailState extends State<Detail> {
                                                 padding: const EdgeInsets.only(
                                                     left: 0.0,top: 0.0,),
                                                 child: Text(
-                                                    item.totalharga == null
+                                                    item.totalharga == null || item.totalharga == '0'
                                                         ? "Total : Rp. 0.00"
                                                         : "Total : " +
                                                             _numberFormat.format(
@@ -522,8 +540,7 @@ class _DetailState extends State<Detail> {
                                                       child: Row(
                                                         children: <Widget>[
                                                           Text(
-                                                              item.hargasales ==
-                                                                      null
+                                                              item.hargasales == null || item.hargasales == '0'
                                                                   ? 'Rp. 0.00'
                                                                   : _numberFormat.format(
                                                                       double.parse(item
@@ -540,14 +557,13 @@ class _DetailState extends State<Detail> {
                                                       padding: EdgeInsets.only(
                                                           left: 0.0, top: 10.0),
                                                     ),
-                                              item.hargadiskon == null
+                                              item.hargadiskon == '0' || item.hargadiskon == null
                                                   ? Container(
                                                       height: 30.0,
                                                       child: Row(
                                                         children: <Widget>[
                                                           Text(
-                                                              item.hargasales ==
-                                                                      null
+                                                              item.hargasales == null || item.hargasales == '0'
                                                                   ? 'Rp. 0.00'
                                                                   : _numberFormat.format(
                                                                       double.parse(item
@@ -580,8 +596,7 @@ class _DetailState extends State<Detail> {
                                                       child: Row(
                                                         children: <Widget>[
                                                           Text(
-                                                              item.hargadiskon ==
-                                                                      null
+                                                              item.hargadiskon == null || item.hargadiskon == '0'
                                                                   ? 'Rp. 0.00'
                                                                   : _numberFormat.format(double.parse(item
                                                                           .hargasales
@@ -644,7 +659,179 @@ class _DetailState extends State<Detail> {
           ],
         ),
       ),
+      floatingActionButton: InkWell(
+        onTap: () {
+          _confirmationModalBottomSheet(context);
+        },
+        child: Container(
+          width: 200.0,
+          height: 50.0,
+          decoration: new BoxDecoration(
+            color: Color(0xff31B057),
+            border: new Border.all(color: Colors.transparent, width: 2.0),
+            borderRadius: new BorderRadius.circular(23.0),
+          ),
+          child: Center(
+            child: Text(
+              'Salin Ke Nota Baru',
+              style: new TextStyle(
+                  fontFamily: 'TitilliumWeb',
+                  fontSize: 14.0,
+                  color: Colors.white),
+            ),
+          ),
+        ),
+      ),
     );
+  }
+
+  void _confirmationModalBottomSheet(context) {
+    showModalBottomSheet(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(5.0), topRight: Radius.circular(5.0)),
+        ),
+        context: context,
+        builder: (BuildContext bc) {
+          return Padding(
+            padding: EdgeInsets.all(10.0),
+            child: Container(
+              height: 130.0,
+              color: Colors.white,
+              child: Column(
+                children: <Widget>[
+                  Container(
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      child: Text(
+                        "Apa anda yakin?",
+                        style: TextStyle(
+                            fontFamily: 'TitilliumWeb', fontSize: 20.0),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 3.0,
+                  ),
+                  Container(
+                    child: Text(
+                      "Item pada transaksi ini akan langsung diarahkan ke checkout !",
+                      style: TextStyle(
+                          fontFamily: 'TitilliumWeb',
+                          fontSize: 16.0,
+                          color: Colors.grey[400]),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 5.0,
+                  ),
+                  Container(
+                    child: Row(
+                      children: <Widget>[
+                        Container(
+                          height: 40.0,
+                          width: 80.0,
+                          child: RaisedButton(
+                            onPressed: () async {
+                              formSerialize = Map<String, dynamic>();
+                              formSerialize['cabang'] = null;
+                              formSerialize['item'] = List();
+                              formSerialize['qty'] = List();
+                              formSerialize['berat'] = List();
+
+                              formSerialize['cabang'] = stockiesX;
+                              for (int i = 0; i < listItem.length; i++) {
+                                formSerialize['item'].add(listItem[i].code);
+                                formSerialize['qty'].add(listItem[i].qty);
+                                formSerialize['berat'].add(listItem[i].berat);
+                              }
+
+                              print(formSerialize);
+
+                              Map<String, dynamic> requestHeadersX =
+                                  requestHeaders;
+
+                              requestHeadersX['Content-Type'] =
+                                  "application/x-www-form-urlencoded";
+                              try {
+                                final response = await http.post(
+                                  url('api/checkout_repeat_order_android'),
+                                  headers: requestHeadersX,
+                                  body: {
+                                    'type_platform': 'android',
+                                    'data': jsonEncode(formSerialize),
+                                  },
+                                  encoding: Encoding.getByName("utf-8"),
+                                );
+
+                                if (response.statusCode == 200) {
+                                  dynamic responseJson =
+                                      jsonDecode(response.body);
+                                  if (responseJson['status'] == 'success') {
+                                    Navigator.pop(context);
+                                    Navigator.pushReplacementNamed(context, "/checkout");
+                                    // Navigator.push(
+                                    //     context,
+                                    //     MaterialPageRoute(
+                                    //       builder: (context) => Checkout(),
+                                    //     ));
+                                  } else {
+                                    showInSnackBar(
+                                        'Hubungi Pengembang Software');
+                                    print('${response.body}');
+                                  }
+                                  print('response decoded $responseJson');
+                                } else {
+                                  print('${response.body}');
+                                  showInSnackBar(
+                                      'Request failed with status: ${response.statusCode}');
+                                  Navigator.pop(context);
+                                }
+                              } on TimeoutException catch (_) {
+                                Navigator.pop(context);
+                                showInSnackBar('Timed out, Try again');
+                              } catch (e) {
+                                print(e);
+                              }
+                            },
+                            color: Color(0xff31B057),
+                            child: Text("Ya",
+                                style: TextStyle(
+                                    fontFamily: 'TitilliumWeb',
+                                    fontSize: 16.0,
+                                    color: Colors.white)),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 10.0,
+                        ),
+                        Container(
+                          height: 40.0,
+                          width: 80.0,
+                          child: RaisedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            color: Colors.transparent,
+                            elevation: 0.0,
+                            child: Text("Tidak!",
+                                style: TextStyle(
+                                    fontFamily: 'TitilliumWeb',
+                                    fontSize: 16.0,
+                                    color: Color(0xff31B057))),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: new BorderRadius.circular(2.0),
+                                side: BorderSide(color: Color(0xff31B057))),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            ),
+          );
+        });
   }
 }
 
