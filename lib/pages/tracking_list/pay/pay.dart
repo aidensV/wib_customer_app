@@ -78,6 +78,7 @@ Widget statusNota(statusDeliver, statusPacking, statusPembayaran, statusMetodePe
   if (statusDeliver == 'L') {
     return Text("Pengiriman Terlambat", style: TextStyle(color: Colors.orange),);
   }
+  
 
   if (statusDeliver == 'P') {
     return Text("Sedang Dikirim", style: TextStyle(color: Colors.green));
@@ -97,6 +98,9 @@ Widget statusNota(statusDeliver, statusPacking, statusPembayaran, statusMetodePe
 
   if (statusPembayaran == 'N') {
     return Text("Pembayaran", style: TextStyle(color: Colors.green));
+  }
+  if(statusDeliver == 'A'){
+    return Text("Ambil Sendiri", style: TextStyle(color: Colors.green));
   }
   return null;
 }
