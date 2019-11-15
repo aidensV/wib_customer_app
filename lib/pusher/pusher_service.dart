@@ -9,7 +9,7 @@ import 'package:wib_customer_app/notification_service/notification_service.dart'
 import 'package:wib_customer_app/storage/storage.dart';
 
 class PusherService {
-  Event eventPenjualanDiKonfirm, eventPenjualanDiProses, eventPenjulanDiKirim;
+  Event eventPenjualanDiKonfirm, eventPenjualanDiProses, eventPenjulanDiKirim, eventPenjualanDiTolak;
   String lastConnectionState;
 
   Channel penjualanChannelOn, penjualanChannelOff, penjualanChannel;
@@ -24,13 +24,18 @@ class PusherService {
   StreamController<String> eventDataPenjualanDiKirim =
       StreamController<String>();
 
+        StreamController<String> eventDataPenjualanDiTolak =
+      StreamController<String>();
+
   Sink get _inEventDataDiKonfirm => eventDataPenjualanDiKonfirm.sink;
   Sink get _inEventDataDiProses => eventDataPenjualanDiProses.sink;
   Sink get _inEventDataDiKirim => eventDataPenjualanDiKirim.sink;
+  Sink get _inEventDataDiTolak => eventDataPenjualanDiTolak.sink;
 
   Stream get eventStreamDikonfirm => eventDataPenjualanDiKonfirm.stream;
   Stream get eventStreamDiProses => eventDataPenjualanDiProses.stream;
   Stream get eventStreamDiKirim => eventDataPenjualanDiKirim.stream;
+  Stream get eventStreamDiTolak => eventDataPenjualanDiTolak.stream;
 
   Future<void> initPusher() async {
     try {
@@ -76,8 +81,24 @@ class PusherService {
       notificationService.showBigTextNotification(
         // title: 'Segera melakukan proses packing',
         title: 'Transaksi Pembelian',
-        description: 'Nota ${dataJson['message']['nota']} telah di konfirm',
-        payload: dataJson['message']['type'],
+        description: 'Nota ${dataJson['message']['nota']} telah di Konfirm',
+        payload: dataJson['message']['request'],
+      );
+    });
+
+    penjualanChannel.bind('penjualan-ditolak', (last) {
+      eventPenjualanDiTolak = last;
+
+      eventDataPenjualanDiTolak.add(last.data);
+
+      dynamic dataJson = jsonDecode(last.data);
+      print(dataJson);
+
+      notificationService.showBigTextNotification(
+        // title: 'Segera melakukan proses packing',
+        title: 'Transaksi Pembelian',
+        description: 'Nota ${dataJson['message']['nota']} telah di Tolak',
+        payload: dataJson['message']['request'],
       );
     });
 
@@ -93,7 +114,7 @@ class PusherService {
         // title: 'Segera melakukan proses packing',
         title: 'Transaksi Pembelian',
         description: 'Nota ${dataJson['message']['nota']} telah di proses',
-        payload: dataJson['message']['type'],
+        payload: dataJson['message']['request'],
       );
     });
 
@@ -108,8 +129,8 @@ class PusherService {
       notificationService.showBigTextNotification(
         // title: 'Segera melakukan proses packing',
         title: 'Transaksi Pembelian',
-        description: 'Nota ${dataJson['message']['nota']} telah di kirim dengan no. ekspedisi ${dataJson['message']['eskpedisi']}',
-        payload: dataJson['message']['type'],
+        description: 'Nota ${dataJson['message']['nota']} telah di kirim dengan no. ekspedisi ${dataJson['message']['expedisi']}',
+        payload: dataJson['message']['request'],
       );
     });
   }
@@ -118,6 +139,7 @@ class PusherService {
     penjualanChannel.unbind('penjualan-di-konfirm');
     penjualanChannel.unbind('penjualan-delivered');
     penjualanChannel.unbind('penjualan-proses');
+    penjualanChannel.unbind('penjualan-ditolak');
     // penjualanChannelOn.unbind('penjualan-payment-on');
     // penjualanChannelOn.unbind('penjualan-payment-off');
     // _eventData.close();

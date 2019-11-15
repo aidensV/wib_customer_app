@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wib_customer_app/pages/tracking_list/listTileTransaksi.dart';
 import 'detail.dart';
 import 'package:wib_customer_app/storage/storage.dart';
 import 'package:http/http.dart' as http;
@@ -54,6 +55,7 @@ Future<List<ListNota>> listNotaAndroid() async {
           statusSetuju: i['s_isapprove'],
           total: i['s_total'],
           customer: i['cm_name'],
+          tanggalTransaksi: i['s_date'],
         );
         listNota.add(notax);
       }
@@ -123,7 +125,7 @@ Widget statusNota(statusDeliver, statusPacking, statusPembayaran,
   if (statusPembayaran == 'N') {
     return Text("Pembayaran", style: TextStyle(color: Colors.green));
   }
-  if(statusDeliver == 'A'){
+  if (statusDeliver == 'A') {
     return Text("Ambil Sendiri", style: TextStyle(color: Colors.green));
   }
   return null;
@@ -212,30 +214,35 @@ class _AllNotaState extends State<AllNota> {
                                 decimalDigits: 2, name: 'Rp. ');
                         String hargaTotal =
                             _numberFormat.format(totalpembelian);
-                        return Container(
-                          color: Colors.white,
-                          child: ListTile(
-                            title: Text(snapshot.data[index].nota),
-                            subtitle: Text(hargaTotal),
-                            trailing: statusNota(
-                                snapshot.data[index].statusDeliver,
-                                snapshot.data[index].statusPacking,
-                                snapshot.data[index].statusPembayaran,
-                                snapshot.data[index].statusMetodePembayaran,
-                                snapshot.data[index].statusSetuju),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => Detail(
-                                      id: snapshot.data[index].id,
-                                      nota: snapshot.data[index].nota,
-                                      customer: snapshot.data[index].customer,
-                                      total: snapshot.data[index].total,
-                                      status: snapshot.data[index].status),
-                                ),
-                              );
-                            },
+
+                        DateTime dateTime = DateTime.parse(
+                            snapshot.data[index].tanggalTransaksi);
+                        String dateTimeParse =
+                            DateFormat('d MMM y').format(dateTime);
+
+                        return ListTileTransaksi(
+                          hargaTotal: hargaTotal,
+                          nota: snapshot.data[index].nota,
+                          tanggalTransaksi: dateTimeParse,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Detail(
+                                    id: snapshot.data[index].id,
+                                    nota: snapshot.data[index].nota,
+                                    customer: snapshot.data[index].customer,
+                                    total: snapshot.data[index].total,
+                                    status: snapshot.data[index].status),
+                              ),
+                            );
+                          },
+                          status: statusNota(
+                            snapshot.data[index].statusDeliver,
+                            snapshot.data[index].statusPacking,
+                            snapshot.data[index].statusPembayaran,
+                            snapshot.data[index].statusMetodePembayaran,
+                            snapshot.data[index].statusSetuju,
                           ),
                         );
                       },
@@ -252,26 +259,29 @@ class _AllNotaState extends State<AllNota> {
 }
 
 class ListNota {
-  final String id;
-  final String nota;
-  final String customer;
-  final String total;
-  final String status;
-  final String statusDeliver;
-  final String statusPacking;
-  final String statusPembayaran;
-  final String statusMetodePembayaran;
-  final String statusSetuju;
+  String id;
+  String tanggalTransaksi;
+  String nota;
+  String customer;
+  String total;
+  String status;
+  String statusDeliver;
+  String statusPacking;
+  String statusPembayaran;
+  String statusMetodePembayaran;
+  String statusSetuju;
 
-  ListNota(
-      {this.id,
-      this.nota,
-      this.status,
-      this.customer,
-      this.total,
-      this.statusDeliver,
-      this.statusPacking,
-      this.statusPembayaran,
-      this.statusMetodePembayaran,
-      this.statusSetuju});
+  ListNota({
+    this.id,
+    this.nota,
+    this.status,
+    this.customer,
+    this.total,
+    this.statusDeliver,
+    this.statusPacking,
+    this.statusPembayaran,
+    this.statusMetodePembayaran,
+    this.statusSetuju,
+    this.tanggalTransaksi,
+  });
 }

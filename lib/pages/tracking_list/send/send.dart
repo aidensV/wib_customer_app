@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wib_customer_app/pages/tracking_list/listTileTransaksi.dart';
 import 'detail.dart';
 import 'package:wib_customer_app/storage/storage.dart';
 import 'package:http/http.dart' as http;
@@ -52,6 +53,7 @@ Future<List<ListNota>> listNotaAndroid() async {
           statusSetuju: i['s_isapprove'],
           total: i['s_total'],
           customer: i['cm_name'],
+          tanggalTransaksi: i['s_date'],
         );
         listNota.add(notax);
       }
@@ -120,7 +122,7 @@ Widget statusNota(statusDeliver, statusPacking, statusPembayaran,
   if (statusPembayaran == 'N') {
     return Text("Pembayaran", style: TextStyle(color: Colors.green));
   }
-  if(statusDeliver == 'A'){
+  if (statusDeliver == 'A') {
     return Text("Ambil Sendiri", style: TextStyle(color: Colors.green));
   }
   return null;
@@ -207,32 +209,36 @@ class _SendNotaState extends State<SendNota> {
                                 decimalDigits: 2, name: 'Rp. ');
                         String hargaTotal =
                             _numberFormat.format(totalpembelian);
-                        return Container(
-                          color: Colors.white,
-                          child: ListTile(
-                            title: Text(snapshot.data[index].nota),
-                            subtitle: Text(snapshot.data[index].total == null
-                                ? 'Rp. 0.00'
-                                : hargaTotal),
-                            trailing: statusNota(
-                                snapshot.data[index].statusDeliver,
-                                snapshot.data[index].statusPacking,
-                                snapshot.data[index].statusPembayaran,
-                                snapshot.data[index].statusMetodePembayaran,
-                                snapshot.data[index].statusSetuju),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => Detail(
-                                      id: snapshot.data[index].id,
-                                      nota: snapshot.data[index].nota,
-                                      customer: snapshot.data[index].customer,
-                                      total: snapshot.data[index].total,
-                                      status: snapshot.data[index].status),
+
+                        DateTime dateTime = DateTime.parse(
+                            snapshot.data[index].tanggalTransaksi);
+                        String dateTimeParse =
+                            DateFormat('d MMM y').format(dateTime);
+
+                        return ListTileTransaksi(
+                          hargaTotal: hargaTotal,
+                          nota: snapshot.data[index].nota,
+                          tanggalTransaksi: dateTimeParse,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Detail(
+                                  id: snapshot.data[index].id,
+                                  nota: snapshot.data[index].nota,
+                                  customer: snapshot.data[index].customer,
+                                  total: snapshot.data[index].total,
+                                  status: snapshot.data[index].status,
                                 ),
-                              );
-                            },
+                              ),
+                            );
+                          },
+                          status: statusNota(
+                            snapshot.data[index].statusDeliver,
+                            snapshot.data[index].statusPacking,
+                            snapshot.data[index].statusPembayaran,
+                            snapshot.data[index].statusMetodePembayaran,
+                            snapshot.data[index].statusSetuju,
                           ),
                         );
                       },
@@ -259,6 +265,7 @@ class ListNota {
   final String statusPembayaran;
   final String statusMetodePembayaran;
   final String statusSetuju;
+  String tanggalTransaksi;
 
   ListNota(
       {this.id,
@@ -270,5 +277,6 @@ class ListNota {
       this.statusPacking,
       this.statusPembayaran,
       this.statusMetodePembayaran,
+      this.tanggalTransaksi,
       this.statusSetuju});
 }
