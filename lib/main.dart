@@ -43,18 +43,18 @@ Map<String, WidgetBuilder> routesX = <String, WidgetBuilder>{
 
 };
 
-void backgroundFetchHeadlessTask() async {
-  print('[BackgroundFetch] Headless event received.');
-  print('AR background fetch headless is success');
-  BackgroundFetch.finish();
-}
+// void backgroundFetchHeadlessTask() async {
+//   print('[BackgroundFetch] Headless event received.');
+//   print('AR background fetch headless is success');
+//   BackgroundFetch.finish();
+// }
 
 void main() {
   flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
   runApp(MyApp());
 
-  BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
+  // BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
 }
 
 class MyApp extends StatelessWidget {

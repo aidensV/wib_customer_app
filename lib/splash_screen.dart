@@ -34,65 +34,65 @@ class _SplashScreenState extends State<SplashScreen> {
     }
   }
 
-  Future<void> initPlatformState() async {
+  // Future<void> initPlatformState() async {
     
 
-    // Configure BackgroundFetch.
-    BackgroundFetch.configure(
-            BackgroundFetchConfig(
-                minimumFetchInterval: 1,
-                stopOnTerminate: false,
-                startOnBoot: true,
-                enableHeadless: true,
-                requiresBatteryNotLow: false,
-                requiresCharging: false,
-                requiresStorageNotLow: false,
-                requiresDeviceIdle: false,
-                requiredNetworkType: BackgroundFetchConfig.NETWORK_TYPE_NONE),
-            _onBackgroundFetch)
-        .then((int status) {
-      print('[BackgroundFetch] configure success: $status');
+  //   // Configure BackgroundFetch.
+  //   BackgroundFetch.configure(
+  //           BackgroundFetchConfig(
+  //               minimumFetchInterval: 1,
+  //               stopOnTerminate: false,
+  //               startOnBoot: true,
+  //               enableHeadless: true,
+  //               requiresBatteryNotLow: false,
+  //               requiresCharging: false,
+  //               requiresStorageNotLow: false,
+  //               requiresDeviceIdle: false,
+  //               requiredNetworkType: BackgroundFetchConfig.NETWORK_TYPE_NONE),
+  //           _onBackgroundFetch)
+  //       .then((int status) {
+  //     print('[BackgroundFetch] configure success: $status');
       
-    }).catchError((e) {
-      print('[BackgroundFetch] configure ERROR: $e');
+  //   }).catchError((e) {
+  //     print('[BackgroundFetch] configure ERROR: $e');
       
-    });
+  //   });
 
-    // Optionally query the current BackgroundFetch status.
-    int status = await BackgroundFetch.status;
+  //   // Optionally query the current BackgroundFetch status.
+  //   int status = await BackgroundFetch.status;
     
-    print(status);
+  //   print(status);
 
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-  }
+  //   // If the widget was removed from the tree while the asynchronous platform
+  //   // message was in flight, we want to discard the reply rather than calling
+  //   // setState to update our non-existent appearance.
+  //   if (!mounted) return;
+  // }
 
-  void _onBackgroundFetch() {
+  // void _onBackgroundFetch() {
 
-    // This is the fetch-event callback.
-    print('[BackgroundFetch] Event received');
-    print('AR background fetch is success');
+  //   // This is the fetch-event callback.
+  //   print('[BackgroundFetch] Event received');
+  //   print('AR background fetch is success');
 
-    notificationService = new NotificationService(context: context);
+  //   notificationService = new NotificationService(context: context);
 
-    notificationService.initStateNotificationCustomerSudahBayarService();
-    PusherService pusherService =
-        PusherService(notificationService: notificationService);
+  //   notificationService.initStateNotificationCustomerSudahBayarService();
+  //   PusherService pusherService =
+  //       PusherService(notificationService: notificationService);
 
-    pusherService = PusherService(notificationService: notificationService);
-    pusherService.firePusher();
+  //   pusherService = PusherService(notificationService: notificationService);
+  //   pusherService.firePusher();
 
 
-    // IMPORTANT:  You must signal completion of your fetch task or the OS can punish your app
-    // for taking too long in the background.
-    BackgroundFetch.finish();
-  }
+  //   // IMPORTANT:  You must signal completion of your fetch task or the OS can punish your app
+  //   // for taking too long in the background.
+  //   BackgroundFetch.finish();
+  // }
 
   @override
   void initState() {
-    initPlatformState();
+    // initPlatformState();
     
     getSharedPrefs();
 
