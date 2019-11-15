@@ -118,13 +118,13 @@ class _DetailState extends State<Detail> {
               nama: i['i_name'],
               satuan: i['iu_name'],
               qty: '${i['sd_qty'].toString()}',
-              hargasales: i['sd_price'].toString(),
-              totalharga: i['sd_total'].toString(),
-              price: i['ipr_sunitprice'].toString(),
+              hargasales: i['sd_price'],
+              totalharga: i['sd_total'],
+              price: i['ipr_sunitprice'],
               image: i['ip_path'],
               code: i['i_code'],
               berat: i['itp_weight'].toString(),
-              hargadiskon: i['sd_discvalue'].toString());
+              hargadiskon: i['sd_discvalue']);
           listItem.add(notax);
         }
 
@@ -272,9 +272,6 @@ class _DetailState extends State<Detail> {
 
   @override
   Widget build(BuildContext context) {
-    var size = MediaQuery.of(context).size;
-    final double itemHeight = (size.height - kToolbarHeight - 24) / 2;
-    final double itemWidth = size.width / 2;
     NumberFormat _numberFormat =
         new NumberFormat.simpleCurrency(decimalDigits: 2, name: 'Rp. ');
     return Scaffold(
@@ -457,7 +454,7 @@ class _DetailState extends State<Detail> {
                                           ),
                                           child: Text(
                                               item.totalharga == null ||
-                                                      item.totalharga == '0'
+                                                      item.totalharga.toString() == '0.00'
                                                   ? "Total : Rp. 0.00"
                                                   : "Total : " +
                                                       _numberFormat.format(
@@ -583,7 +580,7 @@ class _DetailState extends State<Detail> {
                                             ),
                                           ),
                                         ),
-                                        item.hargadiskon == '0'
+                                        item.hargadiskon == '0.00' || item.hargadiskon == null
                                             ? Container(
                                                 height: 30.0,
                                                 padding: EdgeInsets.only(
@@ -596,10 +593,10 @@ class _DetailState extends State<Detail> {
                                                     Text(
                                                         item.hargasales ==
                                                                     null ||
-                                                                item.hargasales ==
-                                                                    '0'
+                                                                item.hargasales.toString() ==
+                                                                    '0.00'
                                                             ? 'Rp. 0.00'
-                                                            : _numberFormat.format(
+                                                            :  _numberFormat.format(
                                                                 double.parse(item
                                                                     .hargasales
                                                                     .toString())),
@@ -613,7 +610,7 @@ class _DetailState extends State<Detail> {
                                                 padding: EdgeInsets.only(
                                                     left: 0.0, top: 10.0),
                                               ),
-                                        item.hargadiskon == '0' ||
+                                        item.hargadiskon.toString() == '0.00' ||
                                                 item.hargadiskon == null
                                             ? Container(
                                                 height: 30.0,
@@ -622,10 +619,10 @@ class _DetailState extends State<Detail> {
                                                     Text(
                                                         item.hargasales ==
                                                                     null ||
-                                                                item.hargasales ==
-                                                                    '0'
+                                                                item.hargasales.toString() ==
+                                                                    '0.00'
                                                             ? 'Rp. 0.00'
-                                                            : _numberFormat.format(
+                                                            :  _numberFormat.format(
                                                                 double.parse(item
                                                                     .hargasales
                                                                     .toString())),
@@ -653,10 +650,10 @@ class _DetailState extends State<Detail> {
                                                   children: <Widget>[
                                                     Text(
                                                         item.hargadiskon == null ||
-                                                                item.hargadiskon ==
-                                                                    '0'
+                                                                item.hargadiskon.toString() ==
+                                                                    '0.00'
                                                             ? 'Rp. 0.00'
-                                                            : _numberFormat.format(double.parse(item
+                                                            :  _numberFormat.format(double.parse(item
                                                                     .hargasales
                                                                     .toString()) -
                                                                 (double.parse(item.hargadiskon
