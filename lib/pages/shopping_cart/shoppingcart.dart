@@ -660,18 +660,18 @@ class _KeranjangState extends State<Keranjang> {
                                                                     if (tambahqtyJson[
                                                                             'status'] ==
                                                                         'Success') {
-                                                                          print(tambahqty
+                                                                      print(tambahqty
                                                                           .body);
                                                                       setState(
                                                                           () {
                                                                         listNota[index].jumlah =
                                                                             jumlah;
-                                                                        if(text.length == 0){
+                                                                        if (text.length ==
+                                                                            0) {
                                                                           listNota[index]
-                                                                            .qtyinput
-                                                                            .text = '1';
+                                                                              .qtyinput
+                                                                              .text = '1';
                                                                         }
-                                                                        
                                                                       });
                                                                       totalhargaget();
                                                                     } else if (tambahqtyJson[
@@ -769,7 +769,9 @@ class _KeranjangState extends State<Keranjang> {
                                                                             .text = (currentValue).toString();
                                                                         totalhargaget();
                                                                       });
-                                                                    }else if(tambahqtyJson['status'] == 'Stock'){
+                                                                    } else if (tambahqtyJson[
+                                                                            'status'] ==
+                                                                        'Stock') {
                                                                       totalhargaget();
                                                                       showInSnackBar(
                                                                           'Stock Gudang Tinggal ${tambahqtyJson['stock']}');
@@ -790,8 +792,8 @@ class _KeranjangState extends State<Keranjang> {
                                                                   } else {
                                                                     showInSnackBar(
                                                                         'Request failed with status: ${tambahqty.statusCode}');
-                                                                         print(tambahqty
-                                                                          .body);
+                                                                    print(tambahqty
+                                                                        .body);
                                                                   }
                                                                 } on TimeoutException catch (_) {
                                                                   showInSnackBar(
@@ -881,7 +883,7 @@ class _KeranjangState extends State<Keranjang> {
                         var tambahqtyJson = json.decode(tambahqty.body);
                         if (tambahqtyJson['status'] == 'Success') {
                           // Navigator.pushReplacementNamed(context, "/checkout");
-                          Navigator.push(
+                          Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => Checkout(),

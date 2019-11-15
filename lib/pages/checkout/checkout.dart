@@ -895,14 +895,7 @@ class _CheckoutState extends State<Checkout> {
       if (response.statusCode == 200) {
         dynamic responseJson = jsonDecode(response.body);
         if (responseJson['status'] == 'success') {
-          Navigator.pushReplacementNamed(context, "/tracking_list");
-          // Navigator.push(
-          //                     context,
-          //                     MaterialPageRoute(
-          //                       builder: (BuildContext context) => TrackingList(),
-          //                       settings: RouteSettings(name: '/tracking_list'),
-          //                     ),
-          //                   );
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => TrackingList()));
         } else if (responseJson['status'] == 'saldokurang') {
           showInSnackBar('Saldo anda tidak mencukupi');
         } else if (responseJson['error'] == 'Saldo Anda Tidak Cukup') {
