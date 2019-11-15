@@ -7,7 +7,7 @@ import 'package:wib_customer_app/notification_service/notification_service.dart'
 import 'package:wib_customer_app/pages/profile/profile.dart';
 import 'package:wib_customer_app/pusher/pusher_service.dart';
 import 'package:wib_customer_app/saldo.dart';
-import 'utils/Navigator.dart';
+// import 'utils/Navigator.dart';
 import 'package:wib_customer_app/storage/storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'utils/utils.dart';
@@ -15,7 +15,7 @@ import 'package:intl/intl.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:http/http.dart' as http;
 import 'package:wib_customer_app/env.dart';
-import 'package:wib_customer_app/utils/Navigator.dart';
+// import 'package:wib_customer_app/utils/Navigator.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:wib_customer_app/pages/shops/category_item.dart';
@@ -59,7 +59,7 @@ class _DashboardPageState extends State<DashboardPage>
 
   PageController pageController;
 
-  String _username;
+  // String _username;
   String usernameprofile, emailprofile, imageprofile;
 
   final List<Widget> _children = [
