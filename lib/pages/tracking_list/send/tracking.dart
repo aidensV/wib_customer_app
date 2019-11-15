@@ -5,44 +5,36 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:wib_customer_app/storage/storage.dart';
 
-var ids, notas, customers, statuss, totals;
+var  notas, customers;
 String accessToken, tokenType;
 Map<String, String> requestHeaders = Map();
 List<ListTracking> listTracking;
 bool isLoading;
 
 class Tracking extends StatefulWidget {
-  final String id, nota, customer, status, total;
+  final String  nota, customer;
   Tracking({
     Key key,
-    @required this.id,
     @required this.nota,
     @required this.customer,
-    @required this.status,
-    @required this.total,
   }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
     return _TrackingState(
-      id: id,
       nota: nota,
       customer: customer,
-      status: status,
-      total: total,
     );
   }
 }
 
 class _TrackingState extends State<Tracking> {
-  final String id, nota, customer, status, total;
+  final String  nota, customer;
   _TrackingState({
     Key key,
-    @required this.id,
     @required this.nota,
     @required this.customer,
-    @required this.status,
-    @required this.total,
+    
   });
 
   Future<Null> getHeaderHTTP() async {
@@ -130,11 +122,8 @@ class _TrackingState extends State<Tracking> {
   void initState() {
     listTracking = [];
     isLoading = false;
-    ids = id;
     notas = nota;
     customers = customer;
-    statuss = status;
-    totals = total;
 
     getHeaderHTTP();
     super.initState();
@@ -146,7 +135,7 @@ class _TrackingState extends State<Tracking> {
       key: _scaffoldKey,
       backgroundColor: Colors.grey[300],
       appBar: AppBar(
-        title: Text("Tracking Nota"),
+        title: Text("Lacak Pengiriman"),
         backgroundColor: Color(0xff31B057),
       ),
       body: Container(
@@ -274,8 +263,27 @@ class _TrackingState extends State<Tracking> {
                   itemBuilder: (BuildContext context, int index) {
                     return Card(
                       child: ListTile(
-                        title: Text(listTracking[index].tanggal),
-                        subtitle: Text(listTracking[index].posisi),
+
+                        title: Row(
+                            children: <Widget>[
+                              Icon(Icons.access_time,color: Colors.green,size: 14,),
+                              Padding(
+                                padding: const EdgeInsets.only(left:10.0),
+                                child: Text(listTracking[index].tanggal == null ? '?' : listTracking[index].tanggal),
+                              ),
+                            ],
+                        ),
+                        subtitle:Padding(
+                          padding: const EdgeInsets.only(top:10.0),
+                          child: Row(children: <Widget>[
+                              Icon(Icons.location_on,color: Colors.green,size: 14,),
+                              Padding(
+                                padding: const EdgeInsets.only(left:10.0),
+                                child: Text(listTracking[index].posisi == null ? '?' : listTracking[index].posisi),
+                              ),
+                          ],),
+                        ),
+                         
                       ),
                     );
                   },

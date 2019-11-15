@@ -201,6 +201,8 @@ class _KabupatenState extends State<KabupatenSending> {
                                     title: Text(filteredlistNota[index].nama),
                                     onTap: () async {
                                       var idX = listNota[index].id;
+                                      showInSnackBar(
+                                                  'Sedang mencari biaya ongkir, mohon tunggu sebentar');
                                       try {
                                         final tambahqty = await http.post(
                                             url('api/get_ongkir_android'),

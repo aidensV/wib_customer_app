@@ -429,7 +429,7 @@ class ProductDetailState extends State<ProductDetail> {
                         flex: 3,
                         child: Row(
                           children: <Widget>[
-                            Text(priceX == null ? 'Rp. 0.00' : finalharganormalitem,
+                            Text(diskonX == null || diskonX.toString() == '0.00' ? priceX == null || priceX.toString() == '0.00' ? 'Rp. 0.00' : finalharganormalitem : _numberFormat.format(double.parse(diskonX.toString())),
                               style: TextStyle(
                                   color: Colors.green,
                                   fontWeight: FontWeight.bold,

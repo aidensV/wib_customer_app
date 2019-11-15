@@ -6,6 +6,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:wib_customer_app/pages/checkout/checkout.dart';
 import 'package:wib_customer_app/storage/storage.dart';
+import 'tracking.dart';
 
 var idX, notaX, customerX, statusX;
 String accessToken,
@@ -242,9 +243,6 @@ class _DetailState extends State<Detail> {
 
   @override
   Widget build(BuildContext context) {
-     var size = MediaQuery.of(context).size;
-    final double itemHeight = (size.height - kToolbarHeight - 24) / 2;
-    final double itemWidth = size.width / 2;
     NumberFormat _numberFormat =
         new NumberFormat.simpleCurrency(decimalDigits: 2, name: 'Rp. ');
     return Scaffold(
@@ -272,38 +270,56 @@ class _DetailState extends State<Detail> {
                     : 'Customer : $customerX'),
               ),
             ),
-            Card(child: ListTile(
-              leading: Icon(Icons.local_shipping, color: Colors.green),
-              title: Text(expedisiX == null ? 'Jasa Pengiriman : -' : 'Jasa Pengiriman : $expedisiX'),
-            ),),
-            Card(child: ListTile(
-              leading: Icon(Icons.call_to_action, color: Colors.green),
-              title: Text(resiX == null ? 'Nomor Resi : -' : 'Nomor Resi : $resiX'),
-            ),),
-            Card(child: ListTile(
-              leading: Icon(Icons.shop, color: Colors.green),
-              title: Text(totalhargasemuabarangX == null || totalhargasemuabarangX == '0'
+            Card(
+              child: ListTile(
+                leading: Icon(Icons.local_shipping, color: Colors.green),
+                title: Text(expedisiX == null
+                    ? 'Jasa Pengiriman : -'
+                    : 'Jasa Pengiriman : $expedisiX'),
+              ),
+            ),
+            Card(
+              child: ListTile(
+                leading: Icon(Icons.call_to_action, color: Colors.green),
+                title: Text(
+                    resiX == null ? 'Nomor Resi : -' : 'Nomor Resi : $resiX'),
+              ),
+            ),
+            Card(
+              child: ListTile(
+                leading: Icon(Icons.shop, color: Colors.green),
+                title: Text(totalhargasemuabarangX == null ||
+                        totalhargasemuabarangX == '0'
                     ? 'Total Harga Barang : Rp. 0.00'
                     : 'Total Harga Barang : Rp. ${totalhargasemuabarangX} '),
-            ),),
-            Card(child: ListTile(
-              leading: Icon(Icons.local_atm, color: Colors.green),
-              title: Text(ongkirX == null || ongkirX == '0'
+              ),
+            ),
+            Card(
+              child: ListTile(
+                leading: Icon(Icons.local_atm, color: Colors.green),
+                title: Text(ongkirX == null || ongkirX == '0'
                     ? 'Biaya Ongkir : Rp. 0.00'
                     : 'Biaya Ongkir : ' +
                         _numberFormat.format(double.parse(ongkirX.toString()))),
-            ),),
-            Card(child: ListTile(
-              leading: Icon(Icons.shopping_basket, color: Colors.green),
-              title: Text(totalpembelianX == null || totalpembelianX == '0'
+              ),
+            ),
+            Card(
+              child: ListTile(
+                leading: Icon(Icons.shopping_basket, color: Colors.green),
+                title: Text(totalpembelianX == null || totalpembelianX == '0'
                     ? 'Total Pembelian : Rp. 0.00'
-                    : 'Total Pembelian : Rp. ${totalpembelianX}' ),
-            ),),
+                    : 'Total Pembelian : Rp. ${totalpembelianX}'),
+              ),
+            ),
             Padding(
               padding:
                   const EdgeInsets.only(top: 10.0, bottom: 10.0, left: 5.0),
               child: new Text(
-                 deliveredX == null ? 'Alamat Pengiriman' : deliveredX == 'A' ? 'Alamat Pengiriman ( Ambil Sendiri )' : 'Alamat Pengiriman' ,
+                deliveredX == null
+                    ? 'Alamat Pengiriman'
+                    : deliveredX == 'A'
+                        ? 'Alamat Pengiriman ( Ambil Sendiri )'
+                        : 'Alamat Pengiriman',
                 textAlign: TextAlign.left,
               ),
             ),
@@ -311,39 +327,67 @@ class _DetailState extends State<Detail> {
               child: ListTile(
                 leading: Icon(Icons.location_on, color: Colors.green),
                 title: Text(deliveredX == null || deliveredX == 'A'
-                    ? 'Provinsi : -' : provinsiX == null || provinsiX == '0' ?
-                     'Provinsi : -' : 'Provinsi : $provinsiX'),
+                    ? 'Provinsi : -'
+                    : provinsiX == null || provinsiX == '0'
+                        ? 'Provinsi : -'
+                        : 'Provinsi : $provinsiX'),
               ),
             ),
             Card(
               child: ListTile(
                 leading: Icon(Icons.location_city, color: Colors.green),
                 title: Text(deliveredX == null || deliveredX == 'A'
-                    ? 'Kab/Kota : -': kabupatenX == null || kabupatenX == '0' ? 'Kabupaten : -' : 'Kab/Kota : $kabupatenX'),
+                    ? 'Kab/Kota : -'
+                    : kabupatenX == null || kabupatenX == '0'
+                        ? 'Kabupaten : -'
+                        : 'Kab/Kota : $kabupatenX'),
               ),
             ),
             Card(
               child: ListTile(
                 leading: Icon(Icons.location_on, color: Colors.green),
                 title: Text(deliveredX == null || deliveredX == 'A'
-                    ? 'Kecamatan : -': kecamatanX == null || kecamatanX == '0' ? 'Kecamatan : -'  : 'Kecamatan : $kecamatanX'),
+                    ? 'Kecamatan : -'
+                    : kecamatanX == null || kecamatanX == '0'
+                        ? 'Kecamatan : -'
+                        : 'Kecamatan : $kecamatanX'),
               ),
             ),
             Card(
               child: ListTile(
                 leading: Icon(Icons.local_post_office, color: Colors.green),
                 title: Text(deliveredX == null || deliveredX == 'A'
-                    ? 'Kodepos : -' : kodeposX == null || kodeposX == '0' ? 'Kodepos : -'  : 'Kodepos : $kodeposX'),
+                    ? 'Kodepos : -'
+                    : kodeposX == null || kodeposX == '0'
+                        ? 'Kodepos : -'
+                        : 'Kodepos : $kodeposX'),
               ),
             ),
             Card(
               child: ListTile(
                 leading: Icon(Icons.streetview, color: Colors.green),
-                title: Text(
-                    deliveredX == null || deliveredX == 'A' ? '-' : alamatX == null || alamatX == '' ? '' : alamatX),
+                title: Text(deliveredX == null || deliveredX == 'A'
+                    ? '-'
+                    : alamatX == null || alamatX == '' ? '' : alamatX),
               ),
             ),
-            
+            Card(
+              child: ListTile(
+                leading: Icon(Icons.location_searching, color: Colors.green),
+                title: Text(notaX == null ? 'Tunggu Sebentar' : 'Lacak Pengiriman'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Tracking(
+                        nota: notaX,
+                        customer: customerX,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
             listItem.length == 0
                 ? Card(
                     child: ListTile(
@@ -353,281 +397,131 @@ class _DetailState extends State<Detail> {
                       ),
                     ),
                   )
-                :
-                Padding(
-            padding: const EdgeInsets.only(top: 25.0, left: 15.0),
-            child: new Text('Daftar Barang'),
-          ),
-          Divider(), Padding(
-                    padding: EdgeInsets.all(0.0),
-                    child: GridView.count(
-                      shrinkWrap: true,
-                      crossAxisCount: 1,
-                      mainAxisSpacing: 0.0,
-                      crossAxisSpacing: 0.0,
-                      physics: NeverScrollableScrollPhysics(),
-                      childAspectRatio: MediaQuery.of(context).orientation == Orientation.portrait
-            ? 2.2
-            : 4.2,
-                      children: listItem.map(
-                        (item) {
-                          var children2 = <Widget>[
-                            Container(
-                              
-                              child: Column(
+                : Padding(
+                    padding: const EdgeInsets.only(top: 25.0, left: 15.0),
+                    child: new Text('Daftar Barang'),
+                  ),
+            Divider(),
+            Padding(
+              padding: EdgeInsets.all(0.0),
+              child: GridView.count(
+                shrinkWrap: true,
+                crossAxisCount: 1,
+                mainAxisSpacing: 0.0,
+                crossAxisSpacing: 0.0,
+                physics: NeverScrollableScrollPhysics(),
+                childAspectRatio:
+                    MediaQuery.of(context).orientation == Orientation.portrait
+                        ? 2.2
+                        : 4.2,
+                children: listItem.map(
+                  (item) {
+                    var children2 = <Widget>[
+                      Container(
+                        child: Column(
+                          children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                left: 10.0,
+                                right: 10.0,
+                                top: 0.0,
+                              ),
+                              child: Row(
                                 children: <Widget>[
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                      left: 10.0,
-                                      right: 10.0,
-                                      top: 0.0,
-                                    ),
+                                  Expanded(
+                                    flex: 7,
                                     child: Row(
                                       children: <Widget>[
-                                        Expanded(
-                                          flex: 7,
-                                          child: Row(
-                                            children: <Widget>[
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                    left: 0.0,top: 0.0,),
-                                                child: Text(
-                                                    item.totalharga == null || item.totalharga.toString() == '0.00'
-                                                        ? "Total : Rp. 0.00"
-                                                        : "Total : " +
-                                                            _numberFormat.format(
-                                                                double.parse(item
-                                                                    .totalharga
-                                                                    .toString())),
-                                                    style: TextStyle(
-                                                        color: Colors.black)),
-                                              ),
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                    left: 0.0),
-                                                child: Text(
-                                                    ' | ${item.qty} Qty',
-                                                    style: TextStyle(
-                                                        color: Colors.black)),
-                                              ),
-                                            ],
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            left: 0.0,
+                                            top: 0.0,
                                           ),
+                                          child: Text(
+                                              item.totalharga == null ||
+                                                      item.totalharga
+                                                              .toString() ==
+                                                          '0.00'
+                                                  ? "Total : Rp. 0.00"
+                                                  : "Total : " +
+                                                      _numberFormat.format(
+                                                          double.parse(item
+                                                              .totalharga
+                                                              .toString())),
+                                              style: TextStyle(
+                                                  color: Colors.black)),
                                         ),
-                                        Expanded(
-                                          flex: 3,
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.end,
-                                            children: <Widget>[
-                                              ButtonTheme(
-                                                minWidth: 0,
-                                                height: 20.0,
-                                                buttonColor: Color(0xff388bf2),
-                                                child: FlatButton(
-                                                  onPressed: () async {
-                                                    var location = stockiesX;
-                                                    if (location == null) {
-                                                      _showAlamatNull();
-                                                    } else {
-                                                      try {
-                                                        final adcart = await http.post(
-                                                            url(
-                                                                'api/addCartAndroid'),
-                                                            headers:
-                                                                requestHeaders,
-                                                            body: {
-                                                              'code': item.code,
-                                                              'cart_qty':
-                                                                  item.qty,
-                                                              'cart_location':
-                                                                  stockiesX,
-                                                            });
-
-                                                        if (adcart.statusCode ==
-                                                            200) {
-                                                          var addcartJson =
-                                                              json.decode(
-                                                                  adcart.body);
-                                                          if (addcartJson[
-                                                                  'done'] ==
-                                                              'done') {
-                                                            showInSnackBar(
-                                                                '${item.nama} berhasil dimasukkan ke keranjang');
-                                                          } else if (addcartJson[
-                                                                  'error'] ==
-                                                              'stock') {
-                                                            showInSnackBar(
-                                                                'Stock ${item.nama} tersisa ${addcartJson['stock']}');
-                                                          } else if (addcartJson[
-                                                                  'error'] ==
-                                                              'error') {
-                                                            showInSnackBar(
-                                                                '${item.nama} sudah ada dikeranjang');
-                                                          }
-                                                        } else {
-                                                          print(
-                                                              '${adcart.body}');
-                                                        }
-                                                      } on TimeoutException catch (_) {} catch (e) {
-                                                        print(e);
-                                                      }
-                                                    }
-                                                  },
-                                                  child: new Text(
-                                                    'Beli Lagi',
-                                                    style: TextStyle(
-                                                        color: Colors.white),
-                                                  ),
-                                                  padding: EdgeInsets.all(8.0),
-                                                  color: Colors.green,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(left: 0.0),
+                                          child: Text(' | ${item.qty} Qty',
+                                              style: TextStyle(
+                                                  color: Colors.black)),
                                         ),
                                       ],
                                     ),
                                   ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 0.0),
-                                    child: Row(
+                                  Expanded(
+                                    flex: 3,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
                                       children: <Widget>[
-                                        Expanded(
-                                          flex: 5,
-                                          child: Image.network(
-                                            item.image != null
-                                                ? urladmin(
-                                                    'storage/image/master/produk/${item.image}',
-                                                  )
-                                                : url(
-                                                    'assets/img/noimage.jpg',
-                                                  ),
-                                            width: 80.0,
-                                            height: 80.0,
-                                          ),
-                                        ),
-                                        Expanded(
-                                          flex: 5,
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: <Widget>[
-                                              Container(
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          top: 10.0),
-                                                  child: Text(
-                                                    item.nama,
-                                                    style: TextStyle(
-                                                        color:
-                                                            Color(0xff25282b),
-                                                        fontSize: 15.0,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                  ),
-                                                ),
-                                              ),
-                                              item.hargadiskon.toString() == '0.00' || item.hargadiskon == null
-                                                  ? Container(
-                                                      height: 30.0,
-                                                      padding: EdgeInsets.only(
-                                                          left: 0.0, top: 10.0),
-                                                    )
-                                                  : Container(
-                                                      height: 30.0,
-                                                      child: Row(
-                                                        children: <Widget>[
-                                                          Text(
-                                                              item.hargasales == null || item.hargasales.toString() == '0.00'
-                                                                  ? 'Rp. 0.00'
-                                                                  : _numberFormat.format(
-                                                                      double.parse(item
-                                                                          .hargasales
-                                                                          .toString())),
-                                                              style: TextStyle(
-                                                                  color: Colors
-                                                                      .black,
-                                                                  decoration:
-                                                                      TextDecoration
-                                                                          .lineThrough)),
-                                                        ],
-                                                      ),
-                                                      padding: EdgeInsets.only(
-                                                          left: 0.0, top: 10.0),
-                                                    ),
-                                              item.hargadiskon.toString() == '0.00' || item.hargadiskon == null
-                                                  ? Container(
-                                                      height: 30.0,
-                                                      child: Row(
-                                                        children: <Widget>[
-                                                          Text(
-                                                              item.hargasales == null || item.hargasales.toString() == '0.00'
-                                                                  ? 'Rp. 0.00'
-                                                                  : _numberFormat.format(
-                                                                      double.parse(item
-                                                                          .hargasales
-                                                                          .toString())),
-                                                              style: TextStyle(
-                                                                  color: Colors
-                                                                      .black)),
-                                                          Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                        .only(
-                                                                    left: 0.0),
-                                                            child: Text(
-                                                                " / " +
-                                                                    item.satuan,
-                                                                style:
-                                                                    TextStyle(
-                                                                  color: Colors
-                                                                      .green,
-                                                                )),
-                                                          )
-                                                        ],
-                                                      ),
-                                                      padding: EdgeInsets.only(
-                                                          left: 0.0, top: 10.0),
-                                                    )
-                                                  : Container(
-                                                      height: 30.0,
-                                                      child: Row(
-                                                        children: <Widget>[
-                                                          Text(
-                                                              item.hargadiskon == null || item.hargadiskon.toString() == '0.00'
-                                                                  ? 'Rp. 0.00'
-                                                                  : _numberFormat.format(double.parse(item
-                                                                          .hargasales
-                                                                          .toString()) -
-                                                                      (double.parse(item
-                                                                              .hargadiskon
-                                                                              .toString()) /
-                                                                          int.parse(item
-                                                                              .qty))),
-                                                              style: TextStyle(
-                                                                  color: Colors
-                                                                      .black)),
-                                                          Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                        .only(
-                                                                    left: 0.0),
-                                                            child: Text(
-                                                                " / " +
-                                                                    item.satuan,
-                                                                style:
-                                                                    TextStyle(
-                                                                  color: Colors
-                                                                      .green,
-                                                                )),
-                                                          )
-                                                        ],
-                                                      ),
-                                                      padding: EdgeInsets.only(
-                                                          left: 0.0),
-                                                    ),
-                                            ],
+                                        ButtonTheme(
+                                          minWidth: 0,
+                                          height: 20.0,
+                                          buttonColor: Color(0xff388bf2),
+                                          child: FlatButton(
+                                            onPressed: () async {
+                                              var location = stockiesX;
+                                              if (location == null) {
+                                                _showAlamatNull();
+                                              } else {
+                                                try {
+                                                  final adcart = await http.post(
+                                                      url('api/addCartAndroid'),
+                                                      headers: requestHeaders,
+                                                      body: {
+                                                        'code': item.code,
+                                                        'cart_qty': item.qty,
+                                                        'cart_location':
+                                                            stockiesX,
+                                                      });
+
+                                                  if (adcart.statusCode ==
+                                                      200) {
+                                                    var addcartJson = json
+                                                        .decode(adcart.body);
+                                                    if (addcartJson['done'] ==
+                                                        'done') {
+                                                      showInSnackBar(
+                                                          '${item.nama} berhasil dimasukkan ke keranjang');
+                                                    } else if (addcartJson[
+                                                            'error'] ==
+                                                        'stock') {
+                                                      showInSnackBar(
+                                                          'Stock ${item.nama} tersisa ${addcartJson['stock']}');
+                                                    } else if (addcartJson[
+                                                            'error'] ==
+                                                        'error') {
+                                                      showInSnackBar(
+                                                          '${item.nama} sudah ada dikeranjang');
+                                                    }
+                                                  } else {
+                                                    print('${adcart.body}');
+                                                  }
+                                                } on TimeoutException catch (_) {} catch (e) {
+                                                  print(e);
+                                                }
+                                              }
+                                            },
+                                            child: new Text(
+                                              'Beli Lagi',
+                                              style: TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                            padding: EdgeInsets.all(8.0),
+                                            color: Colors.green,
                                           ),
                                         ),
                                       ],
@@ -636,25 +530,172 @@ class _DetailState extends State<Detail> {
                                 ],
                               ),
                             ),
-                          ];
-                          return Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.transparent),
-                              
-                            ),
-                            // padding: const EdgeInsets.all(10.0),
-                            // margin: EdgeInsets.all(5.0),
-                            child: Card(
-                              elevation: 0.0,
-                              child: Column(
-                                children: children2,
+                            Padding(
+                              padding: const EdgeInsets.only(top: 0.0),
+                              child: Row(
+                                children: <Widget>[
+                                  Expanded(
+                                    flex: 5,
+                                    child: Image.network(
+                                      item.image != null
+                                          ? urladmin(
+                                              'storage/image/master/produk/${item.image}',
+                                            )
+                                          : url(
+                                              'assets/img/noimage.jpg',
+                                            ),
+                                      width: 80.0,
+                                      height: 80.0,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 5,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Container(
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(
+                                                top: 10.0),
+                                            child: Text(
+                                              item.nama,
+                                              style: TextStyle(
+                                                  color: Color(0xff25282b),
+                                                  fontSize: 15.0,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
+                                        ),
+                                        item.hargadiskon.toString() == '0.00' ||
+                                                item.hargadiskon == null
+                                            ? Container(
+                                                height: 30.0,
+                                                padding: EdgeInsets.only(
+                                                    left: 0.0, top: 10.0),
+                                              )
+                                            : Container(
+                                                height: 30.0,
+                                                child: Row(
+                                                  children: <Widget>[
+                                                    Text(
+                                                        item.hargasales ==
+                                                                    null ||
+                                                                item.hargasales
+                                                                        .toString() ==
+                                                                    '0.00'
+                                                            ? 'Rp. 0.00'
+                                                            : _numberFormat.format(
+                                                                double.parse(item
+                                                                    .hargasales
+                                                                    .toString())),
+                                                        style: TextStyle(
+                                                            color: Colors.black,
+                                                            decoration:
+                                                                TextDecoration
+                                                                    .lineThrough)),
+                                                  ],
+                                                ),
+                                                padding: EdgeInsets.only(
+                                                    left: 0.0, top: 10.0),
+                                              ),
+                                        item.hargadiskon.toString() == '0.00' ||
+                                                item.hargadiskon == null
+                                            ? Container(
+                                                height: 30.0,
+                                                child: Row(
+                                                  children: <Widget>[
+                                                    Text(
+                                                        item.hargasales ==
+                                                                    null ||
+                                                                item.hargasales
+                                                                        .toString() ==
+                                                                    '0.00'
+                                                            ? 'Rp. 0.00'
+                                                            : _numberFormat.format(
+                                                                double.parse(item
+                                                                    .hargasales
+                                                                    .toString())),
+                                                        style: TextStyle(
+                                                            color:
+                                                                Colors.black)),
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              left: 0.0),
+                                                      child: Text(
+                                                          " / " + item.satuan,
+                                                          style: TextStyle(
+                                                            color: Colors.green,
+                                                          )),
+                                                    )
+                                                  ],
+                                                ),
+                                                padding: EdgeInsets.only(
+                                                    left: 0.0, top: 10.0),
+                                              )
+                                            : Container(
+                                                height: 30.0,
+                                                child: Row(
+                                                  children: <Widget>[
+                                                    Text(
+                                                        item.hargadiskon ==
+                                                                    null ||
+                                                                item.hargadiskon
+                                                                        .toString() ==
+                                                                    '0.00'
+                                                            ? 'Rp. 0.00'
+                                                            : _numberFormat.format(double.parse(item
+                                                                    .hargasales
+                                                                    .toString()) -
+                                                                (double.parse(item.hargadiskon.toString()) /
+                                                                    int.parse(item
+                                                                        .qty))),
+                                                        style: TextStyle(
+                                                            color:
+                                                                Colors.black)),
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              left: 0.0),
+                                                      child: Text(
+                                                          " / " + item.satuan,
+                                                          style: TextStyle(
+                                                            color: Colors.green,
+                                                          )),
+                                                    )
+                                                  ],
+                                                ),
+                                                padding:
+                                                    EdgeInsets.only(left: 0.0),
+                                              ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                          );
-                        },
-                      ).toList(),
-                    ),
-                  ),
+                          ],
+                        ),
+                      ),
+                    ];
+                    return Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.transparent),
+                      ),
+                      // padding: const EdgeInsets.all(10.0),
+                      // margin: EdgeInsets.all(5.0),
+                      child: Card(
+                        elevation: 0.0,
+                        child: Column(
+                          children: children2,
+                        ),
+                      ),
+                    );
+                  },
+                ).toList(),
+              ),
+            ),
           ],
         ),
       ),
