@@ -9,6 +9,11 @@ var _scaffoldBM;
 TabController _tabController;
 
 class TrackingList extends StatefulWidget {
+
+  final int index;
+
+  TrackingList({this.index});
+  
   @override
   _TrackingListState createState() => _TrackingListState();
 }
@@ -18,6 +23,9 @@ class _TrackingListState extends State<TrackingList>
   @override
   void initState() {
     _tabController = TabController(vsync: this, length: 4);
+    if(widget.index != null){
+      _tabController.animateTo(widget.index);
+    }
     _scaffoldBM = GlobalKey<ScaffoldState>();
     super.initState();
   }

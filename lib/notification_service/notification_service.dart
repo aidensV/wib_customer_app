@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/material.dart';
+import 'package:wib_customer_app/pages/tracking_list/tracking.dart';
 
 // reinitialise in main.dart
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
@@ -21,14 +22,14 @@ class NotificationService {
         AndroidInitializationSettings('app_icon');
     var initializationSettingsIOS = IOSInitializationSettings(
         onDidReceiveLocalNotification:
-            onDidReceiveLocalNotificationCustomerSudahBayar);
+            onDidReceiveLocalNotification);
     var initializationSettings = InitializationSettings(
         initializationSettingsAndroid, initializationSettingsIOS);
     flutterLocalNotificationsPlugin.initialize(initializationSettings,
-        onSelectNotification: onSelectNotificationCustomerSudahBayar);
+        onSelectNotification: onSelectNotification);
   }
 
-  Future<void> onDidReceiveLocalNotificationCustomerSudahBayar(
+  Future<void> onDidReceiveLocalNotification(
       int id, String title, String body, String payload) async {
     // display a dialog with the notification details, tap ok to go to another page
 
@@ -43,10 +44,54 @@ class NotificationService {
             child: Text('Ok'),
             onPressed: () async {
               Navigator.of(context, rootNavigator: true).pop();
-              if (payload == 'online') {
-                await Navigator.pushNamed(context, '/penjualan_online');
-              } else if (payload == 'offline') {
-                await Navigator.pushNamed(context, '/penjualan_offline');
+              if (payload == 'Di Tolak') {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    settings: RouteSettings(
+                      name: '/tracking_list',
+                    ),
+                    builder: (BuildContext context) => TrackingList(
+                      index: 0,
+                    ),
+                  ),
+                );
+              } else if (payload == 'Di konfirm') {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    settings: RouteSettings(
+                      name: '/tracking_list',
+                    ),
+                    builder: (BuildContext context) => TrackingList(
+                      index: 1,
+                    ),
+                  ),
+                );
+              } else if (payload == 'Pengiriman') {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    settings: RouteSettings(
+                      name: '/tracking_list',
+                    ),
+                    builder: (BuildContext context) => TrackingList(
+                      index: 3,
+                    ),
+                  ),
+                );
+              } else if (payload == 'Proses') {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    settings: RouteSettings(
+                      name: '/tracking_list',
+                    ),
+                    builder: (BuildContext context) => TrackingList(
+                      index: 2,
+                    ),
+                  ),
+                );
               }
             },
           )
@@ -55,14 +100,58 @@ class NotificationService {
     );
   }
 
-  Future<void> onSelectNotificationCustomerSudahBayar(dynamic payload) async {
+  Future<void> onSelectNotification(dynamic payload) async {
     if (payload != null) {
       debugPrint('notification payload: ' + payload);
     }
-    if (payload == 'online') {
-      await Navigator.pushNamed(context, '/penjualan_online');
-    } else if (payload == 'offline') {
-      await Navigator.pushNamed(context, '/penjualan_offline');
+    if (payload == 'Di Tolak') {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          settings: RouteSettings(
+            name: '/tracking_list',
+          ),
+          builder: (BuildContext context) => TrackingList(
+            index: 0,
+          ),
+        ),
+      );
+    } else if (payload == 'Di konfirm') {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          settings: RouteSettings(
+            name: '/tracking_list',
+          ),
+          builder: (BuildContext context) => TrackingList(
+            index: 1,
+          ),
+        ),
+      );
+    } else if (payload == 'Pengiriman') {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          settings: RouteSettings(
+            name: '/tracking_list',
+          ),
+          builder: (BuildContext context) => TrackingList(
+            index: 3,
+          ),
+        ),
+      );
+    } else if (payload == 'Proses') {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          settings: RouteSettings(
+            name: '/tracking_list',
+          ),
+          builder: (BuildContext context) => TrackingList(
+            index: 2,
+          ),
+        ),
+      );
     }
   }
 

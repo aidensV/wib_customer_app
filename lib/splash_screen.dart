@@ -1,17 +1,16 @@
-import 'package:background_fetch/background_fetch.dart';
+// import 'package:background_fetch/background_fetch.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter/services.dart';
-import 'dart:convert';
+// import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:flutter/services.dart';
+// import 'dart:convert';
 
-import 'package:wib_customer_app/notification_service/notification_service.dart';
-import 'package:wib_customer_app/pusher/pusher_service.dart';
+// import 'package:wib_customer_app/notification_service/notification_service.dart';
+// import 'package:wib_customer_app/pusher/pusher_service.dart';
 // import 'utils/Navigator.dart';
 // import 'dashboard_view.dart';
 import 'storage/storage.dart';
 import 'dart:async';
 
-NotificationService notificationService;
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -95,16 +94,6 @@ class _SplashScreenState extends State<SplashScreen> {
     // initPlatformState();
     
     getSharedPrefs();
-
-
-    notificationService = new NotificationService(context: context);
-
-    notificationService.initStateNotificationCustomerSudahBayarService();
-    PusherService pusherService =
-        PusherService(notificationService: notificationService);
-
-    pusherService = PusherService(notificationService: notificationService);
-    pusherService.firePusher();
 
 
     super.initState();

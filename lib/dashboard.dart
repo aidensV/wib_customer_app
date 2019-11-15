@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_image/network.dart';
 // import 'package:provider/provider.dart';
 import 'package:wib_customer_app/cari_produk/cari_produk.dart';
+import 'package:wib_customer_app/notification_service/notification_service.dart';
 import 'package:wib_customer_app/pages/profile/profile.dart';
+import 'package:wib_customer_app/pusher/pusher_service.dart';
 import 'package:wib_customer_app/saldo.dart';
 import 'utils/Navigator.dart';
 import 'package:wib_customer_app/storage/storage.dart';
@@ -37,6 +39,7 @@ int red, green, blue;
 double opacity, maxOffsetToColor;
 
 GlobalKey<ScaffoldState> _scaffoldKeyDashboard;
+NotificationService notificationService;
 
 showInSnackBarDashboard(String content) {
   _scaffoldKeyDashboard.currentState.showSnackBar(
@@ -218,6 +221,17 @@ class _DashboardPageState extends State<DashboardPage>
     isLoading = false;
     dataProfile();
     // print(requestHeaders);
+    
+
+    notificationService = new NotificationService(context: context);
+
+    notificationService.initStateNotificationCustomerSudahBayarService();
+    PusherService pusherService =
+        PusherService(notificationService: notificationService);
+
+    pusherService = PusherService(notificationService: notificationService);
+    pusherService.firePusher();
+
     super.initState();
   }
 
