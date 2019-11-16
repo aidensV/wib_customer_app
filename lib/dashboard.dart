@@ -605,16 +605,16 @@ class _DashboardPageState extends State<DashboardPage>
 
                             opacity = 0.0;
                             isScrolled = false;
-                          } else if (scrollController.offset + 100 > 255) {
+                          } else if (scrollController.offset > 255) {
                             if (maxOffsetToColor == 0 &&
                                 maxOffsetToColor != scrollController.offset) {
                               maxOffsetToColor = scrollController.offset;
 
-                              if (scrollController.offset + 100 > 250) {
+                              if (scrollController.offset > 250) {
                                 if (isScrolled == false) {
                                   isScrolled = true;
                                 }
-                              } else if (scrollController.offset + 100 < 250) {
+                              } else if (scrollController.offset < 250) {
                                 if (isScrolled == true) {
                                   isScrolled = false;
                                 }
@@ -641,7 +641,7 @@ class _DashboardPageState extends State<DashboardPage>
                             green = 255 - scrollController.offset.round();
                             blue = 255 - scrollController.offset.round();
 
-                            opacity = (scrollController.offset.round()) / 255;
+                            opacity = scrollController.offset.round() / 255;
                           }
 
                           return Container(

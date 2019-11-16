@@ -251,6 +251,17 @@ class _DetailState extends State<Detail> {
       appBar: AppBar(
         title: Text("Detail Nota"),
         backgroundColor: Color(0xff31B057),
+        textTheme: TextTheme(
+          title: TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        iconTheme: IconThemeData(
+          color: Colors.white,
+        ),
+        actionsIconTheme: IconThemeData(
+          color: Colors.white,
+        ),
       ),
       body: Container(
         padding: EdgeInsets.all(5.0),
@@ -374,7 +385,8 @@ class _DetailState extends State<Detail> {
             Card(
               child: ListTile(
                 leading: Icon(Icons.location_searching, color: Colors.green),
-                title: Text(notaX == null ? 'Tunggu Sebentar' : 'Lacak Pengiriman'),
+                title: Text(
+                    notaX == null ? 'Tunggu Sebentar' : 'Lacak Pengiriman'),
                 onTap: () {
                   Navigator.push(
                     context,

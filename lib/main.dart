@@ -87,6 +87,9 @@ ThemeData buildDarkTheme() {
         color: Color(0xff25282b),
       ),
       color: Colors.white,
+      actionsIconTheme: IconThemeData(
+        color: Color(0xff25282b),
+      ),
       textTheme: TextTheme(
         title: TextStyle(
           color: Color(0xff25282b),

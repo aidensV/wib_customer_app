@@ -69,9 +69,10 @@ class _CariProdukState extends State<CariProduk> {
         headers: requestHeaders,
         body: {
           'namaProduk': cariController.text,
-          'jenisProduk': selectedJenisProduk != null ? selectedJenisProduk.idJenis : '',
-          'minHarga' : minHarga,
-          'maxHarga' : maxHarga,
+          'jenisProduk':
+              selectedJenisProduk != null ? selectedJenisProduk.idJenis : '',
+          'minHarga': minHarga,
+          'maxHarga': maxHarga,
         },
       );
 
@@ -191,7 +192,10 @@ class _CariProdukState extends State<CariProduk> {
                   );
                 });
                 print('submitted $ini');
-                if (ini.isNotEmpty) {
+                if (ini.isNotEmpty ||
+                    selectedJenisProduk != null ||
+                    minHarga.isNotEmpty ||
+                    maxHarga.isNotEmpty) {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -242,6 +246,30 @@ class _CariProdukState extends State<CariProduk> {
                     icon: Icon(Icons.close),
                   )
                 : Container(),
+            IconButton(
+              onPressed: () {
+                if (cariController.text.isNotEmpty ||
+                    selectedJenisProduk != null ||
+                    minHarga.isNotEmpty ||
+                    maxHarga.isNotEmpty) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      settings: RouteSettings(name: '/cari_produk_detail'),
+                      builder: (BuildContext context) => CariProdukLebihDetail(
+                        namaProduk: cariController.text,
+                      ),
+                    ),
+                  );
+                } else {
+                  showInSnackBarProduk('Input cari tidak boleh kosong');
+                }
+              },
+              icon: Icon(
+                Icons.search,
+                color: Colors.cyan,
+              ),
+            ),
           ],
         ),
         body: isLoading

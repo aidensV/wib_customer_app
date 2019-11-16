@@ -240,8 +240,8 @@ class _DetailState extends State<Detail> {
     return null;
   }
 
-  Widget floatingActionButton(String statusDeliver){
-    if(statusDeliver == 'Y'){
+  Widget floatingActionButton(String statusDeliver) {
+    if (statusDeliver == 'Y') {
       return InkWell(
         onTap: () {
           _confirmationModalBottomSheet(context);
@@ -280,6 +280,12 @@ class _DetailState extends State<Detail> {
       appBar: AppBar(
         title: Text("Detail Nota"),
         backgroundColor: Color(0xff31B057),
+        iconTheme: IconThemeData(
+          color: Colors.white,
+        ),
+        actionsIconTheme: IconThemeData(
+          color: Colors.white,
+        ),
       ),
       body: Container(
         padding: EdgeInsets.all(5.0),
@@ -454,7 +460,9 @@ class _DetailState extends State<Detail> {
                                           ),
                                           child: Text(
                                               item.totalharga == null ||
-                                                      item.totalharga.toString() == '0.00'
+                                                      item.totalharga
+                                                              .toString() ==
+                                                          '0.00'
                                                   ? "Total : Rp. 0.00"
                                                   : "Total : " +
                                                       _numberFormat.format(
@@ -580,7 +588,8 @@ class _DetailState extends State<Detail> {
                                             ),
                                           ),
                                         ),
-                                        item.hargadiskon == '0.00' || item.hargadiskon == null
+                                        item.hargadiskon == '0.00' ||
+                                                item.hargadiskon == null
                                             ? Container(
                                                 height: 30.0,
                                                 padding: EdgeInsets.only(
@@ -593,10 +602,11 @@ class _DetailState extends State<Detail> {
                                                     Text(
                                                         item.hargasales ==
                                                                     null ||
-                                                                item.hargasales.toString() ==
+                                                                item.hargasales
+                                                                        .toString() ==
                                                                     '0.00'
                                                             ? 'Rp. 0.00'
-                                                            :  _numberFormat.format(
+                                                            : _numberFormat.format(
                                                                 double.parse(item
                                                                     .hargasales
                                                                     .toString())),
@@ -619,10 +629,11 @@ class _DetailState extends State<Detail> {
                                                     Text(
                                                         item.hargasales ==
                                                                     null ||
-                                                                item.hargasales.toString() ==
+                                                                item.hargasales
+                                                                        .toString() ==
                                                                     '0.00'
                                                             ? 'Rp. 0.00'
-                                                            :  _numberFormat.format(
+                                                            : _numberFormat.format(
                                                                 double.parse(item
                                                                     .hargasales
                                                                     .toString())),
@@ -649,19 +660,21 @@ class _DetailState extends State<Detail> {
                                                 child: Row(
                                                   children: <Widget>[
                                                     Text(
-                                                        item.hargadiskon == null ||
-                                                                item.hargadiskon.toString() ==
+                                                        item.hargadiskon ==
+                                                                    null ||
+                                                                item.hargadiskon
+                                                                        .toString() ==
                                                                     '0.00'
                                                             ? 'Rp. 0.00'
-                                                            :  _numberFormat.format(double.parse(item
+                                                            : _numberFormat.format(double.parse(item
                                                                     .hargasales
                                                                     .toString()) -
-                                                                (double.parse(item.hargadiskon
-                                                                        .toString()) /
+                                                                (double.parse(item.hargadiskon.toString()) /
                                                                     int.parse(item
                                                                         .qty))),
                                                         style: TextStyle(
-                                                            color: Colors.black)),
+                                                            color:
+                                                                Colors.black)),
                                                     Padding(
                                                       padding:
                                                           const EdgeInsets.only(

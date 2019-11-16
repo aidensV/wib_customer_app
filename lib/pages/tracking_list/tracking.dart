@@ -9,11 +9,10 @@ var _scaffoldBM;
 TabController _tabController;
 
 class TrackingList extends StatefulWidget {
-
   final int index;
 
   TrackingList({this.index});
-  
+
   @override
   _TrackingListState createState() => _TrackingListState();
 }
@@ -23,7 +22,7 @@ class _TrackingListState extends State<TrackingList>
   @override
   void initState() {
     _tabController = TabController(vsync: this, length: 4);
-    if(widget.index != null){
+    if (widget.index != null) {
       _tabController.animateTo(widget.index);
     }
     _scaffoldBM = GlobalKey<ScaffoldState>();
@@ -37,6 +36,17 @@ class _TrackingListState extends State<TrackingList>
       backgroundColor: Colors.grey[300],
       appBar: AppBar(
         backgroundColor: Color(0xff31B057),
+        textTheme: TextTheme(
+          title: TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        iconTheme: IconThemeData(
+          color: Colors.white,
+        ),
+        actionsIconTheme: IconThemeData(
+          color: Colors.white,
+        ),
         title: Text('Daftar Transaksi'),
         bottom: TabBar(
           isScrollable: true,

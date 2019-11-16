@@ -319,7 +319,12 @@ class _DetailState extends State<Detail> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text("Detail Nota"),
-        backgroundColor: Color(0xff31B057),
+        backgroundColor: Color(0xff31B057),iconTheme: IconThemeData(
+          color: Colors.white,
+        ),
+        actionsIconTheme: IconThemeData(
+          color: Colors.white,
+        ),
       ),
       body: loading ? Center(
         child: Text('Uploading ....'),
