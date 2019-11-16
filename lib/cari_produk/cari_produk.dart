@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:wib_customer_app/cari_produk/cari_produk_detail.dart';
+import 'package:wib_customer_app/cari_produk/filter_cari_produk.dart';
 // import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:wib_customer_app/env.dart';
 import 'package:wib_customer_app/cari_produk/modelCariProduk.dart';
@@ -23,6 +24,9 @@ GlobalKey<ScaffoldState> _scaffoldKeyProduk;
 
 FocusNode cariFocus;
 TextEditingController cariController;
+JenisProduk selectedJenisProduk;
+
+String minHarga, maxHarga;
 
 showInSnackBarProduk(String content) {
   _scaffoldKeyProduk.currentState.showSnackBar(
@@ -64,7 +68,10 @@ class _CariProdukState extends State<CariProduk> {
         url('api/daftarProduk'),
         headers: requestHeaders,
         body: {
-          'nama_barang': cariController.text,
+          'namaProduk': cariController.text,
+          'jenisProduk': selectedJenisProduk != null ? selectedJenisProduk.idJenis : '',
+          'minHarga' : minHarga,
+          'maxHarga' : maxHarga,
         },
       );
 
@@ -121,7 +128,10 @@ class _CariProdukState extends State<CariProduk> {
 
     listProduk = List();
     listProdukX = List();
+    selectedJenisProduk = null;
 
+    minHarga = null;
+    maxHarga = null;
     // listProdukAutoComplete = List<String>();
 
     cariFocus = FocusNode();
@@ -283,6 +293,35 @@ class _CariProdukState extends State<CariProduk> {
                             ),
                     ),
                   ),
+        floatingActionButton: RaisedButton(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(50.0),
+          ),
+          onPressed: () async {
+            dynamic filter = await Navigator.push(
+              context,
+              MaterialPageRoute(
+                settings: RouteSettings(name: '/filter_cari_produk'),
+                builder: (BuildContext context) => FilterCariProduk(
+                  jenisProduk: selectedJenisProduk,
+                  minHarga: minHarga,
+                  maxHarga: maxHarga,
+                ),
+              ),
+            );
+
+            if (filter != null) {
+              selectedJenisProduk = filter['selectedJenisProduk'];
+              minHarga = filter['minHarga'];
+              maxHarga = filter['maxHarga'];
+              getProduk();
+            }
+          },
+          child: Text('Filter'),
+          color: Colors.green,
+          textColor: Colors.white,
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       ),
     );
   }

@@ -27,20 +27,19 @@ import 'pages/test/test.dart';
 Map<String, WidgetBuilder> routesX = <String, WidgetBuilder>{
   "/login": (BuildContext context) => LoginPage(),
   "/dashboard": (BuildContext context) => DashboardPage(),
-  "/list_tracking" : (BuildContext context) => ListNotaTracking(),
-  "/tracking" : (BuildContext context) => Tracking(),
-  "/wishlist" : (BuildContext context) => Wishlist(),
-  "/keranjangbelanja" : (BuildContext context) => Keranjang(),
-  "/tracking_list" : (BuildContext context) => TrackingList(),
-  "/repeat_order" : (BuildContext context) => RepeatOrder(),
-  "/repeat_order" : (BuildContext context) => RepeatOrder(),
-  "/checkout" : (BuildContext context) => Checkout(),
-  "/details" : (BuildContext context) => DetailShop(),
-  '/profile' : (BuildContext context) => ProfilePage(),
-  '/account' : (BuildContext context) => Account(),
-  '/settingprofile' : (BuildContext context) => SettingProfile(),
-  "/test" : (BuildContext context) => TestCode()
-
+  "/list_tracking": (BuildContext context) => ListNotaTracking(),
+  "/tracking": (BuildContext context) => Tracking(),
+  "/wishlist": (BuildContext context) => Wishlist(),
+  "/keranjangbelanja": (BuildContext context) => Keranjang(),
+  "/tracking_list": (BuildContext context) => TrackingList(),
+  "/repeat_order": (BuildContext context) => RepeatOrder(),
+  "/repeat_order": (BuildContext context) => RepeatOrder(),
+  "/checkout": (BuildContext context) => Checkout(),
+  "/details": (BuildContext context) => DetailShop(),
+  '/profile': (BuildContext context) => ProfilePage(),
+  '/account': (BuildContext context) => Account(),
+  '/settingprofile': (BuildContext context) => SettingProfile(),
+  "/test": (BuildContext context) => TestCode()
 };
 
 // void backgroundFetchHeadlessTask() async {
@@ -61,28 +60,39 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<ShopBloc>(
-        builder: (context) => ShopBloc(),
-        child: MaterialApp(
-          title: "Warung Islami Bogor Shop",
-          home: new SplashScreen(),
-          // this below syntax how you set default font for apps
-          // Remember to add font first in pubspec.yaml
-          // Remeber only use free fonts if you cant buy font dont force it mate :))
-          theme: new ThemeData(fontFamily: 'Roboto'),
-          debugShowCheckedModeBanner: false,
-          // debungShowCheckedModeBanner: false, this syntax for remove dubugbanner on left top phone screem
-          routes: routesX,
-        ));
+      builder: (context) => ShopBloc(),
+      child: MaterialApp(
+        title: "Warung Islami Bogor Shop",
+        home: new SplashScreen(),
+        // this below syntax how you set default font for apps
+        // Remember to add font first in pubspec.yaml
+        // Remeber only use free fonts if you cant buy font dont force it mate :))
+        theme: buildDarkTheme(),
+        debugShowCheckedModeBanner: false,
+        // debungShowCheckedModeBanner: false, this syntax for remove dubugbanner on left top phone screem
+        routes: routesX,
+      ),
+    );
   }
 }
 
 // This ThemeData for default color in this application, you can use it or this will add automaticly as defaul color, i dont know to :))
 // #Best Regards Previous Programmer :))) GLHF
 ThemeData buildDarkTheme() {
-  final ThemeData base = ThemeData();
-  return base.copyWith(
+  return ThemeData(
     primaryColor: Color(0xff25282b),
     accentColor: Color(0xff31B057),
+    appBarTheme: AppBarTheme(
+      iconTheme: IconThemeData(
+        color: Color(0xff25282b),
+      ),
+      color: Colors.white,
+      textTheme: TextTheme(
+        title: TextStyle(
+          color: Color(0xff25282b),
+        ),
+      ),
+    ),
     scaffoldBackgroundColor: Colors.white,
     buttonColor: Color(0xff31B057),
     hintColor: Color(0xff31B057),

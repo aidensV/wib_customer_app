@@ -25,3 +25,16 @@ class Produk {
     this.namaTipe,
   });
 }
+
+class JenisProduk {
+  String idJenis, namaJenis;
+
+  JenisProduk({
+    this.idJenis,
+    this.namaJenis,
+  });
+
+  bool operator ==(other) => other is JenisProduk && other.idJenis == idJenis;
+
+  int get hashCode => idJenis.hashCode;
+}
