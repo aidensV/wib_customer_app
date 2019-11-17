@@ -588,7 +588,7 @@ class _DetailState extends State<Detail> {
                                             ),
                                           ),
                                         ),
-                                        item.hargadiskon == '0.00' ||
+                                        item.hargadiskon.toString() == '0.00' ||
                                                 item.hargadiskon == null
                                             ? Container(
                                                 height: 30.0,
