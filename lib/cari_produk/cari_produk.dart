@@ -71,8 +71,8 @@ class _CariProdukState extends State<CariProduk> {
           'namaProduk': cariController.text,
           'jenisProduk':
               selectedJenisProduk != null ? selectedJenisProduk.idJenis : '',
-          'minHarga': minHarga,
-          'maxHarga': maxHarga,
+          'minHarga': minHarga == null ? '' : minHarga,
+          'maxHarga': maxHarga == null ? '' : maxHarga,
         },
       );
 
