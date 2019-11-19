@@ -60,24 +60,6 @@ class ProductDetailState extends State<ProductDetail> {
     return listNotaAndroid();
   }
 
-  void _showAlamatNull() {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('Peringatan'),
-            content: Text('Silahkan Setting alamat dulu pada profile'),
-            actions: <Widget>[
-              FlatButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, "/profile");
-                  },
-                  child: Text('OK')),
-            ],
-          );
-        });
-  }
-
   Future<List<ListKeranjang>> listNotaAndroid() async {
     setState(() {
       isLoadings = true;
@@ -501,7 +483,8 @@ class ProductDetailState extends State<ProductDetail> {
                                     onPressed: () async {
                                       var location = stockiesX;
                                       if (location == null) {
-                                        _showAlamatNull();
+                                        showInSnackBar(
+                                                  'Silahkan setting alamat terlebih dahulu pada pengaturan akun');
                                       } else {
                                         var idx = codeX;
                                         try {

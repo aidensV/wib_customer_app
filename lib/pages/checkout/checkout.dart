@@ -14,7 +14,7 @@ import '../tracking_list/tracking.dart';
 import 'model.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_image/network.dart';
-
+import '../../dashboard.dart';
 List<ListCheckout> listNota = [];
 String tokenType,
     accessToken,
@@ -170,132 +170,6 @@ class _CheckoutState extends State<Checkout> {
     super.initState();
   }
 
-  void _showMaterialDialogKabupaten() {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('Peringatan'),
-            content: Text('Silahkan pilih provinsi terlebih dahulu'),
-            actions: <Widget>[
-              FlatButton(
-                  onPressed: () {
-                    _dismissDialog();
-                  },
-                  child: Text('OK')),
-            ],
-          );
-        });
-  }
-
-  void _showMaterialItemNull() {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('Peringatan'),
-            content: Text('Anda tidak memiliki barang untuk dicheckout'),
-            actions: <Widget>[
-              FlatButton(
-                  onPressed: () {
-                    MyNavigator.goToDashboard(context);
-                  },
-                  child: Text('OK')),
-            ],
-          );
-        });
-  }
-
-  void _showMaterialDialogKabupatenNull() {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('Peringatan'),
-            content: Text('Silahkan pilih kabupaten terlebih dahulu'),
-            actions: <Widget>[
-              FlatButton(
-                  onPressed: () {
-                    _dismissDialog();
-                  },
-                  child: Text('OK')),
-            ],
-          );
-        });
-  }
-
-  void _showMaterialDialogKodeposNull() {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('Peringatan'),
-            content: Text('Silahkan isi kodepos terlebih dahulu'),
-            actions: <Widget>[
-              FlatButton(
-                  onPressed: () {
-                    _dismissDialog();
-                  },
-                  child: Text('OK')),
-            ],
-          );
-        });
-  }
-
-  void _showMaterialDialogAlamatNull() {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('Peringatan'),
-            content: Text('Silahkan isi alamat lengkap terlebih dahulu'),
-            actions: <Widget>[
-              FlatButton(
-                  onPressed: () {
-                    _dismissDialog();
-                  },
-                  child: Text('OK')),
-            ],
-          );
-        });
-  }
-
-  void _showMaterialDialogKecamatanNull() {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('Peringatan'),
-            content: Text('Silahkan pilih kecamatan terlebih dahulu'),
-            actions: <Widget>[
-              FlatButton(
-                  onPressed: () {
-                    _dismissDialog();
-                  },
-                  child: Text('OK')),
-            ],
-          );
-        });
-  }
-
-  void _showMaterialDialogAmbilBarang() {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('Peringatan'),
-            content: Text('Anda memilih opsi ambil barang ditempat'),
-            actions: <Widget>[
-              FlatButton(
-                  onPressed: () {
-                    _dismissDialog();
-                  },
-                  child: Text('OK')),
-            ],
-          );
-        });
-  }
-
   String idprovinsilist = '';
   bool _value1 = false;
   bool _value2 = false;
@@ -303,28 +177,7 @@ class _CheckoutState extends State<Checkout> {
 
   //we omitted the brackets '{}' and are using fat arrow '=>' instead, this is dart syntax
 
-  void _showMaterialDialogKecamatan() {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('Peringatan'),
-            content:
-                Text('Silahkan pilih provinsi dan kabupaten terlebih dahulu'),
-            actions: <Widget>[
-              FlatButton(
-                  onPressed: () {
-                    _dismissDialog();
-                  },
-                  child: Text('OK')),
-            ],
-          );
-        });
-  }
 
-  _dismissDialog() {
-    Navigator.of(context).pop();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -373,7 +226,7 @@ class _CheckoutState extends State<Checkout> {
                             : selectedProvinsi.nama),
                     onTap: () {
                       if (_value2 == true) {
-                        _showMaterialDialogAmbilBarang();
+                        showInSnackBar('Anda memilih opsi ambil barang ditempat');
                       } else {
                         _pilihprovinsi(context);
                       }
@@ -390,9 +243,9 @@ class _CheckoutState extends State<Checkout> {
                             : 'Pilih Kabupaten'),
                     onTap: () {
                       if (_value2 == true) {
-                        _showMaterialDialogAmbilBarang();
+                        showInSnackBar('Anda memilih opsi ambil barang ditempat');
                       } else if (selectedProvinsi == null) {
-                        _showMaterialDialogKabupaten();
+                        showInSnackBar('Silahkan pilih provinsi terlebih dahulu');
                       } else {
                         _pilihkabupaten(context);
                       }
@@ -409,9 +262,9 @@ class _CheckoutState extends State<Checkout> {
                             : 'Pilih Kecamatan'),
                     onTap: () {
                       if (_value2 == true) {
-                        _showMaterialDialogAmbilBarang();
+                        showInSnackBar('Anda memilih opsi ambil barang ditempat');
                       } else if (selectedKabupaten == null) {
-                        _showMaterialDialogKecamatan();
+                        showInSnackBar('Silahkan pilih kabupaten terlebih dahulu');
                       } else {
                         _pilihkecamatan(context);
                       }
@@ -797,17 +650,17 @@ class _CheckoutState extends State<Checkout> {
                   onPressed: () async {
                     if (_value2 == false) {
                       if (selectedProvinsi == null) {
-                        _showMaterialDialogKabupaten();
+                        showInSnackBar('Silahkan pilih provinsi terlebih dahulu');
                       } else if (selectedKabupaten == null) {
-                        _showMaterialDialogKabupatenNull();
+                        showInSnackBar('Silahkan pilih kabupaten/kota terlebih dahulu');
                       } else if (selectedkecamatan == null) {
-                        _showMaterialDialogKecamatanNull();
+                        showInSnackBar('Silahkan pilih kecamatan terlebih dahulu');
                       } else if (kodeposController.text.length == 0 ||
                           kodeposController.text == null) {
-                        _showMaterialDialogKodeposNull();
+                        showInSnackBar('Silahkan masukkan kodepos terlebih dahulu');
                       } else if (alamatController.text.length == 0 ||
                           alamatController.text == null) {
-                        _showMaterialDialogAlamatNull();
+                        showInSnackBar('Silahkan masukkan alamat lengkap terlebih dahulu');
                       } else {
                         _checkoutSekarang();
                       }
@@ -851,6 +704,7 @@ class _CheckoutState extends State<Checkout> {
     formSerialize['paydeliver'] = null;
     formSerialize['gudang'] = List();
     formSerialize['id'] = List();
+    formSerialize['namabarang'] = List();
     formSerialize['ciproduct'] = List();
     formSerialize['qty'] = List();
     formSerialize['disc'] = List();
@@ -868,6 +722,7 @@ class _CheckoutState extends State<Checkout> {
     formSerialize['alamat'] = _value2 == true ? '-' : alamatController.text;
     for (int i = 0; i < listNota.length; i++) {
       formSerialize['id'].add(listNota[i].id);
+      formSerialize['namabarang'].add(listNota[i].item);
       formSerialize['ciproduct'].add(listNota[i].code);
       formSerialize['qty'].add(listNota[i].jumlah); 
       formSerialize['disc'].add(0);
@@ -896,14 +751,15 @@ class _CheckoutState extends State<Checkout> {
         dynamic responseJson = jsonDecode(response.body);
         if (responseJson['status'] == 'success') {
           Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => TrackingList()));
-        }else if(responseJson['error'] != null){
-          showInSnackBar(responseJson['error']);
+        }else if(responseJson['status'] == 'erorstock'){
+          showInSnackBar('Eror Stock, ${responseJson['error']}');
         } else if (responseJson['status'] == 'saldokurang') {
           showInSnackBar('Saldo anda tidak mencukupi');
         } else if (responseJson['error'] == 'Saldo Anda Tidak Cukup') {
           showInSnackBar('Saldo anda tidak mencukupi');
         } else if (responseJson['status'] == 'kosong') {
-          _showMaterialItemNull();
+          showInSnackBar('Anda tidak memiliki item untuk checkout');
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => DashboardPage()));
         }
         print('response decoded $responseJson');
       } else {

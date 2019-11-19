@@ -856,16 +856,11 @@ class _KeranjangState extends State<Keranjang> {
                       ],
                     ),
                   ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: BottomAppBar(
-        child: new Row(
-          mainAxisSize: MainAxisSize.max,
-          children: <Widget>[
-            SizedBox(
-                width: MediaQuery.of(context).size.width, // specific value
-                child: FlatButton(
+                  listNota.length == 0 ?
+                  Container():
+                  SizedBox(
+                     width: double.infinity,
+                    child: RaisedButton(
                   color: Colors.green,
                   textColor: Colors.white,
                   disabledColor: Colors.grey,
@@ -882,16 +877,17 @@ class _KeranjangState extends State<Keranjang> {
                       if (tambahqty.statusCode == 200) {
                         var tambahqtyJson = json.decode(tambahqty.body);
                         if (tambahqtyJson['status'] == 'Success') {
-                          // Navigator.pushReplacementNamed(context, "/checkout");
-                          Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Checkout(),
-                              ));
+                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Checkout()));
+                          // Navigator.push(
+                          //     context,
+                          //     MaterialPageRoute(
+                          //       builder: (context) => Checkout(),
+                          //     ));
                         } else if (tambahqtyJson['status'] == 'Error') {
                           showInSnackBar('Gagal! Hubungi pengembang software!');
                         } else if (tambahqtyJson['status'] == 'Kosong') {
-                          _showMaterialDialog();
+                          showInSnackBar('Anda tidak memiliki item untuk checkout');
+                          MyNavigator.goToDashboard(context);
                         }
                       } else {
                         showInSnackBar(
@@ -907,10 +903,22 @@ class _KeranjangState extends State<Keranjang> {
                     "Bayar Semua Barang",
                     style: TextStyle(fontSize: 18.0),
                   ),
-                ))
+                ),
+                  ),
+                  
           ],
         ),
       ),
+      // bottomNavigationBar: BottomAppBar(
+      //   child: new Row(
+      //     mainAxisSize: MainAxisSize.max,
+      //     children: <Widget>[
+      //       SizedBox(
+      //           width: MediaQuery.of(context).size.width, // specific value
+      //           child: )
+      //     ],
+      //   ),
+      // ),
     );
   }
 }

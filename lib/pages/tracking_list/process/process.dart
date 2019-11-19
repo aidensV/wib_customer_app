@@ -7,74 +7,16 @@ import 'package:wib_customer_app/env.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
 import 'dart:convert';
-import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+import 'filter.dart';
 
-GlobalKey<ScaffoldState> _scaffoldKeyX;
 List<ListNota> listNota;
-var _urutkanvalue, _tanggalawal, _tanggalakhir;
+var _tanggalawalprocess, _tanggalakhirprocess, _urutkantransaksiprocess, _scaffoldKeyprocess;
 FocusNode datepickerFocus;
 String tokenType, accessToken;
 Map<String, String> requestHeaders = Map();
 
-void showInSnackBar(String value) {
-  _scaffoldKeyX.currentState
-      .showSnackBar(new SnackBar(content: new Text(value)));
-}
 
-Future<List<ListNota>> listNotaAndroid() async {
-  DataStore storage = new DataStore();
 
-  String tokenTypeStorage = await storage.getDataString('token_type');
-  String accessTokenStorage = await storage.getDataString('access_token');
-
-  tokenType = tokenTypeStorage;
-  accessToken = accessTokenStorage;
-  requestHeaders['Accept'] = 'application/json';
-  requestHeaders['Authorization'] = '$tokenType $accessToken';
-  try {
-    final nota = await http.post(
-      url('api/TransaksiProsesAndroid'),
-      headers: requestHeaders,body: {'urutkan': _urutkanvalue, 'tanggal_awal' : _tanggalawal, 'tanggal_akhir' : _tanggalakhir}
-    );
-
-    if (nota.statusCode == 200) {
-      // return nota;
-      var notaJson = json.decode(nota.body);
-      var notas = notaJson['nota'];
-
-      print('notaJson $notaJson');
-
-      listNota = [];
-      for (var i in notas) {
-        ListNota notax = ListNota(
-          id: '${i['s_id']}',
-          nota: i['s_nota'],
-          statusDeliver: i['s_delivered'],
-          statusPacking: i['s_packing'],
-          statusPembayaran: i['s_paystatus'],
-          statusMetodePembayaran: i['s_paymethod'],
-          statusSetuju: i['s_isapprove'],
-          total: i['s_total'],
-          customer: i['cm_name'],
-          tanggalTransaksi: i['s_date'],
-        );
-        listNota.add(notax);
-      }
-
-      print('listnota $listNota');
-      print('listnota length ${listNota.length}');
-      return listNota;
-    } else {
-//      showInSnackBar('Request failed with status: ${nota.statusCode}');
-      return null;
-    }
-  } on TimeoutException catch (_) {
-    showInSnackBar('Timed out, Try again');
-  } catch (e) {
-    debugPrint('$e');
-  }
-  return null;
-}
 
 Widget statusNota(statusDeliver, statusPacking, statusPembayaran,
     statusMetodePembayaran, statusSetuju) {
@@ -140,7 +82,78 @@ class ProcessNota extends StatefulWidget {
   }
 }
 
-class _ProcessNotaState extends State<ProcessNota> {
+class _ProcessNotaState extends State<ProcessNota> {  
+  bool isLoading;
+  Future<List<ListNota>> listNotaAndroid() async {
+  DataStore storage = new DataStore();
+
+  String tokenTypeStorage = await storage.getDataString('token_type');
+  String accessTokenStorage = await storage.getDataString('access_token');
+
+  tokenType = tokenTypeStorage;
+  accessToken = accessTokenStorage;
+  requestHeaders['Accept'] = 'application/json';
+  requestHeaders['Authorization'] = '$tokenType $accessToken';
+  try {
+    setState(() {
+    isLoading = true; 
+    });
+    final nota = await http.post(url('api/TransaksiProsesAndroid'),
+        headers: requestHeaders,
+        body: {
+          'urutkan': _urutkantransaksiprocess,
+          'tanggal_awal': _tanggalawalprocess.toString(),
+          'tanggal_akhir': _tanggalakhirprocess.toString(),
+        });
+
+    if (nota.statusCode == 200) {
+      // return nota;
+      var notaJson = json.decode(nota.body);
+      var notas = notaJson['nota'];
+
+      print('notaJson $notaJson');
+
+      listNota = [];
+      for (var i in notas) {
+        ListNota notax = ListNota(
+          id: '${i['s_id']}',
+          nota: i['s_nota'],
+          statusDeliver: i['s_delivered'],
+          statusPacking: i['s_packing'],
+          statusPembayaran: i['s_paystatus'],
+          statusMetodePembayaran: i['s_paymethod'],
+          statusSetuju: i['s_isapprove'],
+          total: i['s_total'],
+          customer: i['cm_name'],
+          tanggalTransaksi: i['s_date'],
+        );
+        listNota.add(notax);
+      }
+
+      print('listnota $listNota');
+      print('listnota length ${listNota.length}');
+      setState(() {
+        isLoading = false; 
+      });
+      return listNota;
+    } else {
+//      showInSnackBar('Request failed with status: ${nota.statusCode}');
+      return null;
+    }
+  } on TimeoutException catch (_) {
+    setState(() {
+        isLoading = false; 
+      });
+    showInSnackBar('Timed out, Try again');
+  } catch (e) {
+    setState(() {
+        isLoading = false; 
+      });
+    debugPrint('$e');
+  }
+  return null;
+}
+
   int totalRefresh = 0;
   refreshFunction() async {
     setState(() {
@@ -150,14 +163,20 @@ class _ProcessNotaState extends State<ProcessNota> {
 
   @override
   void initState() {
-    _scaffoldKeyX = new GlobalKey<ScaffoldState>();
     print(requestHeaders);
-    _tanggalawal = 'kosong';
-    _tanggalakhir = 'kosong';
-    _urutkanvalue = 'kosong';
+    listNotaAndroid();
+    _scaffoldKeyprocess =  new GlobalKey<ScaffoldState>();
+    isLoading = true;
+    _urutkantransaksiprocess = 'kosong';
+    _tanggalawalprocess = 'kosong';
     datepickerFocus = FocusNode();
+    _tanggalakhirprocess = 'kosong';
     super.initState();
   }
+  void showInSnackBar(String value) {
+  _scaffoldKeyprocess.currentState
+      .showSnackBar(new SnackBar(content: new Text(value)));
+}
 
   @override
   void setState(fn) {
@@ -170,137 +189,48 @@ class _ProcessNotaState extends State<ProcessNota> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      key: _scaffoldKeyX,
+      key: _scaffoldKeyprocess,
       body: Container(
         child: Column(
           children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: Container(
-                child: Column(
-                  children: <Widget>[
-                    DropdownButton<String>(
-                      isExpanded: true,
-                      items: [
-                        DropdownMenuItem<String>(
-                          child: Text('Transaksi Terbaru'),
-                          value: 'one',
-                        ),
-                        DropdownMenuItem<String>(
-                          child: Text('Total Belanja'),
-                          value: 'two',
-                        ),
-                      ],
-                      onChanged: (String value) {
-                        setState(() {
-                          _urutkanvalue = value;
-                        });
-                      },
-                      hint: Text('Urutkan transaksi berdasarkan'),
-                      value: _urutkanvalue == 'kosong' ? null : _urutkanvalue,
+            isLoading == true
+                ? Expanded(
+                    child: Center(
+                      child: CircularProgressIndicator(),
                     ),
-                    Row(
-                      children: <Widget>[
-                        Expanded(
-                          flex: 5,
-                          child: Padding(
-                            padding: const EdgeInsets.all(3.0),
-                            child: DateTimePickerFormField(
-                              initialDate: DateTime.now(),
-                              inputType: InputType.date,
-                              focusNode: datepickerFocus,
-                              editable: false,
-                              format: DateFormat('dd-MM-y'),
-                              decoration: InputDecoration(
-                                //  border: InputBorder.none,
-                                hintText: 'Tanggal Awal',
-                                hintStyle: TextStyle(
-                                    fontSize: 13, color: Colors.black),
-                              ),
-                              // resetIcon: FontAwesomeIcons.times,
-                              onChanged: (ini) {
-                                setState(() {
-                                  _tanggalawal = ini == null ? 'kosong' : ini.toString();
-                                });
-                              },
-                              autofocus: false,
-                            ),
+                  )
+                : listNota.length == 0
+                    ? RefreshIndicator(
+                        onRefresh: () => listNotaAndroid(),
+                        child: Column(children: <Widget>[
+                          new Container(
+                            alignment: Alignment.center,
+                          width: 120.0,
+                          height: 120.0,
+                          child: Image.asset("images/empty-transaction.png"),
+                        ),
+                        Padding(
+                          
+                          padding: const EdgeInsets.only(top: 10.0, left:15.0,right:15.0),
+                          child: Center(
+                            child: Text("Anda tidak memiliki transaksi sedang diproses",
+                                style: TextStyle(fontSize: 18,height:1.2,color: Colors.grey[500]),
+                                textAlign: TextAlign.center,),
                           ),
                         ),
-                        Expanded(
-                          flex: 5,
-                          child: Padding(
-                            padding: const EdgeInsets.all(3.0),
-                            child: DateTimePickerFormField(
-                              initialDate: DateTime.now(),
-                              inputType: InputType.date,
-                              editable: false,
-                              focusNode: datepickerFocus,
-                              format: DateFormat('dd-MM-y'),
-                              decoration: InputDecoration(
-                                // border: InputBorder.none,
-                                hintText: 'Tanggal Akhir',
-                                hintStyle: TextStyle(
-                                    fontSize: 13, color: Colors.black),
-                              ),
-                              // resetIcon: FontAwesomeIcons.times,
-                              onChanged: (ini) {
-                                setState(() {
-                                  _tanggalakhir = ini == null ? 'kosong' : ini.toString();
-                                });
-                              },
-                              autofocus: false,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Expanded(
-              child: RefreshIndicator(
-                onRefresh: () => refreshFunction(),
-                child: Scrollbar(
-                  child: FutureBuilder(
-                    future: listNotaAndroid(),
-                    builder: (BuildContext context, AsyncSnapshot snapshot) {
-                      switch (snapshot.connectionState) {
-                        case ConnectionState.none:
-                          return ListTile(
-                            title: Text('Tekan Tombol Mulai.'),
-                          );
-                        case ConnectionState.active:
-                        case ConnectionState.waiting:
-                          return Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        case ConnectionState.done:
-                          if (snapshot.hasError) {
-                            return Text('Error: ${snapshot.error}');
-                          }
-                          if (snapshot.data == null ||
-                              snapshot.data == 0 ||
-                              snapshot.data.length == null ||
-                              snapshot.data.length == 0) {
-                            return ListView(
-                              children: <Widget>[
-                                ListTile(
-                                  title: Text(
-                                    'Tidak ada data',
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ],
-                            );
-                          } else if (snapshot.data != null ||
-                              snapshot.data != 0) {
-                            return ListView.builder(
-                              itemCount: snapshot.data.length,
+                        ]),
+                      )
+                    : Expanded(
+                        child: Scrollbar(
+                          child: RefreshIndicator(
+                            onRefresh: () => listNotaAndroid(),
+                            child: ListView.builder(
+                              // scrollDirection: Axis.horizontal,
+                              padding: EdgeInsets.all(5.0),
+                              itemCount: listNota.length,
                               itemBuilder: (BuildContext context, int index) {
                                 double totalpembelian =
-                                    double.parse(snapshot.data[index].total);
+                                    double.parse(listNota[index].total);
                                 NumberFormat _numberFormat =
                                     new NumberFormat.simpleCurrency(
                                         decimalDigits: 2, name: 'Rp. ');
@@ -308,48 +238,87 @@ class _ProcessNotaState extends State<ProcessNota> {
                                     _numberFormat.format(totalpembelian);
 
                                 DateTime dateTime = DateTime.parse(
-                                    snapshot.data[index].tanggalTransaksi);
+                                    listNota[index].tanggalTransaksi);
                                 String dateTimeParse =
                                     DateFormat('d MMM y').format(dateTime);
 
                                 return ListTileTransaksi(
                                   hargaTotal: hargaTotal,
-                                  nota: snapshot.data[index].nota,
+                                  nota: listNota[index].nota,
                                   tanggalTransaksi: dateTimeParse,
                                   onTap: () {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => Detail(
-                                          id: snapshot.data[index].id,
-                                          nota: snapshot.data[index].nota,
-                                          customer:
-                                              snapshot.data[index].customer,
-                                          total: snapshot.data[index].total,
-                                          status: snapshot.data[index].status,
+                                          id: listNota[index].id,
+                                          nota: listNota[index].nota,
+                                          customer: listNota[index].customer,
+                                          total: listNota[index].total,
+                                          status: listNota[index].status,
                                         ),
                                       ),
                                     );
                                   },
                                   status: statusNota(
-                                    snapshot.data[index].statusDeliver,
-                                    snapshot.data[index].statusPacking,
-                                    snapshot.data[index].statusPembayaran,
-                                    snapshot.data[index].statusMetodePembayaran,
-                                    snapshot.data[index].statusSetuju,
+                                    listNota[index].statusDeliver,
+                                    listNota[index].statusPacking,
+                                    listNota[index].statusPembayaran,
+                                    listNota[index].statusMetodePembayaran,
+                                    listNota[index].statusSetuju,
                                   ),
                                 );
                               },
-                            );
-                          }
-                      }
-                      return null; // unreachable
-                    },
-                  ),
-                ),
+                            ),
+                          ),
+                        ),
+                      ),
+          ],
+        ),
+      ),
+      floatingActionButton: InkWell(
+        onTap: () async {
+          dynamic filter = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              settings: RouteSettings(name: '/filter_transaksi_pay'),
+              builder: (BuildContext context) => FilterTransaksiprocess(
+                urutkantransaksiprocess: _urutkantransaksiprocess,
+                tanggalawalprocess: _tanggalawalprocess,
+                tanggalakhirprocess: _tanggalakhirprocess,
               ),
             ),
-          ],
+          );
+          if (filter != null) {
+            _urutkantransaksiprocess = filter['_urutkantransaksiprocess'];
+            _tanggalawalprocess = filter['_tanggalawalprocess'];
+            _tanggalakhirprocess = filter['_tanggalakhirprocess'];
+            setState(() {
+              _urutkantransaksiprocess = filter['_urutkantransaksiprocess'];
+              _tanggalawalprocess = filter['_tanggalawalprocess'];
+              _tanggalakhirprocess = filter['_tanggalakhirprocess'];
+            });
+
+            listNotaAndroid();
+          }
+        },
+        child: Container(
+          width: 120.0,
+          height: 40.0,
+          decoration: new BoxDecoration(
+            color: Color(0xff31B057),
+            border: new Border.all(color: Colors.transparent, width: 2.0),
+            borderRadius: new BorderRadius.circular(23.0),
+          ),
+          child: Center(
+            child: Text(
+              'Filter Transaksi',
+              style: new TextStyle(
+                  fontFamily: 'TitilliumWeb',
+                  fontSize: 14.0,
+                  color: Colors.white),
+            ),
+          ),
         ),
       ),
     );
