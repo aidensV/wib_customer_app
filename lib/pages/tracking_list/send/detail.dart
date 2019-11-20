@@ -509,15 +509,30 @@ class _DetailState extends State<Detail> {
                                                       showInSnackBar(
                                                           '${item.nama} berhasil dimasukkan ke keranjang');
                                                     } else if (addcartJson[
-                                                            'error'] ==
-                                                        'stock') {
+                                                            'status'] ==
+                                                        'minbeli') {
                                                       showInSnackBar(
-                                                          'Stock ${item.nama} tersisa ${addcartJson['stock']}');
+                                                          '${addcartJson['minbuy']}');
+                                                    } else if (addcartJson[
+                                                            'status'] ==
+                                                        'stockkurangminbeli') {
+                                                      showInSnackBar(
+                                                          '${addcartJson['message']}');
+                                                    } else if (addcartJson[
+                                                            'status'] ==
+                                                        'maxstock') {
+                                                      showInSnackBar(
+                                                          '${addcartJson['messagestock']}');
                                                     } else if (addcartJson[
                                                             'error'] ==
                                                         'error') {
                                                       showInSnackBar(
                                                           '${item.nama} sudah ada dikeranjang');
+                                                    } else if (addcartJson[
+                                                            'error'] ==
+                                                        'Berat Barang Belum Di Set') {
+                                                      showInSnackBar(
+                                                          'Mohon Maaf, berat barang belum disetting');
                                                     }
                                                   } else {
                                                     print('${adcart.body}');

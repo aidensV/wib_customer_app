@@ -64,21 +64,21 @@ class _DetailState extends State<Detail> {
 
   Future getimagegallery() async {
     _image = null;
-    var imagefile = await ImagePicker.pickImage(source:ImageSource.gallery);
+    var imagefile = await ImagePicker.pickImage(source: ImageSource.gallery);
     _image = imagefile;
     showInSnackBar('Tekan Upload Sekarang Untuk Mengupload');
-    this.setState((){
+    this.setState(() {
       loading = false;
     });
   }
 
   Future getimagecamera() async {
     _image = null;
-    var imagefile = await ImagePicker.pickImage(source:ImageSource.camera);
+    var imagefile = await ImagePicker.pickImage(source: ImageSource.camera);
 
-      _image = imagefile;
+    _image = imagefile;
     showInSnackBar('Tekan Upload Sekarang Untuk Mengupload');
-    this.setState((){
+    this.setState(() {
       loading = false;
     });
   }
@@ -94,10 +94,12 @@ class _DetailState extends State<Detail> {
     requestHeaders['Authorization'] = '$tokenType $accessToken';
     Map<String, String> headers = requestHeaders;
 
-    var stream = new http.ByteStream(DelegatingStream.typed(imageFile.openRead()));
-    var length = await imageFile.length(); 
-    var request = new http.MultipartRequest("POST" , urlpath('api/bayar'));
-    var kirimfile = new http.MultipartFile("gambar", stream, length,filename: basename(imageFile.path));
+    var stream =
+        new http.ByteStream(DelegatingStream.typed(imageFile.openRead()));
+    var length = await imageFile.length();
+    var request = new http.MultipartRequest("POST", urlpath('api/bayar'));
+    var kirimfile = new http.MultipartFile("gambar", stream, length,
+        filename: basename(imageFile.path));
     request.headers.addAll(headers);
     request.fields['android'] = "true";
     request.fields['nota'] = nota;
@@ -106,22 +108,22 @@ class _DetailState extends State<Detail> {
     var response = await request.send();
     final respStr = await response.stream.bytesToString();
     var resp = json.decode(respStr);
-    if(response.statusCode == 200){
-      if(resp['error'] != null){
-      showInSnackBar((resp['error']).toString());
-      }else{
-      showInSnackBar((resp['success']).toString());
+    if (response.statusCode == 200) {
+      if (resp['error'] != null) {
+        showInSnackBar((resp['error']).toString());
+      } else {
+        showInSnackBar((resp['success']).toString());
         setState(() {
           loading = false;
         });
       }
-    }else{
+    } else {
       var i = response.statusCode;
       print(resp);
       print('gambar gagal di upload code $i');
     }
   }
-  
+
   _DetailState({
     Key key,
     @required this.id,
@@ -319,120 +321,156 @@ class _DetailState extends State<Detail> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text("Detail Nota"),
-        backgroundColor: Color(0xff31B057),iconTheme: IconThemeData(
+        backgroundColor: Color(0xff31B057),
+        iconTheme: IconThemeData(
           color: Colors.white,
         ),
         actionsIconTheme: IconThemeData(
           color: Colors.white,
         ),
       ),
-      body: loading ? Center(
-        child: Text('Uploading ....'),
-      ) : Container(
-        padding: EdgeInsets.all(5.0),
-        child: ListView(
-          children: <Widget>[
-            Card(
-              child: ListTile(
-                leading: Icon(Icons.local_mall, color: Colors.green),
-                title: Text(notaX == null ? 'Nota : -' : 'Nota : $notaX'),
-              ),
-            ),
-            Card(
-              child: ListTile(
-                leading: Icon(Icons.person, color: Colors.green),
-                title: Text(customerX == null
-                    ? 'Customer : -'
-                    : 'Customer : $customerX'),
-              ),
-            ),
-            Card(child: ListTile(
-              leading: Icon(Icons.local_shipping, color: Colors.green),
-              title: Text(expedisiX == null ? 'Jasa Pengiriman : -' : 'Jasa Pengiriman : $expedisiX'),
-            ),),
-            Card(child: ListTile(
-              leading: Icon(Icons.call_to_action, color: Colors.green),
-              title: Text(resiX == null ? 'Nomor Resi : -' : 'Nomor Resi : $resiX'),
-            ),),
-            Card(child: ListTile(
-              leading: Icon(Icons.shop, color: Colors.green),
-              title: Text(totalhargasemuabarangX == null || totalhargasemuabarangX == '0'
-                    ? 'Total Harga Barang : Rp. 0.00'
-                    : 'Total Harga Barang : Rp. ${totalhargasemuabarangX} '),
-            ),),
-            Card(child: ListTile(
-              leading: Icon(Icons.local_atm, color: Colors.green),
-              title: Text(ongkirX == null || ongkirX == '0'
-                    ? 'Biaya Ongkir : Rp. 0.00'
-                    : 'Biaya Ongkir : ' +
-                        _numberFormat.format(double.parse(ongkirX.toString()))),
-            ),),
-            Card(child: ListTile(
-              leading: Icon(Icons.shopping_basket, color: Colors.green),
-              title: Text(totalpembelianX == null || totalpembelianX == '0'
-                    ? 'Total Pembelian : Rp. 0.00'
-                    : 'Total Pembelian : Rp. ${totalpembelianX}' ),
-            ),),
-            Padding(
-              padding:
-                  const EdgeInsets.only(top: 10.0, bottom: 10.0, left: 5.0),
-              child: new Text(
-                 deliveredX == null ? 'Alamat Pengiriman' : deliveredX == 'A' ? 'Alamat Pengiriman ( Ambil Sendiri )' : 'Alamat Pengiriman' ,
-                textAlign: TextAlign.left,
-              ),
-            ),
-            Card(
-              child: ListTile(
-                leading: Icon(Icons.location_on, color: Colors.green),
-                title: Text(deliveredX == null || deliveredX == 'A'
-                    ? 'Provinsi : -' : provinsiX == null || provinsiX == '0' ?
-                     'Provinsi : -' : 'Provinsi : $provinsiX'),
-              ),
-            ),
-            Card(
-              child: ListTile(
-                leading: Icon(Icons.location_city, color: Colors.green),
-                title: Text(deliveredX == null || deliveredX == 'A'
-                    ? 'Kab/Kota : -': kabupatenX == null || kabupatenX == '0' ? 'Kabupaten : -' : 'Kab/Kota : $kabupatenX'),
-              ),
-            ),
-            Card(
-              child: ListTile(
-                leading: Icon(Icons.location_on, color: Colors.green),
-                title: Text(deliveredX == null || deliveredX == 'A'
-                    ? 'Kecamatan : -': kecamatanX == null || kecamatanX == '0' ? 'Kecamatan : -'  : 'Kecamatan : $kecamatanX'),
-              ),
-            ),
-            Card(
-              child: ListTile(
-                leading: Icon(Icons.local_post_office, color: Colors.green),
-                title: Text(deliveredX == null || deliveredX == 'A'
-                    ? 'Kodepos : -' : kodeposX == null || kodeposX == '0' ? 'Kodepos : -'  : 'Kodepos : $kodeposX'),
-              ),
-            ),
-            Card(
-              child: ListTile(
-                leading: Icon(Icons.streetview, color: Colors.green),
-                title: Text(
-                    deliveredX == null || deliveredX == 'A' ? '-' : alamatX == null || alamatX == '' ? '' : alamatX),
-              ),
-            ),
-            
-            listItem.length == 0
-                ? Card(
+      body: loading
+          ? Center(
+              child: Text('Uploading ....'),
+            )
+          : Container(
+              padding: EdgeInsets.all(5.0),
+              child: ListView(
+                children: <Widget>[
+                  Card(
                     child: ListTile(
-                      title: Text(
-                        'Tidak ada data',
-                        textAlign: TextAlign.center,
-                      ),
+                      leading: Icon(Icons.local_mall, color: Colors.green),
+                      title: Text(notaX == null ? 'Nota : -' : 'Nota : $notaX'),
                     ),
-                  )
-                :
-                Padding(
-            padding: const EdgeInsets.only(top: 25.0, left: 15.0),
-            child: new Text('Daftar barang'),
-          ),
-          Divider(), Padding(
+                  ),
+                  Card(
+                    child: ListTile(
+                      leading: Icon(Icons.person, color: Colors.green),
+                      title: Text(customerX == null
+                          ? 'Customer : -'
+                          : 'Customer : $customerX'),
+                    ),
+                  ),
+                  Card(
+                    child: ListTile(
+                      leading: Icon(Icons.local_shipping, color: Colors.green),
+                      title: Text(expedisiX == null
+                          ? 'Jasa Pengiriman : -'
+                          : 'Jasa Pengiriman : $expedisiX'),
+                    ),
+                  ),
+                  Card(
+                    child: ListTile(
+                      leading: Icon(Icons.call_to_action, color: Colors.green),
+                      title: Text(resiX == null
+                          ? 'Nomor Resi : -'
+                          : 'Nomor Resi : $resiX'),
+                    ),
+                  ),
+                  Card(
+                    child: ListTile(
+                      leading: Icon(Icons.shop, color: Colors.green),
+                      title: Text(totalhargasemuabarangX == null ||
+                              totalhargasemuabarangX == '0'
+                          ? 'Total Harga Barang : Rp. 0.00'
+                          : 'Total Harga Barang : Rp. ${totalhargasemuabarangX} '),
+                    ),
+                  ),
+                  Card(
+                    child: ListTile(
+                      leading: Icon(Icons.local_atm, color: Colors.green),
+                      title: Text(ongkirX == null || ongkirX == '0'
+                          ? 'Biaya Ongkir : Rp. 0.00'
+                          : 'Biaya Ongkir : ' +
+                              _numberFormat
+                                  .format(double.parse(ongkirX.toString()))),
+                    ),
+                  ),
+                  Card(
+                    child: ListTile(
+                      leading: Icon(Icons.shopping_basket, color: Colors.green),
+                      title: Text(
+                          totalpembelianX == null || totalpembelianX == '0'
+                              ? 'Total Pembelian : Rp. 0.00'
+                              : 'Total Pembelian : Rp. ${totalpembelianX}'),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        top: 10.0, bottom: 10.0, left: 5.0),
+                    child: new Text(
+                      deliveredX == null
+                          ? 'Alamat Pengiriman'
+                          : deliveredX == 'A'
+                              ? 'Alamat Pengiriman ( Ambil Sendiri )'
+                              : 'Alamat Pengiriman',
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                  Card(
+                    child: ListTile(
+                      leading: Icon(Icons.location_on, color: Colors.green),
+                      title: Text(deliveredX == null || deliveredX == 'A'
+                          ? 'Provinsi : -'
+                          : provinsiX == null || provinsiX == '0'
+                              ? 'Provinsi : -'
+                              : 'Provinsi : $provinsiX'),
+                    ),
+                  ),
+                  Card(
+                    child: ListTile(
+                      leading: Icon(Icons.location_city, color: Colors.green),
+                      title: Text(deliveredX == null || deliveredX == 'A'
+                          ? 'Kab/Kota : -'
+                          : kabupatenX == null || kabupatenX == '0'
+                              ? 'Kabupaten : -'
+                              : 'Kab/Kota : $kabupatenX'),
+                    ),
+                  ),
+                  Card(
+                    child: ListTile(
+                      leading: Icon(Icons.location_on, color: Colors.green),
+                      title: Text(deliveredX == null || deliveredX == 'A'
+                          ? 'Kecamatan : -'
+                          : kecamatanX == null || kecamatanX == '0'
+                              ? 'Kecamatan : -'
+                              : 'Kecamatan : $kecamatanX'),
+                    ),
+                  ),
+                  Card(
+                    child: ListTile(
+                      leading:
+                          Icon(Icons.local_post_office, color: Colors.green),
+                      title: Text(deliveredX == null || deliveredX == 'A'
+                          ? 'Kodepos : -'
+                          : kodeposX == null || kodeposX == '0'
+                              ? 'Kodepos : -'
+                              : 'Kodepos : $kodeposX'),
+                    ),
+                  ),
+                  Card(
+                    child: ListTile(
+                      leading: Icon(Icons.streetview, color: Colors.green),
+                      title: Text(deliveredX == null || deliveredX == 'A'
+                          ? '-'
+                          : alamatX == null || alamatX == '' ? '' : alamatX),
+                    ),
+                  ),
+                  listItem.length == 0
+                      ? Card(
+                          child: ListTile(
+                            title: Text(
+                              'Tidak ada data',
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        )
+                      : Padding(
+                          padding: const EdgeInsets.only(top: 25.0, left: 15.0),
+                          child: new Text('Daftar barang'),
+                        ),
+                  Divider(),
+                  Padding(
                     padding: EdgeInsets.all(0.0),
                     child: GridView.count(
                       shrinkWrap: true,
@@ -440,14 +478,14 @@ class _DetailState extends State<Detail> {
                       mainAxisSpacing: 0.0,
                       crossAxisSpacing: 0.0,
                       physics: NeverScrollableScrollPhysics(),
-                      childAspectRatio: MediaQuery.of(context).orientation == Orientation.portrait
-            ? 2.2
-            : 4.2,
+                      childAspectRatio: MediaQuery.of(context).orientation ==
+                              Orientation.portrait
+                          ? 2.2
+                          : 4.2,
                       children: listItem.map(
                         (item) {
                           var children2 = <Widget>[
                             Container(
-                              
                               child: Column(
                                 children: <Widget>[
                                   Padding(
@@ -464,9 +502,15 @@ class _DetailState extends State<Detail> {
                                             children: <Widget>[
                                               Padding(
                                                 padding: const EdgeInsets.only(
-                                                    left: 0.0,top: 0.0,),
+                                                  left: 0.0,
+                                                  top: 0.0,
+                                                ),
                                                 child: Text(
-                                                    item.totalharga == null || item.totalharga.toString() == '0.00' ? "Total : Rp. 0.00"
+                                                    item.totalharga == null ||
+                                                            item.totalharga
+                                                                    .toString() ==
+                                                                '0.00'
+                                                        ? "Total : Rp. 0.00"
                                                         : "Total : " +
                                                             _numberFormat.format(
                                                                 double.parse(item
@@ -504,7 +548,8 @@ class _DetailState extends State<Detail> {
                                                     } else {
                                                       try {
                                                         var post = http.post(
-                                                            prefix0.url('api/addCartAndroid'),
+                                                            prefix0.url(
+                                                                'api/addCartAndroid'),
                                                             headers:
                                                                 requestHeaders,
                                                             body: {
@@ -514,7 +559,8 @@ class _DetailState extends State<Detail> {
                                                               'cart_location':
                                                                   stockiesX,
                                                             });
-                                                        final adcart = await post;
+                                                        final adcart =
+                                                            await post;
 
                                                         if (adcart.statusCode ==
                                                             200) {
@@ -527,15 +573,30 @@ class _DetailState extends State<Detail> {
                                                             showInSnackBar(
                                                                 '${item.nama} berhasil dimasukkan ke keranjang');
                                                           } else if (addcartJson[
-                                                                  'error'] ==
-                                                              'stock') {
+                                                                  'status'] ==
+                                                              'minbeli') {
                                                             showInSnackBar(
-                                                                'Stock ${item.nama} tersisa ${addcartJson['stock']}');
+                                                                '${addcartJson['minbuy']}');
+                                                          } else if (addcartJson[
+                                                                  'status'] ==
+                                                              'stockkurangminbeli') {
+                                                            showInSnackBar(
+                                                                '${addcartJson['message']}');
+                                                          } else if (addcartJson[
+                                                                  'status'] ==
+                                                              'maxstock') {
+                                                            showInSnackBar(
+                                                                '${addcartJson['messagestock']}');
                                                           } else if (addcartJson[
                                                                   'error'] ==
                                                               'error') {
                                                             showInSnackBar(
                                                                 '${item.nama} sudah ada dikeranjang');
+                                                          } else if (addcartJson[
+                                                                  'error'] ==
+                                                              'Berat Barang Belum Di Set') {
+                                                            showInSnackBar(
+                                                                'Mohon Maaf, berat barang belum disetting');
                                                           }
                                                         } else {
                                                           print(
@@ -601,7 +662,9 @@ class _DetailState extends State<Detail> {
                                                   ),
                                                 ),
                                               ),
-                                              item.hargadiskon.toString() == '0.00' || item.hargadiskon == null
+                                              item.hargadiskon.toString() ==
+                                                          '0.00' ||
+                                                      item.hargadiskon == null
                                                   ? Container(
                                                       height: 30.0,
                                                       padding: EdgeInsets.only(
@@ -612,7 +675,11 @@ class _DetailState extends State<Detail> {
                                                       child: Row(
                                                         children: <Widget>[
                                                           Text(
-                                                              item.hargasales == null || item.hargasales.toString() == '0.00'
+                                                              item.hargasales ==
+                                                                          null ||
+                                                                      item.hargasales
+                                                                              .toString() ==
+                                                                          '0.00'
                                                                   ? 'Rp. 0.00'
                                                                   : _numberFormat.format(
                                                                       double.parse(item
@@ -629,13 +696,20 @@ class _DetailState extends State<Detail> {
                                                       padding: EdgeInsets.only(
                                                           left: 0.0, top: 10.0),
                                                     ),
-                                              item.hargadiskon == null || item.hargadiskon.toString() == '0.00'
+                                              item.hargadiskon == null ||
+                                                      item.hargadiskon
+                                                              .toString() ==
+                                                          '0.00'
                                                   ? Container(
                                                       height: 30.0,
                                                       child: Row(
                                                         children: <Widget>[
                                                           Text(
-                                                              item.hargasales == null || item.hargasales.toString() == '0.00'
+                                                              item.hargasales ==
+                                                                          null ||
+                                                                      item.hargasales
+                                                                              .toString() ==
+                                                                          '0.00'
                                                                   ? 'Rp. 0.00'
                                                                   : _numberFormat.format(
                                                                       double.parse(item
@@ -668,14 +742,15 @@ class _DetailState extends State<Detail> {
                                                       child: Row(
                                                         children: <Widget>[
                                                           Text(
-                                                              item.hargadiskon.toString() == '0.00' || item.hargadiskon == null
+                                                              item.hargadiskon.toString() ==
+                                                                          '0.00' ||
+                                                                      item.hargadiskon ==
+                                                                          null
                                                                   ? 'Rp. 0.00'
                                                                   : _numberFormat.format(double.parse(item
                                                                           .hargasales
                                                                           .toString()) -
-                                                                      (double.parse(item
-                                                                              .hargadiskon
-                                                                              .toString()) /
+                                                                      (double.parse(item.hargadiskon.toString()) /
                                                                           int.parse(item
                                                                               .qty))),
                                                               style: TextStyle(
@@ -713,7 +788,6 @@ class _DetailState extends State<Detail> {
                           return Container(
                             decoration: BoxDecoration(
                               border: Border.all(color: Colors.transparent),
-                              
                             ),
                             // padding: const EdgeInsets.all(10.0),
                             // margin: EdgeInsets.all(5.0),
@@ -728,9 +802,9 @@ class _DetailState extends State<Detail> {
                       ).toList(),
                     ),
                   ),
-          ],
-        ),
-      ),
+                ],
+              ),
+            ),
       floatingActionButton: InkWell(
         onTap: () {
           _confirmationModalBottomSheet(context);
@@ -744,13 +818,17 @@ class _DetailState extends State<Detail> {
             borderRadius: new BorderRadius.circular(23.0),
           ),
           child: Center(
-            child: loading == true ? CircularProgressIndicator(backgroundColor: Colors.white,) : Text(
-              _image != null ? 'Upload Sekarang' : 'Kirim Foto',
-              style: new TextStyle(
-                  fontFamily: 'TitilliumWeb',
-                  fontSize: 14.0,
-                  color: Colors.white),
-            ),
+            child: loading == true
+                ? CircularProgressIndicator(
+                    backgroundColor: Colors.white,
+                  )
+                : Text(
+                    _image != null ? 'Upload Sekarang' : 'Kirim Foto',
+                    style: new TextStyle(
+                        fontFamily: 'TitilliumWeb',
+                        fontSize: 14.0,
+                        color: Colors.white),
+                  ),
           ),
         ),
       ),
@@ -758,8 +836,7 @@ class _DetailState extends State<Detail> {
   }
 
   void _confirmationModalBottomSheet(context) {
-    this.setState((){
-    });
+    this.setState(() {});
     showModalBottomSheet(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
@@ -788,17 +865,17 @@ class _DetailState extends State<Detail> {
                     margin: EdgeInsets.only(top: 2),
                     child: Align(
                       alignment: Alignment.topLeft,
-                      child: _image != null ? 
-                      new Text(
-                        "Gambar Telah Dipilih",
-                        style: TextStyle(
-                            fontFamily: 'TitilliumWeb', fontSize: 14.0),
-                      ) 
-                      : new Text(
-                        "Gambar Belum Dipilih",
-                        style: TextStyle(
-                            fontFamily: 'TitilliumWeb', fontSize: 14.0),
-                      ),
+                      child: _image != null
+                          ? new Text(
+                              "Gambar Telah Dipilih",
+                              style: TextStyle(
+                                  fontFamily: 'TitilliumWeb', fontSize: 14.0),
+                            )
+                          : new Text(
+                              "Gambar Belum Dipilih",
+                              style: TextStyle(
+                                  fontFamily: 'TitilliumWeb', fontSize: 14.0),
+                            ),
                     ),
                   ),
                   SizedBox(
@@ -814,7 +891,7 @@ class _DetailState extends State<Detail> {
                           height: 40.0,
                           width: 80.0,
                           child: RaisedButton(
-                            onPressed:(){
+                            onPressed: () {
                               setState(() {
                                 loading = true;
                               });
@@ -835,13 +912,13 @@ class _DetailState extends State<Detail> {
                         Container(
                           height: 40.0,
                           child: RaisedButton(
-                            onPressed:(){
+                            onPressed: () {
                               setState(() {
                                 loading = true;
                               });
                               getimagecamera();
                               Navigator.pop(context);
-                            }  ,
+                            },
                             color: Colors.transparent,
                             elevation: 0.0,
                             child: Text("Ambil Foto",
@@ -857,29 +934,32 @@ class _DetailState extends State<Detail> {
                         SizedBox(
                           width: 10.0,
                         ),
-                        _image == null ? 
-                        Container() : Container(
-                          height: 40.0,
-                          child: RaisedButton(
-                            onPressed: (){
-                              setState(() {
-                                loading = true;
-                              });
-                              upload(_image);
-                              Navigator.pop(context);
-                            } ,
-                            color: Colors.transparent,
-                            elevation: 0.0,
-                            child: Text("Upload",
-                                style: TextStyle(
-                                    fontFamily: 'TitilliumWeb',
-                                    fontSize: 16.0,
-                                    color: Color(0xff31B057))),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: new BorderRadius.circular(2.0),
-                                side: BorderSide(color: Color(0xff31B057))),
-                          ),
-                        ),
+                        _image == null
+                            ? Container()
+                            : Container(
+                                height: 40.0,
+                                child: RaisedButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      loading = true;
+                                    });
+                                    upload(_image);
+                                    Navigator.pop(context);
+                                  },
+                                  color: Colors.transparent,
+                                  elevation: 0.0,
+                                  child: Text("Upload",
+                                      style: TextStyle(
+                                          fontFamily: 'TitilliumWeb',
+                                          fontSize: 16.0,
+                                          color: Color(0xff31B057))),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                          new BorderRadius.circular(2.0),
+                                      side:
+                                          BorderSide(color: Color(0xff31B057))),
+                                ),
+                              ),
                       ],
                     ),
                   )

@@ -504,14 +504,23 @@ class ProductDetailState extends State<ProductDetail> {
                                             if (addcartJson['done'] == 'done') {
                                               showInSnackBar(
                                                   '$itemX berhasil dimasukkan ke keranjang');
-                                            } else if (addcartJson['error'] ==
-                                                'stock') {
+                                            }else if(addcartJson['status'] == 'minbeli'){
                                               showInSnackBar(
-                                                  'Stock $itemX tersisa ${addcartJson['stock']}');
+                                                  '${addcartJson['minbuy']}');
+                                            } else if (addcartJson['status'] ==
+                                                'stockkurangminbeli') {
+                                              showInSnackBar(
+                                                  '${addcartJson['message']}');
+                                            }else if(addcartJson['status'] == 'maxstock'){
+                                              showInSnackBar(
+                                                  '${addcartJson['messagestock']}');
                                             } else if (addcartJson['error'] ==
                                                 'error') {
                                               showInSnackBar(
                                                   '$itemX sudah ada dikeranjang');
+                                            }else if(addcartJson['error'] == 'Berat Barang Belum Di Set'){
+                                              showInSnackBar(
+                                                  'Mohon Maaf, berat barang belum disetting');
                                             }
                                           } else {
                                             print('${adcart.body}');
