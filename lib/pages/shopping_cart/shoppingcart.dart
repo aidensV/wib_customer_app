@@ -107,6 +107,7 @@ class _KeranjangState extends State<Keranjang> {
             id: '${i['cart_id']}',
             item: i['i_name'],
             harga: i['ipr_sunitprice'],
+            codeproduk: i['cart_ciproduct'].toString(),
             type: i['ity_name'],
             image: i['ip_path'],
             jumlah: i['cart_qty'].toString(),
@@ -565,7 +566,8 @@ class _KeranjangState extends State<Keranjang> {
                                                                         headers: requestHeaders,
                                                                         body: {
                                                                           'id_keranjang':
-                                                                              idX
+                                                                              idX,
+                                                                          'code_produk' : listNota[index].codeproduk,
                                                                         });
 
                                                                     if (kurangqty
@@ -576,22 +578,43 @@ class _KeranjangState extends State<Keranjang> {
                                                                               kurangqty.body);
                                                                       if (kurangqtyJson[
                                                                               'status'] ==
-                                                                          'Success') {
-                                                                        setState(
-                                                                            () {
-                                                                          int currentValue = int.parse(listNota[index].jumlah == null
-                                                                              ? '0'
-                                                                              : listNota[index].jumlah);
+                                                                          'success') {
+                                                                          
                                                                           setState(
                                                                               () {
-                                                                            currentValue--;
-                                                                            listNota[index].jumlah =
-                                                                                (currentValue).toString();
-                                                                            listNota[index].qtyinput.text =
-                                                                                (currentValue).toString();
-                                                                            totalhargaget();
+                                                                            listNota[index].jumlah = "${kurangqtyJson['qtysuccess']}";
+                                                                            listNota[index].qtyinput.text ="${kurangqtyJson['qtysuccess']}";
                                                                           });
-                                                                        });
+
+                                                                          totalhargaget();
+                                                                        
+                                                                      }else if(kurangqtyJson['status'] == 'stockkurangminbeli'){
+                                                                        showInSnackBar('${kurangqtyJson['message']}');
+                                                                        setState(
+                                                                              () {
+                                                                            listNota[index].jumlah = "${kurangqtyJson['stockkrgminbeliqty']}";
+                                                                            listNota[index].qtyinput.text ="${kurangqtyJson['stockkrgminbeliqty']}";
+                                                                          });
+
+                                                                          totalhargaget();
+
+                                                                      }else if(kurangqtyJson['status'] == 'minbeli'){
+                                                                        showInSnackBar('${kurangqtyJson['messageminbeli']}');
+                                                                        setState(
+                                                                              () {
+                                                                            listNota[index].jumlah = "${kurangqtyJson['minbeliqty']}";
+                                                                            listNota[index].qtyinput.text ="${kurangqtyJson['minbeliqty']}";
+                                                                          });
+                                                                          totalhargaget();
+                                                                      }else if(kurangqtyJson['status'] == 'maxstock'){
+                                                                        showInSnackBar('${kurangqtyJson['messagestock']}');
+                                                                        setState(
+                                                                              () {
+                                                                            listNota[index].jumlah = "${kurangqtyJson['stockqty']}";
+                                                                            listNota[index].qtyinput.text ="${kurangqtyJson['stockqty']}";
+                                                                          });
+                                                                          totalhargaget();
+
                                                                       } else if (kurangqtyJson[
                                                                               'status'] ==
                                                                           'Error') {
@@ -601,6 +624,7 @@ class _KeranjangState extends State<Keranjang> {
                                                                     } else {
                                                                       showInSnackBar(
                                                                           'Request failed with status: ${kurangqty.statusCode}');
+                                                                        print('${kurangqty.body}');
                                                                     }
                                                                   } on TimeoutException catch (_) {
                                                                     showInSnackBar(
@@ -646,10 +670,11 @@ class _KeranjangState extends State<Keranjang> {
                                                                           url('api/updateQtyKeranjangAndroid'),
                                                                           headers: requestHeaders,
                                                                           body: {
-                                                                        'id_keranjang':
+                                                                        'produk':
                                                                             idX,
-                                                                        'qty':
-                                                                            jumlah
+                                                                        'qtyupdate':
+                                                                            jumlah,
+                                                                          'code_produk' : listNota[index].codeproduk,
                                                                       });
                                                                   if (tambahqty
                                                                           .statusCode ==
@@ -659,42 +684,55 @@ class _KeranjangState extends State<Keranjang> {
                                                                             tambahqty.body);
                                                                     if (tambahqtyJson[
                                                                             'status'] ==
-                                                                        'Success') {
-                                                                      print(tambahqty
-                                                                          .body);
+                                                                        'success') {
+                                                                      totalhargaget();
                                                                       setState(
                                                                           () {
                                                                         listNota[index].jumlah =
                                                                             jumlah;
-                                                                        if (text.length ==
-                                                                            0) {
-                                                                          listNota[index]
-                                                                              .qtyinput
-                                                                              .text = '1';
-                                                                        }
+                                                                        
                                                                       });
-                                                                      totalhargaget();
+                                                                      
                                                                     } else if (tambahqtyJson[
                                                                             'status'] ==
-                                                                        'Stock') {
+                                                                        'stockkurangminbeli') {
                                                                       totalhargaget();
                                                                       showInSnackBar(
-                                                                          'Stock Gudang Tinggal ${tambahqtyJson['stock']}');
+                                                                          '${tambahqtyJson['message']}');
                                                                       setState(
                                                                           () {
                                                                         listNota[index]
                                                                             .qtyinput
-                                                                            .text = "${tambahqtyJson['stock']}";
+                                                                            .text = "${tambahqtyJson['stockkrgminbeliqty']}";
                                                                         listNota[index].jumlah =
-                                                                            '${tambahqtyJson['stock']}';
+                                                                            '${tambahqtyJson['stockkrgminbeliqty']}';
                                                                       });
                                                                     } else if (tambahqtyJson[
                                                                             'status'] ==
-                                                                        'Error') {
+                                                                        'minbeli') {
+                                                                      totalhargaget();
                                                                       showInSnackBar(
-                                                                          'Request failed with status: ${tambahqty.statusCode}');
-                                                                      print(tambahqty
-                                                                          .body);
+                                                                          '${tambahqtyJson['minbeliqty']}');
+                                                                          setState(
+                                                                          () {
+                                                                        listNota[index]
+                                                                            .qtyinput
+                                                                            .text = "${tambahqtyJson['qty']}";
+                                                                        listNota[index].jumlah =
+                                                                            '${tambahqtyJson['qty']}';
+                                                                      });
+                                                                    }else if(tambahqtyJson['status'] == 'maximalstock'){
+                                                                      totalhargaget();
+                                                                      showInSnackBar(
+                                                                          '${tambahqtyJson['messagestock']}');
+                                                                          setState(
+                                                                          () {
+                                                                        listNota[index]
+                                                                            .qtyinput
+                                                                            .text = "${tambahqtyJson['qtymaxstock']}";
+                                                                        listNota[index].jumlah =
+                                                                            '${tambahqtyJson['qtymaxstock']}';
+                                                                      });
                                                                     }
                                                                   } else {
                                                                     showInSnackBar(
@@ -742,7 +780,8 @@ class _KeranjangState extends State<Keranjang> {
                                                                           headers: requestHeaders,
                                                                           body: {
                                                                         'id_keranjang':
-                                                                            idX
+                                                                              idX,
+                                                                          'code_produk' : listNota[index].codeproduk,
                                                                       });
 
                                                                   if (tambahqty
@@ -752,43 +791,50 @@ class _KeranjangState extends State<Keranjang> {
                                                                         json.decode(
                                                                             tambahqty.body);
                                                                     if (tambahqtyJson[
-                                                                            'status'] ==
-                                                                        'Success') {
-                                                                      int currentValue = int.parse(listNota[index].jumlah ==
-                                                                              null
-                                                                          ? 0
-                                                                          : listNota[index]
-                                                                              .jumlah);
-                                                                      setState(
-                                                                          () {
-                                                                        currentValue++;
-                                                                        listNota[index].jumlah =
-                                                                            (currentValue).toString();
-                                                                        listNota[index]
-                                                                            .qtyinput
-                                                                            .text = (currentValue).toString();
-                                                                        totalhargaget();
-                                                                      });
-                                                                    } else if (tambahqtyJson[
-                                                                            'status'] ==
-                                                                        'Stock') {
-                                                                      totalhargaget();
-                                                                      showInSnackBar(
-                                                                          'Stock Gudang Tinggal ${tambahqtyJson['stock']}');
-                                                                      setState(
-                                                                          () {
-                                                                        listNota[index]
-                                                                            .qtyinput
-                                                                            .text = "${tambahqtyJson['stock']}";
-                                                                        listNota[index].jumlah =
-                                                                            '${tambahqtyJson['stock']}';
-                                                                      });
-                                                                    } else if (tambahqtyJson[
-                                                                            'status'] ==
-                                                                        'Error') {
-                                                                      showInSnackBar(
-                                                                          'Gagal! Hubungi pengembang software!');
-                                                                    }
+                                                                              'status'] ==
+                                                                          'success') {
+                                                                          
+                                                                          setState(
+                                                                              () {
+                                                                            listNota[index].jumlah = "${tambahqtyJson['qtysuccess']}";
+                                                                            listNota[index].qtyinput.text ="${tambahqtyJson['qtysuccess']}";
+                                                                          });
+
+                                                                          totalhargaget();
+                                                                        
+                                                                      }else if(tambahqtyJson['status'] == 'stockkurangminbeli'){
+                                                                        showInSnackBar('${tambahqtyJson['message']}');
+                                                                        setState(
+                                                                              () {
+                                                                            listNota[index].jumlah = "${tambahqtyJson['stockkrgminbeliqty']}";
+                                                                            listNota[index].qtyinput.text ="${tambahqtyJson['stockkrgminbeliqty']}";
+                                                                          });
+
+                                                                          totalhargaget();
+
+                                                                      }else if(tambahqtyJson['status'] == 'minbeli'){
+                                                                        showInSnackBar('${tambahqtyJson['messageminbeli']}');
+                                                                        setState(
+                                                                              () {
+                                                                            listNota[index].jumlah = "${tambahqtyJson['minbeliqty']}";
+                                                                            listNota[index].qtyinput.text ="${tambahqtyJson['minbeliqty']}";
+                                                                          });
+                                                                          totalhargaget();
+                                                                      }else if(tambahqtyJson['status'] == 'maxstock'){
+                                                                        showInSnackBar('${tambahqtyJson['messagestock']}');
+                                                                        setState(
+                                                                              () {
+                                                                            listNota[index].jumlah = "${tambahqtyJson['stockqty']}";
+                                                                            listNota[index].qtyinput.text ="${tambahqtyJson['stockqty']}";
+                                                                          });
+                                                                          totalhargaget();
+
+                                                                      } else if (tambahqtyJson[
+                                                                              'status'] ==
+                                                                          'Error') {
+                                                                        showInSnackBar(
+                                                                            'Gagal! Hubungi pengembang software!');
+                                                                      }
                                                                   } else {
                                                                     showInSnackBar(
                                                                         'Request failed with status: ${tambahqty.statusCode}');
@@ -883,15 +929,18 @@ class _KeranjangState extends State<Keranjang> {
                           //     MaterialPageRoute(
                           //       builder: (context) => Checkout(),
                           //     ));
-                        } else if (tambahqtyJson['status'] == 'Error') {
-                          showInSnackBar('Gagal! Hubungi pengembang software!');
-                        } else if (tambahqtyJson['status'] == 'Kosong') {
-                          showInSnackBar('Anda tidak memiliki item untuk checkout');
-                          MyNavigator.goToDashboard(context);
+
+                        } else if (tambahqtyJson['status'] == 'failed') {
+
+                          for (int i = 0; i < tambahqtyJson['namaproduk'].length; i++) {
+                            showInSnackBar('${tambahqtyJson['namaproduk'][i]} Jumlahnya 0');  
+                          }
+                          
                         }
                       } else {
                         showInSnackBar(
                             'Request failed with status: ${tambahqty.statusCode}');
+                        print('${tambahqty.body}');
                       }
                     } on TimeoutException catch (_) {
                       showInSnackBar('Timed out, Try again');
@@ -928,6 +977,7 @@ class ListKeranjang {
   final String item;
   final String harga;
   final String type;
+  final String codeproduk;
   final String image;
   String jumlah;
   final String satuan;
@@ -942,6 +992,7 @@ class ListKeranjang {
       this.image,
       this.jumlah,
       this.satuan,
+      this.codeproduk,
       this.total,
       this.qtyinput,
       this.hargadiskon});
