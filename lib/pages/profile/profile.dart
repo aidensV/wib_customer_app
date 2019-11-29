@@ -1,6 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_image/network.dart';
+import 'package:wib_customer_app/env.dart';
 import 'package:wib_customer_app/pages/account/setting.dart';
 
 import 'package:wib_customer_app/storage/storage.dart';
@@ -487,6 +489,8 @@ class _ProfilePage extends State<ProfilePage>{
   String _username;
   String _name;
   String _email;
+class _ProfilePageState extends State<ProfilePage> {
+  String _username, _name, _email, imageprofile;
 
   int _currentIndex = 2;
   void onTabTapped(int index) {
@@ -513,6 +517,7 @@ class _ProfilePage extends State<ProfilePage>{
     _username = await dataStore.getDataString("username");
     _name = await dataStore.getDataString("name");
     _email = await dataStore.getDataString("email");
+    imageprofile = await dataStore.getDataString('image');
 
     this.setState(() {});
   }
@@ -548,15 +553,15 @@ class _ProfilePage extends State<ProfilePage>{
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        new Container(
-                            width: 50.0,
-                            height: 50.0,
-                            decoration: new BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: new DecorationImage(
-                                    fit: BoxFit.fill,
-                                    image:
-                                        new AssetImage("images/jisoocu.jpg")))),
+                        CircleAvatar(
+                          child: ClipOval(
+                            child: Image(
+                              image: NetworkImageWithRetry(
+                                url('storage/image/member/profile/$imageprofile'),
+                              ),
+                            ),
+                          ),
+                        ),
                         Container(
                           child: Text(
                             "Edit foto",
