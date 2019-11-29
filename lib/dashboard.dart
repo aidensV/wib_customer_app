@@ -283,8 +283,14 @@ class _DashboardPageState extends State<DashboardPage>
                 // This how you set profil image in sidebar
                 // Remeber to add image first in pubspec.yaml
                 currentAccountPicture: CircleAvatar(
-                  backgroundImage: imageprofile != null
-                      ? AssetImage('images/jisoocu.jpg')
+                  child: imageprofile != null
+                      ? ClipOval(
+                          child: Image(
+                            image: NetworkImageWithRetry(
+                              url('storage/image/member/profile/$imageprofile'),
+                            ),
+                          ),
+                        )
                       : AssetImage('images/jisoocu.jpg'),
                 ),
                 // This how you set color in top of sidebar
@@ -482,7 +488,7 @@ class _DashboardPageState extends State<DashboardPage>
                                         ]
                                       : listBannerBasic
                                           .map((ListBanner f) => Container(
-                                            padding:EdgeInsets.all(5.0),
+                                                padding: EdgeInsets.all(5.0),
                                                 child: Image(
                                                   image: NetworkImageWithRetry(
                                                     urladmin(
