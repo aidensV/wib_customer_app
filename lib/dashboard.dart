@@ -62,7 +62,7 @@ class _DashboardPageState extends State<DashboardPage>
   PageController pageController;
 
   // String _username;
-  String usernameprofile, emailprofile, imageprofile;
+  String usernameprofile, emailprofile, imageprofile, namaCustomer;
 
   final List<Widget> _children = [
     null,
@@ -118,6 +118,7 @@ class _DashboardPageState extends State<DashboardPage>
     DataStore storage = new DataStore();
 
     usernameprofile = await storage.getDataString("username");
+    namaCustomer = await storage.getDataString("name");
     emailprofile = await storage.getDataString('email');
     imageprofile = await storage.getDataString('image');
   }
@@ -277,7 +278,7 @@ class _DashboardPageState extends State<DashboardPage>
               UserAccountsDrawerHeader(
                 // Below this my gf name :))))), jk
                 accountName: Text(
-                    usernameprofile == null ? 'Nama Lengkap' : usernameprofile),
+                    namaCustomer == null ? 'Nama Lengkap' : namaCustomer),
                 accountEmail:
                     Text(emailprofile == null ? 'Email Anda' : emailprofile),
                 // This how you set profil image in sidebar
@@ -291,7 +292,7 @@ class _DashboardPageState extends State<DashboardPage>
                             ),
                           ),
                         )
-                      : AssetImage('images/jisoocu.jpg'),
+                      : Image.asset('images/jisoocu.jpg'),
                 ),
                 // This how you set color in top of sidebar
                 decoration: BoxDecoration(
@@ -386,6 +387,7 @@ class _DashboardPageState extends State<DashboardPage>
                       onRefresh: () async {
                         listBannerAndroid();
                         pagewiseLoadControllerVertical.reset();
+                        pageWiseLoadControllerHorizontal.reset();
                         await Future.value({});
                       },
                       child: ListView(
@@ -410,37 +412,31 @@ class _DashboardPageState extends State<DashboardPage>
                                         child: CircularProgressIndicator(),
                                       ),
                                     )
-                                  : Padding(
-                                      padding: EdgeInsets.only(top: 70.0),
-                                      child: carouselSlider = CarouselSlider(
-                                        height: 100.0,
-                                        initialPage: 0,
-                                        enlargeCenterPage: true,
-                                        autoPlay: true,
-                                        reverse: false,
-                                        enableInfiniteScroll: true,
-                                        autoPlayInterval: Duration(seconds: 5),
-                                        autoPlayAnimationDuration:
-                                            Duration(milliseconds: 2000),
-                                        pauseAutoPlayOnTouch:
-                                            Duration(seconds: 10),
-                                        scrollDirection: Axis.horizontal,
-                                        onPageChanged: (index) {
-                                          setState(() {
-                                            _current = index;
-                                          });
-                                        },
-                                        items: listBannerSlider.length == 0
-                                            ? <Widget>[
-                                                Image(
-                                                  image: NetworkImageWithRetry(
-                                                    url(
-                                                      'assets/img/noimage.jpg',
-                                                    ),
-                                                  ),
-                                                ),
-                                              ]
-                                            : listBannerSlider
+                                  : listBannerSlider.length == 0
+                                      ? Container()
+                                      : Padding(
+                                          padding: EdgeInsets.only(top: 70.0),
+                                          child: carouselSlider =
+                                              CarouselSlider(
+                                            height: 100.0,
+                                            initialPage: 0,
+                                            enlargeCenterPage: true,
+                                            autoPlay: true,
+                                            reverse: false,
+                                            enableInfiniteScroll: true,
+                                            autoPlayInterval:
+                                                Duration(seconds: 5),
+                                            autoPlayAnimationDuration:
+                                                Duration(milliseconds: 2000),
+                                            pauseAutoPlayOnTouch:
+                                                Duration(seconds: 10),
+                                            scrollDirection: Axis.horizontal,
+                                            onPageChanged: (index) {
+                                              setState(() {
+                                                _current = index;
+                                              });
+                                            },
+                                            items: listBannerSlider
                                                 .map(
                                                   (ListBanner
                                                           listBannerSlider) =>
@@ -465,41 +461,35 @@ class _DashboardPageState extends State<DashboardPage>
                                                   ),
                                                 )
                                                 .toList(),
+                                          ),
+                                        ),
+                              listBannerBasic.length == 0
+                                  ? Container()
+                                  : Container(
+                                      margin: EdgeInsets.only(
+                                        top: 180.0,
+                                        bottom: 30.0,
+                                        left: 10.0,
+                                        right: 10.0,
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: listBannerBasic
+                                            .map((ListBanner f) => Container(
+                                                  padding: EdgeInsets.all(5.0),
+                                                  child: Image(
+                                                    image:
+                                                        NetworkImageWithRetry(
+                                                      urladmin(
+                                                          'storage/image/master/banner/${f.banner}'),
+                                                    ),
+                                                    height: 200.0,
+                                                  ),
+                                                ))
+                                            .toList(),
                                       ),
                                     ),
-                              Container(
-                                margin: EdgeInsets.only(
-                                  top: 180.0,
-                                  bottom: 30.0,
-                                  left: 10.0,
-                                  right: 10.0,
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: listBannerBasic.length == 0
-                                      ? <Widget>[
-                                          Image(
-                                            image: NetworkImageWithRetry(
-                                              url(
-                                                'assets/img/noimage.jpg',
-                                              ),
-                                            ),
-                                          ),
-                                        ]
-                                      : listBannerBasic
-                                          .map((ListBanner f) => Container(
-                                                padding: EdgeInsets.all(5.0),
-                                                child: Image(
-                                                  image: NetworkImageWithRetry(
-                                                    urladmin(
-                                                        'storage/image/master/banner/${f.banner}'),
-                                                  ),
-                                                  height: 200.0,
-                                                ),
-                                              ))
-                                          .toList(),
-                                ),
-                              ),
                               Padding(
                                 padding:
                                     EdgeInsets.only(left: 38.0, top: 158.0),
