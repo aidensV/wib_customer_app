@@ -4,6 +4,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:wib_customer_app/notification_service/notification_service.dart';
 import 'package:wib_customer_app/pages/account/account.dart';
 import 'package:wib_customer_app/pages/account/setting.dart';
+import 'package:wib_customer_app/pages/profile/edit_profile.dart';
 
 // Remember import flutter/material package first
 import 'dashboard.dart';
@@ -39,7 +40,7 @@ Map<String, WidgetBuilder> routesX = <String, WidgetBuilder>{
   '/profile': (BuildContext context) => ProfilePage(),
   '/account': (BuildContext context) => Account(),
   '/settingprofile': (BuildContext context) => SettingProfile(),
-  "/test": (BuildContext context) => TestCode()
+  "/test": (BuildContext context) => TestCode(),
 };
 
 // void backgroundFetchHeadlessTask() async {
