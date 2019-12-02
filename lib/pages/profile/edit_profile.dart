@@ -5,7 +5,7 @@ import 'package:wib_customer_app/env.dart';
 import 'package:http/http.dart' as http;
 import 'package:async/async.dart';
 import 'package:path/path.dart';
-
+// import 'package:wib_customer_app/env.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -174,7 +174,66 @@ class _EditProfile extends State<EditProfile>{
     return null;
   }
 
+  getdata(context) async {
+      var storage = new DataStore();
+      var tokenTypeStorage = await storage.getDataString('token_type');
+      var accessTokenStorage = await storage.getDataString('access_token');
+
+      tokenType = tokenTypeStorage;
+      accessToken = accessTokenStorage;
+      requestHeaders['Accept'] = 'application/json';
+      requestHeaders['Authorization'] = '$tokenType $accessToken';
+      
+        try {
+          final getUser =
+              await http.get("https://warungislamibogor-store.alamraya.site/api/getDataUser", headers: requestHeaders);
+          // print('getUser ' + getUser.body);
+
+          if (getUser.statusCode == 200) {
+            dynamic datauser = json.decode(getUser.body);
+
+            DataStore store = new DataStore();
+
+            // store.setDataInteger("user_id", int.parse(datajson['user']["u_id"]));
+            store.setDataInteger("id", datauser['cm_id']);
+            store.setDataString("username", datauser['cm_username']);
+            store.setDataString("name", datauser['cm_name']);
+            store.setDataString("email", datauser['cm_email']);
+            store.setDataString("image", datauser['cm_path']);
+            store.setDataString("gender", datauser['cm_gender']);
+            store.setDataString("phone", datauser['cm_nphone']);
+            store.setDataString("alamat", datauser['cm_address']);
+            store.setDataString("province", datauser['cm_province']);
+            store.setDataString("city", datauser['cm_city']);
+            store.setDataString("district", datauser['cm_district']);
+            store.setDataString("nbank", datauser['cm_nbank']);
+            store.setDataString("bank", datauser['cm_bank']);
+            store.setDataString("postalcode", datauser['cm_postalcode']);
+            store.setDataString("tempatlahir", datauser['cm_cityborn']);
+            store.setDataString("lahir", datauser['cm_born']);
+            store.setDataString("namaprovinsi", datauser['p_nama']);
+            store.setDataString("namakota", datauser['c_nama']);
+            store.setDataString("namadesa", datauser['d_nama']);
+
+            print(datauser);
+            // print('statement else is true');
+            // print(datauser);
+            Navigator.pop(context);
+          } else {
+            showInSnackBar('Request failed with status: ${getUser.statusCode}');
+          }
+        } on SocketException catch (_) {
+          showInSnackBar('Connection Timed Out');
+        } catch (e) {
+          print(e);
+          // showInSnackBar(e);
+        }
+      }
+
   Future upload(File imageFile) async {
+    setState(() {
+    loading = true;      
+    });
     var storage = new DataStore();
 
     var tokenTypeStorage = await storage.getDataString('token_type');
@@ -205,6 +264,7 @@ class _EditProfile extends State<EditProfile>{
     request.fields['tampat_lahir'] = tempatlahircontroller.text ;
     request.fields['tanggal_lahir'] = lahir ;
     request.files.add(kirimfile);
+
     var response = await request.send();
     print(response.statusCode);
     final respStr = await response.stream.bytesToString();
@@ -213,12 +273,19 @@ class _EditProfile extends State<EditProfile>{
       if (resp['error'] != null) {
         print((resp['error']).toString());
       } else {
+        getdata(context);
         print('Berhasil');
         setState(() {
           loading = false;
         });
       }
+      setState(() {
+        loading = false;      
+      });
     } else {
+      setState(() {
+        loading = false;      
+      });
       var i = response.statusCode;
       print(resp);
       print('gambar gagal di upload code $i');
@@ -242,7 +309,9 @@ class _EditProfile extends State<EditProfile>{
         title: Text('Ubah Profile'),
         backgroundColor: Color.fromRGBO(43, 204, 86, 1),
       ),
-      body: LayoutBuilder(
+      body: loading
+          ? Center(child: CircularProgressIndicator())
+          : LayoutBuilder(
         builder: (BuildContext context, BoxConstraints viewportConstraints){
           return SingleChildScrollView(
             child: SafeArea(
@@ -464,7 +533,7 @@ class _EditProfile extends State<EditProfile>{
                       child: ListTile(
                         leading: Icon(FontAwesomeIcons.mapMarked, color: Colors.green),
                         title: TextField(
-                          controller: addresscontroller,
+                          controller: postalcodecontroller,
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
                             labelText: 'Kode Pos',
