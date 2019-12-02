@@ -1,13 +1,13 @@
 // The point below all this thing just for setting api, ty
 // Regard Previous Programmer
   // Online
-   String host = 'https://warungislamibogor-store.alamraya.site/';
-   String hostadmin = 'https://warungislamibogor.alamraya.site/';
-   String clientSecret = '0zxvmtgG2PkVw0NfQ0HwxjKYHVbhoaFBZyDlmJEp';
+  //  String host = 'https://warungislamibogor-store.alamraya.site/';
+  //  String hostadmin = 'https://warungislamibogor.alamraya.site/';
+  //  String clientSecret = '0zxvmtgG2PkVw0NfQ0HwxjKYHVbhoaFBZyDlmJEp';
 
 // local Ari
-// String host = 'http://192.168.100.8/git/warungislamibogor_shop/';
-// String hostadmin = 'http://192.168.100.8/git/warungislamibogor/';
+String host = 'http://192.168.100.13/git/warungislamibogor_shop/';
+String hostadmin = 'http://192.168.100.13/git/warungislamibogor/';
 
 // local bakhrul
 // String host = 'http://192.168.43.115/warungislamibogor_shop/';
