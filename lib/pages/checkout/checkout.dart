@@ -15,11 +15,13 @@ import 'model.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_image/network.dart';
 import '../../dashboard.dart';
+
 List<ListCheckout> listNota = [];
 String tokenType,
     accessToken,
     checkboxnoongkir,
     checkboxongkirsaldo,
+    checkboxbayartempo,
     checkboxtotalsaldo;
 var _scaffoldKeyX;
 Map<String, String> requestHeaders = Map();
@@ -28,7 +30,7 @@ Map<String, dynamic> formSerialize;
 ListProvinsi selectedProvinsi;
 ListKabupaten selectedKabupaten;
 ListKecamatan selectedkecamatan;
-String hargatotalX;
+String hargatotalX, idkabupatenX, namakabupatenX;
 
 class Checkout extends StatefulWidget {
   Checkout({
@@ -93,9 +95,14 @@ class _CheckoutState extends State<Checkout> {
         var notaJson = json.decode(nota.body);
         var notas = notaJson['item'];
         var totalharga = notaJson['totalharga'];
-
-        print('notaJson $notaJson');
-        print('harga seluruh $totalharga');
+        var idprovinsi = notaJson['idprovinsi'].toString();
+        var namaprovinsi = notaJson['namaprovinsi'];
+        var idkabupaten = notaJson['idkabupaten'].toString();
+        var namakabupaten = notaJson['namakabupaten'];
+        var idkecamatan = notaJson['idkecamatan'].toString();
+        var namakecamatan = notaJson['namakecamatan'];
+        var kodeposcustomer = notaJson['kodepos'].toString();
+        var alamatcustomer = notaJson['alamat'].toString();
         listNota = [];
         for (var i in notas) {
           ListCheckout notax = ListCheckout(
@@ -113,6 +120,22 @@ class _CheckoutState extends State<Checkout> {
           );
           listNota.add(notax);
         }
+        setState(() {
+          idkabupatenX = idkabupaten;
+          namakabupatenX = namakabupaten;
+          kodeposController.text = kodeposcustomer;
+          alamatController.text = alamatcustomer;
+          selectedProvinsi = ListProvinsi(
+            id: idprovinsi,
+            nama: namaprovinsi,
+          );
+          selectedKabupaten = ListKabupaten(
+            id: idkabupaten,
+            nama: namakabupaten,
+          );
+          selectedkecamatan =
+              ListKecamatan(id: idkecamatan, nama: namakecamatan);
+        });
 
         print('listnota $listNota');
         print('listnota length ${listNota.length}');
@@ -120,6 +143,7 @@ class _CheckoutState extends State<Checkout> {
           hargatotalX = totalharga;
           isLoading = false;
         });
+        getOngkir();
         return listNota;
       } else {
         showInSnackBar('Request failed with status: ${nota.statusCode}');
@@ -146,6 +170,48 @@ class _CheckoutState extends State<Checkout> {
     return null;
   }
 
+  Future<void> getOngkir() async {
+    var storage = new DataStore();
+
+    var tokenTypeStorage = await storage.getDataString('token_type');
+    var accessTokenStorage = await storage.getDataString('access_token');
+
+    tokenType = tokenTypeStorage;
+    accessToken = accessTokenStorage;
+    requestHeaders['Accept'] = 'application/json';
+    requestHeaders['Authorization'] = '$tokenType $accessToken';
+
+    try {
+      final response = await http.post(url('api/get_ongkir_android'),
+          headers: requestHeaders, body: {'kota': idkabupatenX});
+
+      if (response.statusCode == 200) {
+        var ongkirJson = json.decode(response.body);
+        String textongkir = ongkirJson['textongkir'].toString();
+        String ongkirvalue = ongkirJson['total'].toString();
+        String totalbelanjacustomer = ongkirJson['totalbelanja'].toString();
+        print('stock $ongkirvalue');
+        setState(() {
+          selectedKabupaten = ListKabupaten(
+            id: idkabupatenX,
+            nama: namakabupatenX,
+            ongkir: ongkirvalue,
+            textongkir: textongkir,
+            totalbelanja: totalbelanjacustomer,
+          );
+        });
+      } else if (response.statusCode == 401) {
+        showInSnackBar('Token telah kadaluarsa, silahkanlogin kembali');
+      } else {
+        showInSnackBar('Request failed with status: ${response.body}');
+        return null;
+      }
+      return "Success!";
+    } catch (e) {
+      print('Error : $e');
+    }
+  }
+
   int totalRefresh = 0;
   refreshFunction() async {
     setState(() {
@@ -156,15 +222,18 @@ class _CheckoutState extends State<Checkout> {
   @override
   void initState() {
     getHeaderHTTP();
-    _scaffoldKeyX = new GlobalKey<ScaffoldState>();
+    _scaffoldKeyX = new  GlobalKey<ScaffoldState>();
     isLoading = false;
     checkboxnoongkir = 'aktif';
     checkboxongkirsaldo = 'aktif';
     checkboxtotalsaldo = 'aktif';
+    checkboxbayartempo = 'aktif';
+    idkabupatenX = null;
+    namakabupatenX = null;
     selectedProvinsi = null;
     selectedKabupaten = null;
     selectedkecamatan = null;
-    hargatotalX = '0.00';
+    hargatotalX = '0';
     // hargabarang();
     print(requestHeaders);
     super.initState();
@@ -172,12 +241,11 @@ class _CheckoutState extends State<Checkout> {
 
   String idprovinsilist = '';
   bool _value1 = false;
+  bool _bayartempo = false;
   bool _value2 = false;
   bool _bayarongkirsaldo = false;
 
   //we omitted the brackets '{}' and are using fat arrow '=>' instead, this is dart syntax
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -226,7 +294,8 @@ class _CheckoutState extends State<Checkout> {
                             : selectedProvinsi.nama),
                     onTap: () {
                       if (_value2 == true) {
-                        showInSnackBar('Anda memilih opsi ambil barang ditempat');
+                        showInSnackBar(
+                            'Anda memilih opsi ambil barang ditempat');
                       } else {
                         _pilihprovinsi(context);
                       }
@@ -243,9 +312,11 @@ class _CheckoutState extends State<Checkout> {
                             : 'Pilih Kabupaten'),
                     onTap: () {
                       if (_value2 == true) {
-                        showInSnackBar('Anda memilih opsi ambil barang ditempat');
+                        showInSnackBar(
+                            'Anda memilih opsi ambil barang ditempat');
                       } else if (selectedProvinsi == null) {
-                        showInSnackBar('Silahkan pilih provinsi terlebih dahulu');
+                        showInSnackBar(
+                            'Silahkan pilih provinsi terlebih dahulu');
                       } else {
                         _pilihkabupaten(context);
                       }
@@ -262,9 +333,11 @@ class _CheckoutState extends State<Checkout> {
                             : 'Pilih Kecamatan'),
                     onTap: () {
                       if (_value2 == true) {
-                        showInSnackBar('Anda memilih opsi ambil barang ditempat');
+                        showInSnackBar(
+                            'Anda memilih opsi ambil barang ditempat');
                       } else if (selectedKabupaten == null) {
-                        showInSnackBar('Silahkan pilih kabupaten terlebih dahulu');
+                        showInSnackBar(
+                            'Silahkan pilih kabupaten terlebih dahulu');
                       } else {
                         _pilihkecamatan(context);
                       }
@@ -332,7 +405,7 @@ class _CheckoutState extends State<Checkout> {
                       _value2
                           ? "Rp. 0.00"
                           : selectedKabupaten != null
-                              ? 'Rp. ' + selectedKabupaten.textongkir
+                              ? selectedKabupaten.textongkir == null || selectedKabupaten.textongkir == '0' || selectedKabupaten.textongkir == '0.00' ? 'Rp. 0.00' : 'Rp. ' + selectedKabupaten.textongkir
                               : 'Rp. 0.00',
                       textAlign: TextAlign.end,
                       style: TextStyle(color: Colors.green)),
@@ -357,12 +430,26 @@ class _CheckoutState extends State<Checkout> {
                           ? 'Rp. ' + hargatotalX
                           : selectedKabupaten == null
                               ? 'Rp. ' + hargatotalX
-                              : 'Rp. ' + selectedKabupaten.totalbelanja,
+                              : selectedKabupaten.totalbelanja == null || selectedKabupaten.totalbelanja == '0.00' || selectedKabupaten.totalbelanja == '0' ? 'Rp. 0.00' : 'Rp. ' + selectedKabupaten.totalbelanja ,
                       textAlign: TextAlign.end,
                       style: TextStyle(color: Colors.green)),
                 ),
               ],
             ),
+          ),
+          new CheckboxListTile(
+            value: _bayartempo,
+            controlAffinity: ListTileControlAffinity.leading,
+            title: new Text('Pembayaran Tempo'),
+            onChanged: checkboxbayartempo == 'pasif'
+                ? null
+                : (value) {
+                    setState(() {
+                      _bayartempo = value;
+                      _value1 = value == true ? false : false;
+                      checkboxtotalsaldo = value == true ? 'pasif' : 'aktif';
+                    });
+                  },
           ),
           new CheckboxListTile(
             value: _value1,
@@ -373,8 +460,10 @@ class _CheckoutState extends State<Checkout> {
                 : (value) {
                     setState(() {
                       _value1 = value;
+                      _bayartempo = value == true ? false : false;
                       _bayarongkirsaldo = value == true ? false : false;
                       checkboxongkirsaldo = value == true ? 'pasif' : 'aktif';
+                      checkboxbayartempo = value == true ? 'pasif' : 'aktif';
                     });
                   },
           ),
@@ -421,214 +510,201 @@ class _CheckoutState extends State<Checkout> {
               mainAxisSpacing: 0.0,
               crossAxisSpacing: 0.0,
               physics: NeverScrollableScrollPhysics(),
-              childAspectRatio: MediaQuery.of(context).orientation == Orientation.portrait
-            ? 2
-            : 4.2,
-              children: listNota
-                  .map(
-                    (item) {
-                      var children2 = <Widget>[
-                                                  Row(
-                                                    children: <Widget>[
-                                                      Expanded(
-                                                        flex: 10,
-                                                        child: Row(
-                                                          children: <Widget>[
-                                                            Padding(
-                                                              padding:
-                                                                  const EdgeInsets.only(left: 10.0),
-                                                              child: Text("Total Harga :",
-                                                                  style:
-                                                                      TextStyle(color: Colors.black)),
-                                                            ),
-                                                            Padding(
-                                                              padding:
-                                                                  const EdgeInsets.only(left: 5.0),
-                                                              child: Text(
-                                                                  item.diskon == null
-                                                                      ? _numberFormat.format(double.parse(item.harga.toString()) * int.parse(item.jumlah.toString()))
-                                                                      :  _numberFormat.format(double.parse(item.diskon.toString()) * int.parse(item.jumlah.toString())),
-                                                                  style: TextStyle(
-                                                                    color: Colors.green,
-                                                                  )),
-                                                            ),
-                                                            Container(
-                                                              child: Row(
-                                                                children: <Widget>[
-                                                                  Text(" | ${item.jumlah} Pcs ",
-                                                                      style: TextStyle(
-                                                                          color: Colors.black)),
-                                                                ],
-                                                              ),
-                                                              padding: EdgeInsets.only(
-                                                                  left: 0.0, top: 0.0),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  Container(
-                                                    height: 20.0,
-                                                  ),
-                                                  Column(
-                                                    children: <Widget>[
-                                                      Padding(
-                                                        padding: const EdgeInsets.only(top: 10.0),
-                                                        child: Row(
-                                                          children: <Widget>[
-                                                            Expanded(
-                                                              flex: 5,
-                                                              child: new Image(
-                                                                image: new NetworkImageWithRetry(
-                                                                    item.image != null
-                                                                        ? urladmin(
-                                                                            'storage/image/master/produk/${item.image}',
-                                                                          )
-                                                                        : url(
-                                                                            'assets/img/noimage.jpg',
-                                                                          )),
-                                                                width: 80.0,
-                                                                height: 80.0,
-                                                              ),
-                                                            ),
-                                                            Expanded(
-                                                              flex: 5,
-                                                              child: Column(
-                                                                crossAxisAlignment:
-                                                                    CrossAxisAlignment.start,
-                                                                children: <Widget>[
-                                                                  Container(
-                                                                    child: Padding(
-                                                                      padding: const EdgeInsets.only(
-                                                                          top: 0.0),
-                                                                      child: Text(
-                                                                        '${item.item}',
-                                                                        style: TextStyle(
-                                                                            color: Color(0xff25282b),
-                                                                            fontSize: 15.0,
-                                                                            fontWeight:
-                                                                                FontWeight.bold),
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                  item.diskon == null
-                                                                      ? Container(
-                                                                          height: 30.0,
-                                                                        )
-                                                                      : Container(
-                                                                          height: 30.0,
-                                                                          child: Row(
-                                                                            children: <Widget>[
-                                                                              Text(
-                                                                                  item.harga == null
-                                                                                      ? 'Rp. 0.00'
-                                                                                      : _numberFormat
-                                                                                          .format(double
-                                                                                              .parse(item
-                                                                                                  .harga)),
-                                                                                  style: TextStyle(
-                                                                                      color: Colors
-                                                                                          .black,
-                                                                                      decoration: TextDecoration.lineThrough)),
-                                                                            ],
-                                                                          ),
-                                                                          padding: EdgeInsets.only(
-                                                                              left: 0.0, top: 10.0),
-                                                                        ),
-                                                                  item.diskon == null
-                                                                      ? Container(
-                                                                          child: Row(
-                                                                            children: <Widget>[
-                                                                              Text(
-                                                                                  item.harga == null
-                                                                                      ? 'Rp. 0.00'
-                                                                                      : _numberFormat
-                                                                                          .format(double
-                                                                                              .parse(item
-                                                                                                  .harga)),
-                                                                                  style: TextStyle(
-                                                                                      color: Colors
-                                                                                          .black,)),
-                                                                              Padding(
-                                                                                padding:
-                                                                                    const EdgeInsets
-                                                                                            .only(
-                                                                                        left: 0.0),
-                                                                                child: Text(
-                                                                                    " / " +
-                                                                                        '${item.satuan}',
-                                                                                    style: TextStyle(
-                                                                                      color: Colors
-                                                                                          .green,
-                                                                                    )),
-                                                                              )
-                                                                            ],
-                                                                          ),
-                                                                          padding: EdgeInsets.only(
-                                                                              left: 0.0, top: 10.0),
-                                                                        )
-                                                                      : Container(
-                                                                          child: Row(
-                                                                            children: <Widget>[
-                                                                              Text(
-                                                                                  item.diskon == null
-                                                                                      ? 'Rp. 0.00'
-                                                                                      : _numberFormat
-                                                                                          .format(double
-                                                                                              .parse(item
-                                                                                                  .diskon)),
-                                                                                  style: TextStyle(
-                                                                                      color: Colors
-                                                                                          .black)),
-                                                                              Padding(
-                                                                                padding:
-                                                                                    const EdgeInsets
-                                                                                            .only(
-                                                                                        left: 0.0),
-                                                                                child: Text(
-                                                                                    " / " +
-                                                                                        '${item.satuan}',
-                                                                                    style: TextStyle(
-                                                                                      color: Colors
-                                                                                          .green,
-                                                                                    )),
-                                                                              )
-                                                                            ],
-                                                                          ),
-                                                                          padding: EdgeInsets.only(
-                                                                              left: 0.0, top: 10.0),
-                                                                        ),
-                                                                  Container(
-                                                                    padding: EdgeInsets.only(
-                                                                        left: 0.0, top: 10.0),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  Divider(),
-                                                ];
-                                            return Container(
-                                            decoration: BoxDecoration(
-                                              border: Border.all(color: Colors.transparent),
-                                            ),
-                                            // padding: const EdgeInsets.all(10.0),
-                                            // margin: EdgeInsets.all(5.0),
-                                            child: Card(
-                                              elevation: 0.0,
-                                              child: Column(
-                                                children: children2,
+              childAspectRatio:
+                  MediaQuery.of(context).orientation == Orientation.portrait
+                      ? 2
+                      : 4.2,
+              children: listNota.map(
+                (item) {
+                  var children2 = <Widget>[
+                    Row(
+                      children: <Widget>[
+                        Expanded(
+                          flex: 10,
+                          child: Row(
+                            children: <Widget>[
+                              Padding(
+                                padding: const EdgeInsets.only(left: 10.0),
+                                child: Text("Total Harga :",
+                                    style: TextStyle(color: Colors.black)),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 5.0),
+                                child: Text(
+                                    item.diskon == null
+                                        ? _numberFormat.format(double.parse(
+                                                item.harga.toString()) *
+                                            int.parse(item.jumlah.toString()))
+                                        : _numberFormat.format(double.parse(
+                                                item.diskon.toString()) *
+                                            int.parse(item.jumlah.toString())),
+                                    style: TextStyle(
+                                      color: Colors.green,
+                                    )),
+                              ),
+                              Container(
+                                child: Row(
+                                  children: <Widget>[
+                                    Text(" | ${item.jumlah} Pcs ",
+                                        style: TextStyle(color: Colors.black)),
+                                  ],
+                                ),
+                                padding: EdgeInsets.only(left: 0.0, top: 0.0),
+                              ),
+                            ],
+                          ),
                         ),
+                      ],
+                    ),
+                    Container(
+                      height: 20.0,
+                    ),
+                    Column(
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.only(top: 10.0),
+                          child: Row(
+                            children: <Widget>[
+                              Expanded(
+                                flex: 5,
+                                child: new Image(
+                                  image: new NetworkImageWithRetry(
+                                      item.image != null
+                                          ? urladmin(
+                                              'storage/image/master/produk/${item.image}',
+                                            )
+                                          : url(
+                                              'assets/img/noimage.jpg',
+                                            )),
+                                  width: 80.0,
+                                  height: 80.0,
+                                ),
+                              ),
+                              Expanded(
+                                flex: 5,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Container(
+                                      child: Padding(
+                                        padding:
+                                            const EdgeInsets.only(top: 0.0),
+                                        child: Text(
+                                          '${item.item}',
+                                          style: TextStyle(
+                                              color: Color(0xff25282b),
+                                              fontSize: 15.0,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                    ),
+                                    item.diskon == null
+                                        ? Container(
+                                            height: 30.0,
+                                          )
+                                        : Container(
+                                            height: 30.0,
+                                            child: Row(
+                                              children: <Widget>[
+                                                Text(
+                                                    item.harga == null
+                                                        ? 'Rp. 0.00'
+                                                        : _numberFormat.format(
+                                                            double.parse(
+                                                                item.harga)),
+                                                    style: TextStyle(
+                                                        color: Colors.black,
+                                                        decoration:
+                                                            TextDecoration
+                                                                .lineThrough)),
+                                              ],
+                                            ),
+                                            padding: EdgeInsets.only(
+                                                left: 0.0, top: 10.0),
+                                          ),
+                                    item.diskon == null
+                                        ? Container(
+                                            child: Row(
+                                              children: <Widget>[
+                                                Text(
+                                                    item.harga == null
+                                                        ? 'Rp. 0.00'
+                                                        : _numberFormat.format(
+                                                            double.parse(
+                                                                item.harga)),
+                                                    style: TextStyle(
+                                                      color: Colors.black,
+                                                    )),
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          left: 0.0),
+                                                  child: Text(
+                                                      " / " + '${item.satuan}',
+                                                      style: TextStyle(
+                                                        color: Colors.green,
+                                                      )),
+                                                )
+                                              ],
+                                            ),
+                                            padding: EdgeInsets.only(
+                                                left: 0.0, top: 10.0),
+                                          )
+                                        : Container(
+                                            child: Row(
+                                              children: <Widget>[
+                                                Text(
+                                                    item.diskon == null
+                                                        ? 'Rp. 0.00'
+                                                        : _numberFormat.format(
+                                                            double.parse(
+                                                                item.diskon)),
+                                                    style: TextStyle(
+                                                        color: Colors.black)),
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          left: 0.0),
+                                                  child: Text(
+                                                      " / " + '${item.satuan}',
+                                                      style: TextStyle(
+                                                        color: Colors.green,
+                                                      )),
+                                                )
+                                              ],
+                                            ),
+                                            padding: EdgeInsets.only(
+                                                left: 0.0, top: 10.0),
+                                          ),
+                                    Container(
+                                      padding:
+                                          EdgeInsets.only(left: 0.0, top: 10.0),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    Divider(),
+                  ];
+                  return Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.transparent),
+                    ),
+                    // padding: const EdgeInsets.all(10.0),
+                    // margin: EdgeInsets.all(5.0),
+                    child: Card(
+                      elevation: 0.0,
+                      child: Column(
+                        children: children2,
                       ),
-                    );
-                    },
-                  )
-                  .toList(),
+                    ),
+                  );
+                },
+              ).toList(),
             ),
           ),
         ],
@@ -650,17 +726,22 @@ class _CheckoutState extends State<Checkout> {
                   onPressed: () async {
                     if (_value2 == false) {
                       if (selectedProvinsi == null) {
-                        showInSnackBar('Silahkan pilih provinsi terlebih dahulu');
+                        showInSnackBar(
+                            'Silahkan pilih provinsi terlebih dahulu');
                       } else if (selectedKabupaten == null) {
-                        showInSnackBar('Silahkan pilih kabupaten/kota terlebih dahulu');
+                        showInSnackBar(
+                            'Silahkan pilih kabupaten/kota terlebih dahulu');
                       } else if (selectedkecamatan == null) {
-                        showInSnackBar('Silahkan pilih kecamatan terlebih dahulu');
+                        showInSnackBar(
+                            'Silahkan pilih kecamatan terlebih dahulu');
                       } else if (kodeposController.text.length == 0 ||
                           kodeposController.text == null) {
-                        showInSnackBar('Silahkan masukkan kodepos terlebih dahulu');
+                        showInSnackBar(
+                            'Silahkan masukkan kodepos terlebih dahulu');
                       } else if (alamatController.text.length == 0 ||
                           alamatController.text == null) {
-                        showInSnackBar('Silahkan masukkan alamat lengkap terlebih dahulu');
+                        showInSnackBar(
+                            'Silahkan masukkan alamat lengkap terlebih dahulu');
                       } else {
                         _checkoutSekarang();
                       }
@@ -702,6 +783,7 @@ class _CheckoutState extends State<Checkout> {
     formSerialize['kodepos'] = null;
     formSerialize['alamat'] = null;
     formSerialize['paydeliver'] = null;
+    formSerialize['tempo'] = null;
     formSerialize['gudang'] = List();
     formSerialize['id'] = List();
     formSerialize['namabarang'] = List();
@@ -717,16 +799,21 @@ class _CheckoutState extends State<Checkout> {
     formSerialize['tunai'] = _value1 == true ? 'Y' : 'N';
     formSerialize['paydeliver'] = _bayarongkirsaldo == true ? 'Y' : 'N';
     formSerialize['accongkir'] = _value2 == true ? 'Y' : 'N';
-    formSerialize['ongkir'] = _value2 == true ? 0 : selectedKabupaten.ongkir;
+    formSerialize['ongkir'] = _value2 == true ? 0 : selectedKabupaten.ongkir == null || selectedKabupaten.ongkir == '0' || selectedKabupaten.ongkir == '0.00' ? 0 : selectedKabupaten.ongkir;
     formSerialize['kodepos'] = _value2 == true ? '-' : kodeposController.text;
     formSerialize['alamat'] = _value2 == true ? '-' : alamatController.text;
+    formSerialize['tempo'] = _bayartempo == true ? 'Y' : 'N';
     for (int i = 0; i < listNota.length; i++) {
       formSerialize['id'].add(listNota[i].id);
       formSerialize['namabarang'].add(listNota[i].item);
       formSerialize['ciproduct'].add(listNota[i].code);
-      formSerialize['qty'].add(listNota[i].jumlah); 
+      formSerialize['qty'].add(listNota[i].jumlah);
       formSerialize['disc'].add(0);
-      formSerialize['discv'].add(listNota[i].diskon == null ? 0 :(double.parse(listNota[i].harga) - double.parse(listNota[i].diskon)) * int.parse(listNota[i].jumlah));
+      formSerialize['discv'].add(listNota[i].diskon == null
+          ? 0
+          : (double.parse(listNota[i].harga) -
+                  double.parse(listNota[i].diskon)) *
+              int.parse(listNota[i].jumlah));
       formSerialize['hargabarang'].add(listNota[i].harga);
       formSerialize['gudang'].add(listNota[i].gudang);
     }
@@ -750,8 +837,9 @@ class _CheckoutState extends State<Checkout> {
       if (response.statusCode == 200) {
         dynamic responseJson = jsonDecode(response.body);
         if (responseJson['status'] == 'success') {
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => TrackingList()));
-        }else if(responseJson['status'] == 'erorstock'){
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => TrackingList()));
+        } else if (responseJson['status'] == 'erorstock') {
           showInSnackBar('Eror Stock, ${responseJson['error']}');
         } else if (responseJson['status'] == 'saldokurang') {
           showInSnackBar('Saldo anda tidak mencukupi');
@@ -759,7 +847,8 @@ class _CheckoutState extends State<Checkout> {
           showInSnackBar('Saldo anda tidak mencukupi');
         } else if (responseJson['status'] == 'kosong') {
           showInSnackBar('Anda tidak memiliki item untuk checkout');
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => DashboardPage()));
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => DashboardPage()));
         }
         print('response decoded $responseJson');
       } else {

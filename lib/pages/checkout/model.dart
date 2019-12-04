@@ -1,6 +1,6 @@
 class ListProvinsi {
-  final String id;
-  final String nama;
+   String id;
+   String nama;
 
   ListProvinsi({
     this.id,
@@ -9,11 +9,11 @@ class ListProvinsi {
 }
 
 class ListKabupaten {
-  final String id;
-  final String nama;
-  final String ongkir;
-  final String totalbelanja;
-  final String textongkir;
+   String id;
+   String nama;
+   String ongkir;
+   String totalbelanja;
+   String textongkir;
 
   ListKabupaten({
     this.id,
@@ -25,8 +25,8 @@ class ListKabupaten {
 }
 
 class ListKecamatan {
-  final String id;
-  final String nama;
+   String id;
+   String nama;
 
   ListKecamatan({
     this.id,

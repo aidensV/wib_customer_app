@@ -324,7 +324,7 @@ class _DetailState extends State<Detail> {
                 deliveredX == null
                     ? 'Alamat Pengiriman'
                     : deliveredX == 'A'
-                        ? 'Alamat Pengiriman ( Ambil Sendiri )'
+                        ? 'Alamat Pengiriman'
                         : 'Alamat Pengiriman',
                 textAlign: TextAlign.left,
               ),
@@ -332,7 +332,7 @@ class _DetailState extends State<Detail> {
             Card(
               child: ListTile(
                 leading: Icon(Icons.location_on, color: Colors.green),
-                title: Text(deliveredX == null || deliveredX == 'A'
+                title: Text(ongkirX == null || ongkirX == '0' || ongkirX == '0.00'
                     ? 'Provinsi : -'
                     : provinsiX == null || provinsiX == '0'
                         ? 'Provinsi : -'
@@ -342,7 +342,7 @@ class _DetailState extends State<Detail> {
             Card(
               child: ListTile(
                 leading: Icon(Icons.location_city, color: Colors.green),
-                title: Text(deliveredX == null || deliveredX == 'A'
+                title: Text(ongkirX == null || ongkirX == '0' || ongkirX == '0.00'
                     ? 'Kab/Kota : -'
                     : kabupatenX == null || kabupatenX == '0'
                         ? 'Kabupaten : -'
@@ -352,7 +352,7 @@ class _DetailState extends State<Detail> {
             Card(
               child: ListTile(
                 leading: Icon(Icons.location_on, color: Colors.green),
-                title: Text(deliveredX == null || deliveredX == 'A'
+                title: Text(ongkirX == null || ongkirX == '0' || ongkirX == '0.00'
                     ? 'Kecamatan : -'
                     : kecamatanX == null || kecamatanX == '0'
                         ? 'Kecamatan : -'
@@ -362,7 +362,7 @@ class _DetailState extends State<Detail> {
             Card(
               child: ListTile(
                 leading: Icon(Icons.local_post_office, color: Colors.green),
-                title: Text(deliveredX == null || deliveredX == 'A'
+                title: Text(ongkirX == null || ongkirX == '0' || ongkirX == '0.00'
                     ? 'Kodepos : -'
                     : kodeposX == null || kodeposX == '0'
                         ? 'Kodepos : -'
@@ -372,7 +372,7 @@ class _DetailState extends State<Detail> {
             Card(
               child: ListTile(
                 leading: Icon(Icons.streetview, color: Colors.green),
-                title: Text(deliveredX == null || deliveredX == 'A'
+                title: Text(ongkirX == null || ongkirX == '0' || ongkirX == '0.00'
                     ? '-'
                     : alamatX == null || alamatX == '' ? '' : alamatX),
               ),

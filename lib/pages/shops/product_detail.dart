@@ -6,15 +6,16 @@ import 'package:wib_customer_app/storage/storage.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:wib_customer_app/env.dart';
+import 'package:flutter_image/network.dart';
 import 'dart:async';
 import 'dart:convert';
 
 var itemX, priceX, codeX, descX, diskonX, tipeX;
 String tokenType, accessToken;
 bool isLoadings;
-GlobalKey<ScaffoldState> _scaffoldKeyD = new GlobalKey<ScaffoldState>();
+var _scaffoldKeyD;
 List<ListKeranjang> listNota = [];
-String stockiesX, wishlistX;
+String stockiesX, wishlistX, stockX;
 Map<String, String> requestHeaders = Map();
 
 class ProductDetail extends StatefulWidget {
@@ -28,7 +29,7 @@ class ProductDetail extends StatefulWidget {
       this.tipe,
       this.desc})
       : super(key: key);
-  final String title, item, price, code, desc, diskon,tipe;
+  final String title, item, price, code, desc, diskon, tipe;
   @override
   State<StatefulWidget> createState() {
     return ProductDetailState();
@@ -42,8 +43,6 @@ class ProductDetailState extends State<ProductDetail> {
   });
   // int _current = 0;
 
-  
-  
   TextEditingController controllerfile = new TextEditingController();
   Future<List<ListKeranjang>> getHeaderHTTP() async {
     var storage = new DataStore();
@@ -84,9 +83,11 @@ class ProductDetailState extends State<ProductDetail> {
         }
         setState(() {
           isLoadings = false;
-          wishlistX = wishlist; 
+          wishlistX = wishlist;
           stockiesX = stockies;
         });
+        print('cek stockies $stockies');
+        getstock();
 
         print('listnota $listNota');
         print('listnota length ${listNota.length}');
@@ -106,6 +107,43 @@ class ProductDetailState extends State<ProductDetail> {
       debugPrint('$e');
     }
     return null;
+  }
+  Future<void> getstock() async {
+    print('stockcheck {$stockiesX}');
+    var storage = new DataStore();
+
+    var tokenTypeStorage = await storage.getDataString('token_type');
+    var accessTokenStorage = await storage.getDataString('access_token');
+
+    tokenType = tokenTypeStorage;
+    accessToken = accessTokenStorage;
+    requestHeaders['Accept'] = 'application/json';
+    requestHeaders['Authorization'] = '$tokenType $accessToken';
+
+    try {
+      final response = await http.post(url('api/stock_check'),
+          headers: requestHeaders, body: {'produk': widget.code,'cabang': stockiesX});
+
+      if (response.statusCode == 200) {
+        setState(() {
+          var stockJson = json.decode(response.body);
+          String stockvalue = stockJson['stock'].toString();
+          stockX = stockvalue;
+          print('stock $stockvalue');
+        });
+      } else if (response.statusCode == 401) {
+        showInSnackBar('Token telah kadaluarsa, silahkanlogin kembali');
+      } else {
+        showInSnackBar('Request failed with status: ${response.body}');
+        setState(() {
+          isLoadings = false;
+        });
+        return null;
+      }
+      return "Success!";
+    } catch (e) {
+      print('Error : $e');
+    }
   }
 
   int totalRefresh = 0;
@@ -140,12 +178,14 @@ class ProductDetailState extends State<ProductDetail> {
     isWishlist = false;
     getHeaderHTTP();
     stockiesX = null;
+    stockX = null;
     itemX = widget.item;
     priceX = widget.price;
     codeX = widget.code;
     descX = widget.desc;
     tipeX = widget.tipe;
     diskonX = widget.diskon;
+    _scaffoldKeyD = GlobalKey<ScaffoldState>();
     kodeposController.text = '1';
     print(requestHeaders);
     super.initState();
@@ -153,7 +193,8 @@ class ProductDetailState extends State<ProductDetail> {
 
   Widget build(BuildContext context) {
     double hargaperitem = double.parse(priceX);
-    NumberFormat _numberFormat = new NumberFormat.simpleCurrency(decimalDigits: 2, name: 'Rp. ');
+    NumberFormat _numberFormat =
+        new NumberFormat.simpleCurrency(decimalDigits: 2, name: 'Rp. ');
     String finalharganormalitem = _numberFormat.format(hargaperitem);
     return Scaffold(
       key: _scaffoldKeyD,
@@ -178,11 +219,11 @@ class ProductDetailState extends State<ProductDetail> {
               listNota.length == 0
                   ? new Container(
                       child: Image.network(
-                          url(
-                            'assets/img/noimage.jpg',
-                          ),
-                          ),
-                          width: MediaQuery.of(context).size.width,
+                        url(
+                          'assets/img/noimage.jpg',
+                        ),
+                      ),
+                      width: MediaQuery.of(context).size.width,
                     )
                   : Padding(
                       padding: EdgeInsets.only(
@@ -213,7 +254,7 @@ class ProductDetailState extends State<ProductDetail> {
                               margin: EdgeInsets.symmetric(horizontal: 5.0),
                               decoration: BoxDecoration(
                                 image: DecorationImage(
-                                  image: NetworkImage(urladmin(
+                                  image: NetworkImageWithRetry(urladmin(
                                       'storage/image/master/produk/${listNota[i].item}')),
                                   fit: BoxFit.fitHeight,
                                 ),
@@ -224,14 +265,15 @@ class ProductDetailState extends State<ProductDetail> {
                     ),
             ],
           ),
-          Card(
+          Container(
               child: Column(
             children: <Widget>[
               Padding(
                 padding: EdgeInsets.only(top: 30.0, left: 10.0, right: 10.0),
                 child: Row(
                   children: <Widget>[
-                    Text(tipeX == null ? 'Jenis Item' : tipeX,
+                    Text(
+                      tipeX == null ? 'Jenis Item' : tipeX,
                       textAlign: TextAlign.left,
                       style: TextStyle(
                           color: Colors.green, fontWeight: FontWeight.bold),
@@ -243,9 +285,10 @@ class ProductDetailState extends State<ProductDetail> {
                 padding: EdgeInsets.only(top: 4.0, left: 10.0, right: 10.0),
                 child: Row(
                   children: <Widget>[
-                    Text(itemX == null ? 'Nama Item' : itemX,
+                    Text(
+                      itemX == null ? 'Nama Item' : itemX,
                       textAlign: TextAlign.left,
-                      style: TextStyle(color: Colors.grey[800], fontSize: 30),
+                      style: TextStyle(color: Colors.grey[800], fontSize: 20),
                     ),
                   ],
                 ),
@@ -255,7 +298,25 @@ class ProductDetailState extends State<ProductDetail> {
                 child: Row(
                   children: <Widget>[
                     Icon(
-                      Icons.create,
+                      Icons.announcement,
+                      color: Colors.green,
+                      size: 14,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: Text(stockiesX == 'Tidak Ada Cabang Terdekat' ? 'Tidak ada Cabang Terdekat' : stockX == 0 || stockX == null ? 'Stock tersisa : 0' : 'Stock tersisa : $stockX',
+                        textAlign: TextAlign.left,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(top: 20.0, left: 10.0, right: 10.0),
+                child: Row(
+                  children: <Widget>[
+                    Icon(
+                      Icons.archive,
                       color: Colors.green,
                       size: 14,
                     ),
@@ -382,7 +443,7 @@ class ProductDetailState extends State<ProductDetail> {
                 Padding(
                   padding: EdgeInsets.only(
                       top: 20.0, left: 10.0, right: 10.0, bottom: 20.0),
-                  child: Row(
+                  child: Column(
                     children: <Widget>[
                       Text(
                         descX == null || descX == ''
@@ -411,7 +472,14 @@ class ProductDetailState extends State<ProductDetail> {
                         flex: 3,
                         child: Row(
                           children: <Widget>[
-                            Text(diskonX == null || diskonX.toString() == '0.00' ? priceX == null || priceX.toString() == '0.00' ? 'Rp. 0.00' : finalharganormalitem : _numberFormat.format(double.parse(diskonX.toString())),
+                            Text(
+                              diskonX == null || diskonX.toString() == '0.00'
+                                  ? priceX == null ||
+                                          priceX.toString() == '0.00'
+                                      ? 'Rp. 0.00'
+                                      : finalharganormalitem
+                                  : _numberFormat
+                                      .format(double.parse(diskonX.toString())),
                               style: TextStyle(
                                   color: Colors.green,
                                   fontWeight: FontWeight.bold,
@@ -469,7 +537,9 @@ class ProductDetailState extends State<ProductDetail> {
                                       }
                                     },
                                     child: Icon(Icons.favorite,
-                                        color: wishlistX == codeX ?  Colors.pink  :  Colors.grey[400]),
+                                        color: wishlistX == codeX
+                                            ? Colors.pink
+                                            : Colors.grey[400]),
                                     color: Colors.white,
                                     padding: EdgeInsets.all(
                                       0.0,
@@ -484,7 +554,7 @@ class ProductDetailState extends State<ProductDetail> {
                                       var location = stockiesX;
                                       if (location == null) {
                                         showInSnackBar(
-                                                  'Silahkan setting alamat terlebih dahulu pada pengaturan akun');
+                                            'Silahkan setting alamat terlebih dahulu pada pengaturan akun');
                                       } else {
                                         var idx = codeX;
                                         try {
@@ -504,21 +574,24 @@ class ProductDetailState extends State<ProductDetail> {
                                             if (addcartJson['done'] == 'done') {
                                               showInSnackBar(
                                                   '$itemX berhasil dimasukkan ke keranjang');
-                                            }else if(addcartJson['status'] == 'minbeli'){
+                                            } else if (addcartJson['status'] ==
+                                                'minbeli') {
                                               showInSnackBar(
                                                   '${addcartJson['minbuy']}');
                                             } else if (addcartJson['status'] ==
                                                 'stockkurangminbeli') {
                                               showInSnackBar(
                                                   '${addcartJson['message']}');
-                                            }else if(addcartJson['status'] == 'maxstock'){
+                                            } else if (addcartJson['status'] ==
+                                                'maxstock') {
                                               showInSnackBar(
                                                   '${addcartJson['messagestock']}');
                                             } else if (addcartJson['error'] ==
                                                 'error') {
                                               showInSnackBar(
                                                   '$itemX sudah ada dikeranjang');
-                                            }else if(addcartJson['error'] == 'Berat Barang Belum Di Set'){
+                                            } else if (addcartJson['error'] ==
+                                                'Berat Barang Belum Di Set') {
                                               showInSnackBar(
                                                   'Mohon Maaf, berat barang belum disetting');
                                             }
