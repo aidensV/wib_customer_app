@@ -27,7 +27,7 @@ import 'pages/shopping_cart/shoppingcart.dart';
 bool bottom;
 String tokenType, accessToken;
 Map<String, String> requestHeaders = Map();
-List<ListBanner> listBanner = [];
+List<ListBanner> listBannerSlider, listBannerBasic;
 bool isLoading;
 int pageSize = 6;
 
@@ -39,6 +39,8 @@ double opacity, maxOffsetToColor;
 
 GlobalKey<ScaffoldState> _scaffoldKeyDashboard;
 NotificationService notificationService;
+PagewiseLoadController pagewiseLoadControllerVertical,
+    pageWiseLoadControllerHorizontal;
 
 showInSnackBarDashboard(String content) {
   _scaffoldKeyDashboard.currentState.showSnackBar(
@@ -60,7 +62,7 @@ class _DashboardPageState extends State<DashboardPage>
   PageController pageController;
 
   // String _username;
-  String usernameprofile, emailprofile, imageprofile;
+  String usernameprofile, emailprofile, imageprofile, namaCustomer;
 
   final List<Widget> _children = [
     null,
@@ -113,51 +115,62 @@ class _DashboardPageState extends State<DashboardPage>
   }
 
   Future<void> dataProfile() async {
-    var storage = new DataStore();
+    DataStore storage = new DataStore();
 
     usernameprofile = await storage.getDataString("username");
+    namaCustomer = await storage.getDataString("name");
     emailprofile = await storage.getDataString('email');
     imageprofile = await storage.getDataString('image');
   }
 
   Future<void> listBannerAndroid() async {
     try {
-      var storage = new DataStore();
+      DataStore storage = new DataStore();
 
-      var tokenTypeStorage = await storage.getDataString('token_type');
-      var accessTokenStorage = await storage.getDataString('access_token');
+      String tokenTypeStorage = await storage.getDataString('token_type');
+      String accessTokenStorage = await storage.getDataString('access_token');
 
       tokenType = tokenTypeStorage;
       accessToken = accessTokenStorage;
       requestHeaders['Accept'] = 'application/json';
       requestHeaders['Authorization'] = '$tokenType $accessToken';
-      this.setState(() {
+      setState(() {
         isLoading = true;
       });
       final banner = await http.get(
-        url('api/produk_beranda_android?_limit=6&count=1'),
+        url('api/banner'),
         headers: requestHeaders,
       );
 
       // print(banner.statusCode);
       if (banner.statusCode == 200) {
         // return nota;
-        var bannerJson = json.decode(banner.body);
-        var banners = bannerJson['banner'];
+        dynamic bannerJson = json.decode(banner.body);
 
         // print('Banner $banners');
 
-        listBanner = [];
-        for (var i in banners) {
+        listBannerSlider = List();
+        for (var i in bannerJson['banner_slide']) {
           ListBanner bannerx = ListBanner(
             idbanner: i['b_id'].toString(),
             banner: i['b_image'],
           );
-          listBanner.add(bannerx);
+          listBannerSlider.add(bannerx);
         }
-        this.setState(() {
+
+        listBannerBasic = List();
+        for (var i in bannerJson['banner_basic']) {
+          ListBanner bannerY = ListBanner(
+            idbanner: i['b_id'].toString(),
+            banner: i['b_image'],
+          );
+          listBannerBasic.add(bannerY);
+        }
+
+        setState(() {
           isLoading = false;
-          listBanner = listBanner;
+          listBannerSlider = listBannerSlider;
+          listBannerBasic = listBannerBasic;
         });
       } else if (banner.statusCode == 401) {
         showInSnackBarProduk('Token kedaluwarsa, silahkan login kembali');
@@ -188,10 +201,10 @@ class _DashboardPageState extends State<DashboardPage>
   int _current = 0;
   List imgList = [];
 
-  List<T> map<T>(List listBanner, Function handler) {
+  List<T> map<T>(List listBannerSlider, Function handler) {
     List<T> result = [];
-    for (var i = 0; i < listBanner.length; i++) {
-      result.add(handler(i, listBanner[i]));
+    for (var i = 0; i < listBannerSlider.length; i++) {
+      result.add(handler(i, listBannerSlider[i]));
     }
     return result;
   }
@@ -206,7 +219,20 @@ class _DashboardPageState extends State<DashboardPage>
   @override
   void initState() {
     _scaffoldKeyDashboard = GlobalKey<ScaffoldState>();
+    listBannerSlider = List();
+    listBannerBasic = List();
     listBannerAndroid();
+    pagewiseLoadControllerVertical = PagewiseLoadController(
+      pageSize: pageSize,
+      pageFuture: (pageIndex) =>
+          BackendService.getDataRecom(pageIndex, pageSize),
+    );
+
+    pageWiseLoadControllerHorizontal = PagewiseLoadController(
+      pageSize: pageSize,
+      pageFuture: (pageIndex) => BackendService.getData(pageIndex, pageSize),
+    );
+
     scrollController = ScrollController(initialScrollOffset: 0.0);
     isScrolled = false;
     red = 255;
@@ -216,7 +242,7 @@ class _DashboardPageState extends State<DashboardPage>
     maxOffsetToColor = 0.0;
     tabController = TabController(vsync: this, length: 4);
     getCategory();
-    isLoading = false;
+    isLoading = true;
     dataProfile();
     // print(requestHeaders);
 
@@ -252,15 +278,21 @@ class _DashboardPageState extends State<DashboardPage>
               UserAccountsDrawerHeader(
                 // Below this my gf name :))))), jk
                 accountName: Text(
-                    usernameprofile == null ? 'Nama Lengkap' : usernameprofile),
+                    namaCustomer == null ? 'Nama Lengkap' : namaCustomer),
                 accountEmail:
                     Text(emailprofile == null ? 'Email Anda' : emailprofile),
                 // This how you set profil image in sidebar
                 // Remeber to add image first in pubspec.yaml
                 currentAccountPicture: CircleAvatar(
-                  backgroundImage: imageprofile != null
-                      ? AssetImage('images/jisoocu.jpg')
-                      : AssetImage('images/jisoocu.jpg'),
+                  child: imageprofile != null
+                      ? ClipOval(
+                          child: Image(
+                            image: NetworkImageWithRetry(
+                              url('storage/image/member/profile/$imageprofile'),
+                            ),
+                          ),
+                        )
+                      : Image.asset('images/jisoocu.jpg'),
                 ),
                 // This how you set color in top of sidebar
                 decoration: BoxDecoration(
@@ -352,7 +384,12 @@ class _DashboardPageState extends State<DashboardPage>
                 child: Stack(
                   children: <Widget>[
                     RefreshIndicator(
-                      onRefresh: () => refreshFunction(),
+                      onRefresh: () async {
+                        listBannerAndroid();
+                        pagewiseLoadControllerVertical.reset();
+                        pageWiseLoadControllerHorizontal.reset();
+                        await Future.value({});
+                      },
                       child: ListView(
                         controller: scrollController,
                         children: <Widget>[
@@ -375,45 +412,81 @@ class _DashboardPageState extends State<DashboardPage>
                                         child: CircularProgressIndicator(),
                                       ),
                                     )
-                                  : Padding(
-                                      padding: EdgeInsets.only(top: 70.0),
-                                      child: carouselSlider = CarouselSlider(
-                                        height: 100.0,
-                                        initialPage: 0,
-                                        enlargeCenterPage: true,
-                                        autoPlay: true,
-                                        reverse: false,
-                                        enableInfiniteScroll: true,
-                                        autoPlayInterval: Duration(seconds: 5),
-                                        autoPlayAnimationDuration:
-                                            Duration(milliseconds: 2000),
-                                        pauseAutoPlayOnTouch:
-                                            Duration(seconds: 10),
-                                        scrollDirection: Axis.horizontal,
-                                        onPageChanged: (index) {
-                                          setState(() {
-                                            _current = index;
-                                          });
-                                        },
-                                        items: listBanner
-                                            .map(
-                                              (ListBanner listBanner) =>
-                                                  Container(
-                                                width: MediaQuery.of(context)
-                                                    .size
-                                                    .width,
-                                                margin: EdgeInsets.symmetric(
-                                                    horizontal: 5.0),
-                                                decoration: BoxDecoration(
-                                                  image: DecorationImage(
-                                                    image: NetworkImageWithRetry(
-                                                        urladmin(
-                                                            'storage/image/master/banner/${listBanner.banner}')),
-                                                    fit: BoxFit.fitHeight,
+                                  : listBannerSlider.length == 0
+                                      ? Container()
+                                      : Padding(
+                                          padding: EdgeInsets.only(top: 70.0),
+                                          child: carouselSlider =
+                                              CarouselSlider(
+                                            height: 100.0,
+                                            initialPage: 0,
+                                            enlargeCenterPage: true,
+                                            autoPlay: true,
+                                            reverse: false,
+                                            enableInfiniteScroll: true,
+                                            autoPlayInterval:
+                                                Duration(seconds: 5),
+                                            autoPlayAnimationDuration:
+                                                Duration(milliseconds: 2000),
+                                            pauseAutoPlayOnTouch:
+                                                Duration(seconds: 10),
+                                            scrollDirection: Axis.horizontal,
+                                            onPageChanged: (index) {
+                                              setState(() {
+                                                _current = index;
+                                              });
+                                            },
+                                            items: listBannerSlider
+                                                .map(
+                                                  (ListBanner
+                                                          listBannerSlider) =>
+                                                      Container(
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                            .size
+                                                            .width,
+                                                    margin:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 5.0),
+                                                    decoration: BoxDecoration(
+                                                      image: DecorationImage(
+                                                        image:
+                                                            NetworkImageWithRetry(
+                                                          urladmin(
+                                                              'storage/image/master/banner/${listBannerSlider.banner}'),
+                                                        ),
+                                                        fit: BoxFit.fitHeight,
+                                                      ),
+                                                    ),
                                                   ),
-                                                ),
-                                              ),
-                                            )
+                                                )
+                                                .toList(),
+                                          ),
+                                        ),
+                              listBannerBasic.length == 0
+                                  ? Container()
+                                  : Container(
+                                      margin: EdgeInsets.only(
+                                        top: 180.0,
+                                        bottom: 30.0,
+                                        left: 10.0,
+                                        right: 10.0,
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: listBannerBasic
+                                            .map((ListBanner f) => Container(
+                                                  padding: EdgeInsets.all(5.0),
+                                                  child: Image(
+                                                    image:
+                                                        NetworkImageWithRetry(
+                                                      urladmin(
+                                                          'storage/image/master/banner/${f.banner}'),
+                                                    ),
+                                                    height: 200.0,
+                                                  ),
+                                                ))
                                             .toList(),
                                       ),
                                     ),
@@ -480,14 +553,14 @@ class _DashboardPageState extends State<DashboardPage>
                             // ),
                             width: MediaQuery.of(context).size.width,
                             child: PagewiseListView(
-                              pageSize: pageSize,
+                              pageLoadController:
+                                  pagewiseLoadControllerVertical,
                               padding: EdgeInsets.all(2.0),
                               scrollDirection: Axis.horizontal,
                               primary: false,
-                              itemBuilder: this._recItemBuilder,
-                              pageFuture: (pageIndex) =>
-                                  BackendService.getDataRecom(
-                                      pageIndex, pageSize),
+                              itemBuilder: (BuildContext context, data, int i) {
+                                return _recItemBuilder(context, data, i);
+                              },
                             ),
                           ),
                           Container(
@@ -568,7 +641,8 @@ class _DashboardPageState extends State<DashboardPage>
                                   ),
                                 ),
                                 PagewiseGridView.count(
-                                  pageSize: pageSize,
+                                  pageLoadController:
+                                      pageWiseLoadControllerHorizontal,
                                   primary: false,
                                   physics: NeverScrollableScrollPhysics(),
                                   shrinkWrap: true,
@@ -580,10 +654,10 @@ class _DashboardPageState extends State<DashboardPage>
                                   // mainAxisSpacing: 10.0,
                                   crossAxisSpacing: 5.0,
                                   childAspectRatio: 0.6,
-                                  itemBuilder: this._itemBuilder,
-                                  pageFuture: (pageIndex) =>
-                                      BackendService.getData(
-                                          pageIndex, pageSize),
+                                  itemBuilder: (BuildContext context,
+                                      dynamic data, int i) {
+                                    return _itemBuilder(context, data, i);
+                                  },
                                 ),
                               ],
                             ),
@@ -790,7 +864,8 @@ class _DashboardPageState extends State<DashboardPage>
     );
   }
 
-  Widget _recItemBuilder(context, RecomendationModel entry, _) {
+  Widget _recItemBuilder(
+      BuildContext context, RecomendationModel entry, int i) {
     NumberFormat _numberFormat =
         new NumberFormat.simpleCurrency(decimalDigits: 2, name: 'Rp. ');
     return InkWell(
@@ -819,14 +894,16 @@ class _DashboardPageState extends State<DashboardPage>
           children: <Widget>[
             ClipRRect(
               borderRadius: BorderRadius.circular(0),
-              child: Image.network(
-                entry.gambar != null
-                    ? urladmin(
-                        'storage/image/master/produk/${entry.gambar}',
-                      )
-                    : url(
-                        'assets/img/noimage.jpg',
-                      ),
+              child: Image(
+                image: NetworkImageWithRetry(
+                  entry.gambar != null
+                      ? urladmin(
+                          'storage/image/master/produk/${entry.gambar}',
+                        )
+                      : url(
+                          'assets/img/noimage.jpg',
+                        ),
+                ),
                 fit: BoxFit.cover,
                 height: 130.0,
                 width: MediaQuery.of(context).size.width,
@@ -905,7 +982,7 @@ class _DashboardPageState extends State<DashboardPage>
     );
   }
 
-  Widget _itemBuilder(context, ProductModel entry, _) {
+  Widget _itemBuilder(context, ProductModel entry, int i) {
     NumberFormat _numberFormat =
         new NumberFormat.simpleCurrency(decimalDigits: 2, name: 'Rp. ');
     return Container(
@@ -920,14 +997,16 @@ class _DashboardPageState extends State<DashboardPage>
                   children: <Widget>[
                     ClipRRect(
                       borderRadius: BorderRadius.circular(0.0),
-                      child: Image.network(
-                        entry.gambar != null
-                            ? urladmin(
-                                'storage/image/master/produk/${entry.gambar}',
-                              )
-                            : url(
-                                'assets/img/noimage.jpg',
-                              ),
+                      child: Image(
+                        image: NetworkImageWithRetry(
+                          entry.gambar != null
+                              ? urladmin(
+                                  'storage/image/master/produk/${entry.gambar}',
+                                )
+                              : url(
+                                  'assets/img/noimage.jpg',
+                                ),
+                        ),
                         fit: BoxFit.cover,
                         height: 150.0,
                         width: MediaQuery.of(context).size.width,

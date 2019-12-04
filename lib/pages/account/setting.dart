@@ -1,4 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+import 'package:intl/intl.dart';
+
+String tokenType, accessToken;
+Map<String, String> requestHeaders = Map();
+bool isLoading, isError;
+GlobalKey<ScaffoldState> _scaffoldKeySettingProfile;
+
+showInSnackbarSettingProfile(String content) {
+  _scaffoldKeySettingProfile.currentState.showSnackBar(
+    SnackBar(
+      content: Text(content),
+    ),
+  );
+}
 
 class SettingProfile extends StatefulWidget {
   @override
@@ -6,9 +24,17 @@ class SettingProfile extends StatefulWidget {
 }
 
 class _SettingProfileState extends State<SettingProfile> {
+
+  @override
+  void initState() {
+    _scaffoldKeySettingProfile = GlobalKey<ScaffoldState>();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKeySettingProfile,
       appBar: AppBar(
         iconTheme: IconThemeData(
           color: Color(0xff25282b),

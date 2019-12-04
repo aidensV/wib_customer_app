@@ -101,6 +101,20 @@ class _LoginPageState extends State<LoginPage> {
             store.setDataString("name", datauser['cm_name']);
             store.setDataString("email", datauser['cm_email']);
             store.setDataString("image", datauser['cm_path']);
+            store.setDataString("gender", datauser['cm_gender']);
+            store.setDataString("phone", datauser['cm_nphone']);
+            store.setDataString("alamat", datauser['cm_address']);
+            store.setDataString("province", datauser['cm_province']);
+            store.setDataString("city", datauser['cm_city']);
+            store.setDataString("district", datauser['cm_district']);
+            store.setDataString("nbank", datauser['cm_nbank']);
+            store.setDataString("bank", datauser['cm_bank']);
+            store.setDataString("postalcode", datauser['cm_postalcode']);
+            store.setDataString("tempatlahir", datauser['cm_cityborn']);
+            store.setDataString("lahir", datauser['cm_born']);
+            store.setDataString("namaprovinsi", datauser['p_nama']);
+            store.setDataString("namakota", datauser['c_nama']);
+            store.setDataString("namadesa", datauser['d_nama']);
 
             print(datauser);
 
