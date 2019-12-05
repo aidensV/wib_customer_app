@@ -35,7 +35,7 @@ class EditProfile extends StatefulWidget{
 
 class _EditProfile extends State<EditProfile>{
 
-  void showInSnackBar(String value) {
+  void modalkeluar(String value) {
     _khususedit_profile.currentState
         .showSnackBar(new SnackBar(content: new Text(value)));
   }
@@ -48,7 +48,7 @@ class _EditProfile extends State<EditProfile>{
   TextEditingController postalcodecontroller = new TextEditingController();
   TextEditingController phonecontroller = new TextEditingController();
   TextEditingController tempatlahircontroller = new TextEditingController();
-
+    bool back = false;
     var _id;
     var _user;
     String name;
@@ -112,7 +112,12 @@ class _EditProfile extends State<EditProfile>{
     _image = null;
     var imagefile = await ImagePicker.pickImage(source: ImageSource.gallery);
     _image = imagefile;
-    showInSnackBar('Tekan Upload Sekarang Untuk Mengupload');
+    if(_image != null){
+      modalkeluar('Gambar Telah Dipilih');
+    }
+    setState(() {
+      
+    });
   }
 
   Future getimagecamera() async {
@@ -120,7 +125,12 @@ class _EditProfile extends State<EditProfile>{
     var imagefile = await ImagePicker.pickImage(source: ImageSource.camera);
 
     _image = imagefile;
-    showInSnackBar('Tekan Upload Sekarang Untuk Mengupload');
+    if(_image != null){
+      modalkeluar('Gambar Telah Dipilih');
+    }
+    setState(() {
+      
+    });
   }
 
   Future<Null> getheader() async {
@@ -174,7 +184,7 @@ class _EditProfile extends State<EditProfile>{
     return null;
   }
 
-  getdata(context) async {
+  void getdata(BuildContext context) async {
       var storage = new DataStore();
       var tokenTypeStorage = await storage.getDataString('token_type');
       var accessTokenStorage = await storage.getDataString('access_token');
@@ -218,19 +228,21 @@ class _EditProfile extends State<EditProfile>{
             print(datauser);
             // print('statement else is true');
             // print(datauser);
-            Navigator.pop(context);
+            setState(() {
+              back = true;            
+            });
           } else {
-            showInSnackBar('Request failed with status: ${getUser.statusCode}');
+            modalkeluar('Request failed with status: ${getUser.statusCode}');
           }
         } on SocketException catch (_) {
-          showInSnackBar('Connection Timed Out');
+          modalkeluar('Connection Timed Out');
         } catch (e) {
           print(e);
-          // showInSnackBar(e);
+          // modalkeluar(e);
         }
       }
 
-  Future upload(File imageFile) async {
+  Future upload(File imageFile, BuildContext context) async {
     setState(() {
     loading = true;      
     });
@@ -244,26 +256,31 @@ class _EditProfile extends State<EditProfile>{
     requestHeaders['Authorization'] = '$tokenType $accessToken';
     Map<String, String> headers = requestHeaders;
 
-    var stream =
+    var request = new http.MultipartRequest("POST", urlpath('api/updateprofileAndroid'));
+  // print(imageFile);
+  if(imageFile != null){
+      var stream =
         new http.ByteStream(DelegatingStream.typed(imageFile.openRead()));
     var length = await imageFile.length();
-    var request = new http.MultipartRequest("POST", urlpath('api/updateprofileAndroid'));
     var kirimfile = new http.MultipartFile("gambar", stream, length,
         filename: basename(imageFile.path));
+    request.files.add(kirimfile);
+  } 
     request.headers.addAll(headers);
     request.fields['email'] = emailcontroller.text ;
     request.fields['nohp'] = phonecontroller.text ;
-    request.fields['kabupaten'] = selectedKabupaten.id.toString() ;
-    request.fields['provinsi'] = selectedProvinsi.id.toString() ;
-    request.fields['kecamatan'] = selectedkecamatan.id.toString() ;
+    // request.fields['kabupaten'] = selectedKabupaten != null ? selectedKabupaten.id.toString() : ''  ;
+    // request.fields['provinsi'] = selectedProvinsi != null ? selectedProvinsi.id.toString() : '' ;
+    // request.fields['kecamatan'] = selectedkecamatan != null ? selectedkecamatan.id.toString() : '' ;
     request.fields['address'] = addresscontroller.text ;
     request.fields['gender'] = gender.toString() ;
     request.fields['kodepos'] = postalcodecontroller.text ;
     request.fields['bank'] = bank.toString() ;
     request.fields['nbank'] = rekeningcontroller.text ;
     request.fields['tampat_lahir'] = tempatlahircontroller.text ;
-    request.fields['tanggal_lahir'] = lahir ;
-    request.files.add(kirimfile);
+    request.fields['tanggal_lahir'] = lahir;
+
+    
 
     var response = await request.send();
     print(response.statusCode);
@@ -272,6 +289,9 @@ class _EditProfile extends State<EditProfile>{
     if (response.statusCode == 200) {
       if (resp['error'] != null) {
         print((resp['error']).toString());
+        setState(() {
+          loading = false;
+        });
       } else {
         getdata(context);
         print('Berhasil');
@@ -295,18 +315,21 @@ class _EditProfile extends State<EditProfile>{
   @override
   void initState() {
     _image = null;
+    gender = '' ;
     getheader();
     _khususedit_profile = GlobalKey<ScaffoldState>();
     datepickerfirst = FocusNode();
     loading  = false;
     super.initState();
+    back = false;
     
   }
   
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      key: _khususedit_profile,
+      appBar: loading ? null : AppBar(
         title: Text('Ubah Profile'),
         backgroundColor: Color.fromRGBO(43, 204, 86, 1),
       ),
@@ -321,6 +344,62 @@ class _EditProfile extends State<EditProfile>{
                 width: double.infinity,
                 child: Column(
                   children: <Widget>[
+                    _image == null ? Card(
+                      elevation: 0.0,
+                      child: Container(
+                        margin: EdgeInsets.symmetric(vertical: 15),
+                        width: double.infinity,
+                        padding: EdgeInsets.symmetric(horizontal: 20.0),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                        ),
+                        child : Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                             Center(child: Text('Tidak Ada gambar'),) 
+                          ],
+                        ),
+                      ),
+                    ) : Container(
+                          decoration: new BoxDecoration(
+                            color: Colors.black.withOpacity(0.03),
+                          ),
+                          width: double.infinity,
+                          // height: MediaQuery.of(context).size.height * 0.80,
+                          child: Stack(
+                            children: <Widget>[
+                              Container(
+                                width: double.infinity,
+                                height: 300,
+                                decoration: new BoxDecoration(
+                                  color: Colors.green,
+                                  // image: new DecorationImage(
+                                  //   fit: BoxFit.cover,
+                                  //   image: new AssetImage('images/jisoocu.jpg'),
+                                  // ),
+                                ),
+                                child: Stack(
+                                  children: <Widget>[
+                                    Container(
+                                      width: double.infinity,
+                                      height: 300,
+                                      child : Image.file(_image),
+                                    ),
+
+                                    Container(
+                                      width: double.infinity,
+                                      height: 300,
+                                      decoration: new BoxDecoration(
+                                        color: Colors.black.withOpacity(0.5),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
 
                     Card(
                       elevation: 0.0,
@@ -439,7 +518,7 @@ class _EditProfile extends State<EditProfile>{
                               gender == 'L' ? print('laki - Laki') : gender == 'P' ? print('Perempuan') : '';
                             });
                           },
-                          items: <String>['Laki - Laki', 'Perempuan']
+                          items: <String>['','Laki - Laki', 'Perempuan']
                               .map<DropdownMenuItem<String>>((String value) {
                             return DropdownMenuItem<String>(
                               value: value,
@@ -583,7 +662,9 @@ class _EditProfile extends State<EditProfile>{
 
                     InkWell(
                       onTap: (){
-                        upload(_image);
+                        upload(_image,context);
+                        if(back == true){
+                        }
                       },
                       child: Container(
                         margin: EdgeInsets.symmetric(vertical: 15),

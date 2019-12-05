@@ -283,10 +283,13 @@ class _DashboardPageState extends State<DashboardPage>
                     Text(emailprofile == null ? 'Email Anda' : emailprofile),
                 // This how you set profil image in sidebar
                 // Remeber to add image first in pubspec.yaml
-                currentAccountPicture: CircleAvatar(
+                currentAccountPicture: Container(
+                  width: 30,
+                  height: 30,
                   child: imageprofile != null
                       ? ClipOval(
                           child: Image(
+                          fit: BoxFit.cover,
                             image: NetworkImageWithRetry(
                               url('storage/image/member/profile/$imageprofile'),
                             ),

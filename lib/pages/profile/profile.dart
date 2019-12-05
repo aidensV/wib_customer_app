@@ -120,7 +120,7 @@ class _ProfilePage extends State<ProfilePage>{
                     children: <Widget>[
                       Container(
                         width: double.infinity,
-                        height: MediaQuery.of(context).size.height * 0.48,
+                        height: 300,
                         decoration: new BoxDecoration(
                           color: Colors.green,
                           // image: new DecorationImage(
@@ -132,7 +132,7 @@ class _ProfilePage extends State<ProfilePage>{
                           children: <Widget>[
                             Container(
                               width: double.infinity,
-                              height: MediaQuery.of(context).size.height * 0.48,
+                              height: 300,
                               child : Image(
                                 fit: BoxFit.cover,
                                 image: NetworkImageWithRetry(
@@ -143,14 +143,14 @@ class _ProfilePage extends State<ProfilePage>{
 
                             Container(
                               width: double.infinity,
-                              height: MediaQuery.of(context).size.height * 0.48,
+                              height: 300,
                               decoration: new BoxDecoration(
                                 color: Colors.black.withOpacity(0.5),
                               ),
                             ),
 
                             Positioned(
-                              bottom: 45,
+                              bottom: 100,
                               left: 10,
                               child: Container (
                                 padding: const EdgeInsets.all(16.0),
@@ -176,7 +176,7 @@ class _ProfilePage extends State<ProfilePage>{
                     Container(
                       width: MediaQuery.of(context).size.width * 0.90,
                       // height: MediaQuery.of(context).size.height * 0.34,
-                      margin: EdgeInsetsDirectional.only(top: MediaQuery.of(context).size.width * 0.62, start: MediaQuery.of(context).size.width * 0.05),
+                      margin: EdgeInsetsDirectional.only(top: 220, start: MediaQuery.of(context).size.width * 0.05),
                       padding: EdgeInsets.symmetric(horizontal: 5,vertical: 5),
                       decoration: new BoxDecoration(
                         color: Colors.white.withOpacity(1),

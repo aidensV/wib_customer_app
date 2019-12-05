@@ -162,12 +162,11 @@ class _Saldo extends State<Saldo> {
                       margin: EdgeInsets.only(top: 20, bottom: 15),
                       width: MediaQuery.of(context).size.height * 0.15,
                       height: MediaQuery.of(context).size.height * 0.15,
-                      child: CircleAvatar(
-                        child: ClipOval(
-                          child: Image(
-                            image: NetworkImageWithRetry(
-                              url('storage/image/member/profile/$imageprofile'),
-                            ),
+                      child: ClipOval(
+                        child: Image(
+                          fit: BoxFit.cover,
+                          image: NetworkImageWithRetry(
+                            url('storage/image/member/profile/$imageprofile'),
                           ),
                         ),
                       ),
