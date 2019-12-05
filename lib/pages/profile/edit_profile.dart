@@ -17,6 +17,7 @@ import 'package:wib_customer_app/storage/storage.dart';
 import 'listkabupaten.dart';
 import '../checkout/listkecamatan.dart';
 import '../checkout/listprovinsi.dart';
+import 'imagecropper.dart';
 
 var _khususedit_profile;
 var datepickerfirst;
@@ -27,6 +28,7 @@ String tokenType, accessToken;
 Map<String, String> requestHeaders = Map();
 String imageprofile;
 bool loading;
+File image;
 
 class EditProfile extends StatefulWidget{
     @override
@@ -258,15 +260,15 @@ class _EditProfile extends State<EditProfile>{
 
     var request = new http.MultipartRequest("POST", urlpath('api/updateprofileAndroid'));
   // print(imageFile);
-  if(imageFile != null){
-      var stream =
-        new http.ByteStream(DelegatingStream.typed(imageFile.openRead()));
-    var length = await imageFile.length();
-    var kirimfile = new http.MultipartFile("gambar", stream, length,
-        filename: basename(imageFile.path));
-    request.files.add(kirimfile);
-  } 
     request.headers.addAll(headers);
+  if(imageFile != null){
+    // var stream new http.ByteStream(DelegatingStream.typed(imageFile.openRead()));
+    // var length = await imageFile.length();
+    // var kirimfile = new http.MultipartFile("gambar", stream, length,
+    //     filename: basename(imageFile.path));
+    // request.files.add(kirimfile);
+    request.fields['gambar'] = base64Encode(imageFile.readAsBytesSync());
+  } 
     request.fields['email'] = emailcontroller.text ;
     request.fields['nohp'] = phonecontroller.text ;
     // request.fields['kabupaten'] = selectedKabupaten != null ? selectedKabupaten.id.toString() : ''  ;
@@ -279,25 +281,25 @@ class _EditProfile extends State<EditProfile>{
     request.fields['nbank'] = rekeningcontroller.text ;
     request.fields['tampat_lahir'] = tempatlahircontroller.text ;
     request.fields['tanggal_lahir'] = lahir;
-
-    
-
     var response = await request.send();
     print(response.statusCode);
     final respStr = await response.stream.bytesToString();
     var resp = json.decode(respStr);
+    // modalkeluar('$respStr');
     if (response.statusCode == 200) {
       if (resp['error'] != null) {
         print((resp['error']).toString());
         setState(() {
           loading = false;
         });
+        modalkeluar(resp['error'].toString());
       } else {
         getdata(context);
         print('Berhasil');
         setState(() {
           loading = false;
         });
+        modalkeluar('Berhasil Pengubah Profile');
       }
       setState(() {
         loading = false;      
@@ -314,7 +316,7 @@ class _EditProfile extends State<EditProfile>{
 
   @override
   void initState() {
-    _image = null;
+    image = null;
     gender = '' ;
     getheader();
     _khususedit_profile = GlobalKey<ScaffoldState>();
@@ -344,7 +346,7 @@ class _EditProfile extends State<EditProfile>{
                 width: double.infinity,
                 child: Column(
                   children: <Widget>[
-                    _image == null ? Card(
+                    image == null ? Card(
                       elevation: 0.0,
                       child: Container(
                         margin: EdgeInsets.symmetric(vertical: 15),
@@ -384,7 +386,7 @@ class _EditProfile extends State<EditProfile>{
                                     Container(
                                       width: double.infinity,
                                       height: 300,
-                                      child : Image.file(_image),
+                                      child : Image.file(image),
                                     ),
 
                                     Container(
@@ -413,8 +415,25 @@ class _EditProfile extends State<EditProfile>{
                         child : Row(
                           children: <Widget>[
                             InkWell(
-                              onTap: (){
-                                getimagecamera();
+                              onTap: () async {
+                                // getimagecamera();
+                                File imageX = await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        settings: RouteSettings(
+                                            name: '/ambil_gambar'),
+                                        builder: (BuildContext context) =>
+                                            AmbilGambar(
+                                          title: 'Ambil Gambar',
+                                        ),
+                                      ),
+                                    );
+
+                                    if (imageX != null) {
+                                      setState(() {
+                                        image = imageX;
+                                      });
+                                    }
                               },
                               child: Container(
                                 margin: EdgeInsets.only(right: 20),
@@ -662,7 +681,7 @@ class _EditProfile extends State<EditProfile>{
 
                     InkWell(
                       onTap: (){
-                        upload(_image,context);
+                        upload(image,context);
                         if(back == true){
                         }
                       },
