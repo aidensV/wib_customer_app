@@ -413,6 +413,8 @@ class _EditProfile extends State<EditProfile>{
                           color: Colors.white,
                         ),
                         child : Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
                             InkWell(
                               onTap: () async {
@@ -436,12 +438,12 @@ class _EditProfile extends State<EditProfile>{
                                     }
                               },
                               child: Container(
-                                margin: EdgeInsets.only(right: 20),
+                                // margin: EdgeInsets.only(right: 20),
                                 decoration: BoxDecoration(
                                   color: Color.fromRGBO(45, 204, 91, 1),
                                   borderRadius: BorderRadius.circular(20.0),
                                 ),
-                                width: MediaQuery.of(context).size.width * 0.40,
+                                width: MediaQuery.of(context).size.width * 0.8,
                                 padding: EdgeInsets.symmetric(vertical: 10.0 ,horizontal: 20.0),
                                   child:Text(
                                     'Ambil Gambar',
@@ -453,26 +455,26 @@ class _EditProfile extends State<EditProfile>{
                               ),
                             ),
 
-                            InkWell(
-                              onTap: (){
-                                getimagegallery();
-                              },
-                              child : Container(
-                                decoration: BoxDecoration(
-                                  color: Color.fromRGBO(45, 204, 91, 1),
-                                  borderRadius: BorderRadius.circular(20.0),
-                                ),
-                                width: MediaQuery.of(context).size.width * 0.40,
-                                padding: EdgeInsets.symmetric(vertical: 10.0 ,horizontal: 20.0),
-                                  child:Text(
-                                    'Ambil Galery',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                    ),
-                                  )
-                              ),
-                            ),
+                            // InkWell(
+                            //   onTap: (){
+                            //     getimagegallery();
+                            //   },
+                            //   child : Container(
+                            //     decoration: BoxDecoration(
+                            //       color: Color.fromRGBO(45, 204, 91, 1),
+                            //       borderRadius: BorderRadius.circular(20.0),
+                            //     ),
+                            //     width: MediaQuery.of(context).size.width * 0.40,
+                            //     padding: EdgeInsets.symmetric(vertical: 10.0 ,horizontal: 20.0),
+                            //       child:Text(
+                            //         'Ambil Galery',
+                            //         textAlign: TextAlign.center,
+                            //         style: TextStyle(
+                            //           color: Colors.white,
+                            //         ),
+                            //       )
+                            //   ),
+                            // ),
                           ],
                         ),
                       ),
