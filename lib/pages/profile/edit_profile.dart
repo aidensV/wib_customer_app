@@ -298,6 +298,7 @@ class _EditProfile extends State<EditProfile>{
     getheader();
     _khususedit_profile = GlobalKey<ScaffoldState>();
     datepickerfirst = FocusNode();
+    loading  = false;
     super.initState();
     
   }

@@ -4,7 +4,6 @@ import 'package:wib_customer_app/env.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
 import 'dart:convert';
-import 'package:wib_customer_app/pages/checkout/checkout.dart';
 import 'package:wib_customer_app/storage/storage.dart';
 
 var idX, notaX, customerX, statusX;
@@ -329,7 +328,7 @@ class _DetailState extends State<Detail> {
                 title: Text(totalhargasemuabarangX == null ||
                         totalhargasemuabarangX == '0'
                     ? 'Total Harga Barang : Rp. 0.00'
-                    : 'Total Harga Barang : Rp. ${totalhargasemuabarangX} '),
+                    : 'Total Harga Barang : Rp. $totalhargasemuabarangX '),
               ),
             ),
             Card(
@@ -346,7 +345,7 @@ class _DetailState extends State<Detail> {
                 leading: Icon(Icons.shopping_basket, color: Colors.green),
                 title: Text(totalpembelianX == null || totalpembelianX == '0'
                     ? 'Total Pembelian : Rp. 0.00'
-                    : 'Total Pembelian : Rp. ${totalpembelianX}'),
+                    : 'Total Pembelian : Rp. $totalpembelianX'),
               ),
             ),
             Padding(

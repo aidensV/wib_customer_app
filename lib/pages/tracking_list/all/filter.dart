@@ -39,7 +39,6 @@ class _FilterTransaksiAllState extends State<FilterTransaksiAll> {
 
   @override
   Widget build(BuildContext context) {
-    DateFormat dateFormat = DateFormat("yyyy-MM-dd HH:mm:ss");
     return Scaffold(
       backgroundColor: Colors.white,
       key: _scaffoldKeyfilterAll,

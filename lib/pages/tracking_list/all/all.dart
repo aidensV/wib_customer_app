@@ -7,8 +7,6 @@ import 'package:wib_customer_app/env.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
 import 'dart:convert';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'filter.dart';
 
 List<ListNota> listNota;

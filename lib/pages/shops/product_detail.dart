@@ -82,7 +82,6 @@ class ProductDetailState extends State<ProductDetail> {
           listNota.add(notax);
         }
         setState(() {
-          isLoadings = false;
           wishlistX = wishlist;
           stockiesX = stockies;
         });
@@ -99,15 +98,13 @@ class ProductDetailState extends State<ProductDetail> {
         return null;
       }
     } on TimeoutException catch (_) {
-      setState(() {
-        isLoadings = false;
-      });
       showInSnackBar('Timed out, Try again');
     } catch (e) {
       debugPrint('$e');
     }
     return null;
   }
+
   Future<void> getstock() async {
     print('stockcheck {$stockiesX}');
     var storage = new DataStore();
@@ -122,17 +119,22 @@ class ProductDetailState extends State<ProductDetail> {
 
     try {
       final response = await http.post(url('api/stock_check'),
-          headers: requestHeaders, body: {'produk': widget.code,'cabang': stockiesX});
+          headers: requestHeaders,
+          body: {'produk': widget.code, 'cabang': stockiesX});
 
       if (response.statusCode == 200) {
         setState(() {
           var stockJson = json.decode(response.body);
           String stockvalue = stockJson['stock'].toString();
           stockX = stockvalue;
+          isLoadings = false;
           print('stock $stockvalue');
         });
       } else if (response.statusCode == 401) {
         showInSnackBar('Token telah kadaluarsa, silahkanlogin kembali');
+        setState(() {
+          isLoadings = false;
+        });
       } else {
         showInSnackBar('Request failed with status: ${response.body}');
         setState(() {
@@ -173,7 +175,7 @@ class ProductDetailState extends State<ProductDetail> {
 
   @override
   void initState() {
-    isLoadings = false;
+    isLoadings = true;
     wishlistX = null;
     isWishlist = false;
     getHeaderHTTP();
@@ -211,253 +213,277 @@ class ProductDetailState extends State<ProductDetail> {
         ),
         backgroundColor: Colors.white,
       ),
-      body: ListView(
-        // child: ListView(
-        children: <Widget>[
-          Stack(
-            children: <Widget>[
-              listNota.length == 0
-                  ? new Container(
-                      child: Image.network(
-                        url(
-                          'assets/img/noimage.jpg',
-                        ),
-                      ),
-                      width: MediaQuery.of(context).size.width,
-                    )
-                  : Padding(
-                      padding: EdgeInsets.only(
-                        top: 30.0,
-                        left: 20.0,
-                        right: 20.0,
-                      ),
-                      child: carouselSlider = CarouselSlider(
-                        height: 220,
-                        initialPage: 0,
-                        enlargeCenterPage: true,
-                        autoPlay: true,
-                        reverse: false,
-                        enableInfiniteScroll: true,
-                        autoPlayInterval: Duration(seconds: 5),
-                        autoPlayAnimationDuration: Duration(milliseconds: 2000),
-                        pauseAutoPlayOnTouch: Duration(seconds: 10),
-                        scrollDirection: Axis.horizontal,
-                        onPageChanged: (index) {
-                          // setState(() {
-                          //   _current = index;
-                          // });
-                        },
-                        items: <Widget>[
-                          for (var i = 0; i < listNota.length; i++)
-                            Container(
-                              width: MediaQuery.of(context).size.width,
-                              margin: EdgeInsets.symmetric(horizontal: 5.0),
-                              decoration: BoxDecoration(
-                                image: DecorationImage(
-                                  image: NetworkImageWithRetry(urladmin(
-                                      'storage/image/master/produk/${listNota[i].item}')),
-                                  fit: BoxFit.fitHeight,
+      body: isLoadings == true
+          ? Center(child: CircularProgressIndicator())
+          : RefreshIndicator(
+              onRefresh: () => listNotaAndroid(),
+              child: ListView(
+                // child: ListView(
+                children: <Widget>[
+                  Stack(
+                    children: <Widget>[
+                      listNota.length == 0
+                          ? new Container(
+                              child: Image.network(
+                                url(
+                                  'assets/img/noimage.jpg',
                                 ),
                               ),
+                              width: MediaQuery.of(context).size.width,
+                            )
+                          : Padding(
+                              padding: EdgeInsets.only(
+                                top: 30.0,
+                                left: 20.0,
+                                right: 20.0,
+                              ),
+                              child: carouselSlider = CarouselSlider(
+                                height: 220,
+                                initialPage: 0,
+                                enlargeCenterPage: true,
+                                autoPlay: true,
+                                reverse: false,
+                                enableInfiniteScroll: true,
+                                autoPlayInterval: Duration(seconds: 5),
+                                autoPlayAnimationDuration:
+                                    Duration(milliseconds: 2000),
+                                pauseAutoPlayOnTouch: Duration(seconds: 10),
+                                scrollDirection: Axis.horizontal,
+                                onPageChanged: (index) {
+                                  // setState(() {
+                                  //   _current = index;
+                                  // });
+                                },
+                                items: <Widget>[
+                                  for (var i = 0; i < listNota.length; i++)
+                                    Container(
+                                      width: MediaQuery.of(context).size.width,
+                                      margin:
+                                          EdgeInsets.symmetric(horizontal: 5.0),
+                                      decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                          image: NetworkImageWithRetry(urladmin(
+                                              'storage/image/master/produk/${listNota[i].item}')),
+                                          fit: BoxFit.fitHeight,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
                             ),
-                        ],
-                      ),
-                    ),
-            ],
-          ),
-          Container(
-              child: Column(
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.only(top: 30.0, left: 10.0, right: 10.0),
-                child: Row(
-                  children: <Widget>[
-                    Text(
-                      tipeX == null ? 'Jenis Item' : tipeX,
-                      textAlign: TextAlign.left,
-                      style: TextStyle(
-                          color: Colors.green, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: 4.0, left: 10.0, right: 10.0),
-                child: Row(
-                  children: <Widget>[
-                    Text(
-                      itemX == null ? 'Nama Item' : itemX,
-                      textAlign: TextAlign.left,
-                      style: TextStyle(color: Colors.grey[800], fontSize: 20),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: 20.0, left: 10.0, right: 10.0),
-                child: Row(
-                  children: <Widget>[
-                    Icon(
-                      Icons.announcement,
-                      color: Colors.green,
-                      size: 14,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8.0),
-                      child: Text(stockiesX == 'Tidak Ada Cabang Terdekat' ? 'Tidak ada Cabang Terdekat' : stockX == 0 || stockX == null ? 'Stock tersisa : 0' : 'Stock tersisa : $stockX',
-                        textAlign: TextAlign.left,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: 20.0, left: 10.0, right: 10.0),
-                child: Row(
-                  children: <Widget>[
-                    Icon(
-                      Icons.archive,
-                      color: Colors.green,
-                      size: 14,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8.0),
-                      child: Text(
-                        'Warung Islami Bogor',
-                        textAlign: TextAlign.left,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: 20.0, left: 10.0, right: 10.0),
-                child: Row(
-                  children: <Widget>[
-                    Icon(
-                      Icons.access_time,
-                      color: Colors.green,
-                      size: 14,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 10.0),
-                      child: Text(
-                        '12 Agustus 2012',
-                        textAlign: TextAlign.left,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(
-                    top: 20.0, left: 10.0, right: 10.0, bottom: 20.0),
-                child: Row(
-                  children: <Widget>[
-                    Icon(
-                      Icons.location_on,
-                      color: Colors.green,
-                      size: 14,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 10.0),
-                      child: Text(
-                        'Kab. Bogor',
-                        textAlign: TextAlign.left,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          )),
-          Card(
-            child: ListTile(
-              leading: new ButtonTheme(
-                  minWidth: 0,
-                  buttonColor: Color(0xff388bf2),
-                  child: FlatButton(
-                      child: Icon(Icons.remove_circle, color: Colors.green),
-                      color: Colors.white,
-                      padding: EdgeInsets.all(
-                        0.0,
-                      ),
-                      onPressed: () {
-                        int currentValue = int.parse(
-                            kodeposController.text == null
-                                ? '0'
-                                : kodeposController.text);
-                        setState(() {
-                          currentValue--;
-                          if (currentValue <= 1) {
-                            kodeposController.text = '1';
-                          } else {
-                            kodeposController.text =
-                                (currentValue).toString(); // incrementing value
-                          }
-                        });
-                      })),
-              title: TextField(
-                controller: kodeposController,
-                textAlign: TextAlign.center,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(),
-              ),
-              trailing: new ButtonTheme(
-                  minWidth: 0,
-                  buttonColor: Color(0xff388bf2),
-                  child: FlatButton(
-                      child: Icon(Icons.add_circle, color: Colors.green),
-                      color: Colors.white,
-                      padding: EdgeInsets.all(
-                        0.0,
-                      ),
-                      onPressed: () {
-                        int currentValue = int.parse(
-                            kodeposController.text.length == 0
-                                ? '0'
-                                : kodeposController.text);
-                        setState(() {
-                          currentValue++;
-                          kodeposController.text = (currentValue).toString();
-                        });
-                      })),
-            ),
-          ),
-          Card(
-            child: Column(
-              children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.only(top: 20.0, left: 10.0, right: 10.0),
-                  child: Row(
-                    children: <Widget>[
-                      Text(
-                        'Description',
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                            color: Colors.black, fontWeight: FontWeight.bold),
-                      ),
                     ],
                   ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(
-                      top: 20.0, left: 10.0, right: 10.0, bottom: 20.0),
-                  child: Column(
+                  Container(
+                      child: Column(
                     children: <Widget>[
-                      Text(
-                        descX == null || descX == ''
-                            ? 'Tidak ada deskripsi untuk barang ini'
-                            : descX,
-                      )
+                      Padding(
+                        padding:
+                            EdgeInsets.only(top: 30.0, left: 10.0, right: 10.0),
+                        child: Row(
+                          children: <Widget>[
+                            Text(
+                              tipeX == null ? 'Jenis Item' : tipeX,
+                              textAlign: TextAlign.left,
+                              style: TextStyle(
+                                  color: Colors.green,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding:
+                            EdgeInsets.only(top: 4.0, left: 10.0, right: 10.0),
+                        child: Row(
+                          children: <Widget>[
+                            Text(
+                              itemX == null ? 'Nama Item' : itemX,
+                              textAlign: TextAlign.left,
+                              style: TextStyle(
+                                  color: Colors.grey[800], fontSize: 20),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding:
+                            EdgeInsets.only(top: 20.0, left: 10.0, right: 10.0),
+                        child: Row(
+                          children: <Widget>[
+                            Icon(
+                              Icons.announcement,
+                              color: Colors.green,
+                              size: 14,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 8.0),
+                              child: Text(
+                                stockiesX == 'Tidak Ada Cabang Terdekat'
+                                    ? 'Tidak ada Cabang Terdekat'
+                                    : stockX == '0' || stockX == null
+                                        ? 'Stock tersisa : 0'
+                                        : 'Stock tersisa : $stockX',
+                                textAlign: TextAlign.left,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding:
+                            EdgeInsets.only(top: 20.0, left: 10.0, right: 10.0),
+                        child: Row(
+                          children: <Widget>[
+                            Icon(
+                              Icons.archive,
+                              color: Colors.green,
+                              size: 14,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 8.0),
+                              child: Text(
+                                'Warung Islami Bogor',
+                                textAlign: TextAlign.left,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding:
+                            EdgeInsets.only(top: 20.0, left: 10.0, right: 10.0),
+                        child: Row(
+                          children: <Widget>[
+                            Icon(
+                              Icons.access_time,
+                              color: Colors.green,
+                              size: 14,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 10.0),
+                              child: Text(
+                                '12 Agustus 2012',
+                                textAlign: TextAlign.left,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            top: 20.0, left: 10.0, right: 10.0, bottom: 20.0),
+                        child: Row(
+                          children: <Widget>[
+                            Icon(
+                              Icons.location_on,
+                              color: Colors.green,
+                              size: 14,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 10.0),
+                              child: Text(
+                                'Kab. Bogor',
+                                textAlign: TextAlign.left,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
+                  )),
+                  Card(
+                    child: ListTile(
+                      leading: new ButtonTheme(
+                          minWidth: 0,
+                          buttonColor: Color(0xff388bf2),
+                          child: FlatButton(
+                              child: Icon(Icons.remove_circle,
+                                  color: Colors.green),
+                              color: Colors.white,
+                              padding: EdgeInsets.all(
+                                0.0,
+                              ),
+                              onPressed: () {
+                                int currentValue = int.parse(
+                                    kodeposController.text == null
+                                        ? '0'
+                                        : kodeposController.text);
+                                setState(() {
+                                  currentValue--;
+                                  if (currentValue <= 1) {
+                                    kodeposController.text = '1';
+                                  } else {
+                                    kodeposController.text = (currentValue)
+                                        .toString(); // incrementing value
+                                  }
+                                });
+                              })),
+                      title: TextField(
+                        controller: kodeposController,
+                        textAlign: TextAlign.center,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(),
+                      ),
+                      trailing: new ButtonTheme(
+                          minWidth: 0,
+                          buttonColor: Color(0xff388bf2),
+                          child: FlatButton(
+                              child:
+                                  Icon(Icons.add_circle, color: Colors.green),
+                              color: Colors.white,
+                              padding: EdgeInsets.all(
+                                0.0,
+                              ),
+                              onPressed: () {
+                                int currentValue = int.parse(
+                                    kodeposController.text.length == 0
+                                        ? '0'
+                                        : kodeposController.text);
+                                setState(() {
+                                  currentValue++;
+                                  kodeposController.text =
+                                      (currentValue).toString();
+                                });
+                              })),
+                    ),
                   ),
-                ),
-              ],
+                  Card(
+                    child: Column(
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.only(
+                              top: 20.0, left: 10.0, right: 10.0),
+                          child: Row(
+                            children: <Widget>[
+                              Text(
+                                'Description',
+                                textAlign: TextAlign.left,
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(
+                              top: 20.0, left: 10.0, right: 10.0, bottom: 20.0),
+                          child: Column(
+                            children: <Widget>[
+                              Text(
+                                descX == null || descX == ''
+                                    ? 'Tidak ada deskripsi untuk barang ini'
+                                    : descX,
+                              )
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
       bottomNavigationBar: BottomAppBar(
         child: new Row(
           mainAxisSize: MainAxisSize.max,
@@ -499,41 +525,46 @@ class ProductDetailState extends State<ProductDetail> {
                                   buttonColor: Color(0xff388bf2),
                                   child: FlatButton(
                                     onPressed: () async {
-                                      var idx = codeX;
-                                      try {
-                                        final aksiwishlist = await http.post(
-                                            url('api/ActionWishlistAndroid'),
-                                            headers: requestHeaders,
-                                            body: {'produk': idx});
+                                      if (isLoadings == true) {
+                                        showInSnackBar(
+                                            'Sedang memuat halaman mohon tunggu sebentar');
+                                      } else {
+                                        var idx = codeX;
+                                        try {
+                                          final aksiwishlist = await http.post(
+                                              url('api/ActionWishlistAndroid'),
+                                              headers: requestHeaders,
+                                              body: {'produk': idx});
 
-                                        if (aksiwishlist.statusCode == 200) {
-                                          var aksiwishlistJson =
-                                              json.decode(aksiwishlist.body);
-                                          if (aksiwishlistJson['status'] ==
-                                              'tambahwishlist') {
-                                            setState(() {
-                                              isWishlist = true;
-                                              wishlistX = codeX;
-                                            });
-                                            showInSnackBar(
-                                                '$itemX Berhasil ditambahkan ke barang favorit');
-                                          } else if (aksiwishlistJson[
-                                                  'status'] ==
-                                              'hapuswishlist') {
-                                            showInSnackBar(
-                                                '$itemX Berhasil dihapus dari barang favorit');
-                                            setState(() {
-                                              isWishlist = false;
-                                              wishlistX = null;
-                                            });
-                                          } else if (aksiwishlistJson[
-                                                  'status'] ==
-                                              'Error') {}
-                                        } else {
-                                          print('${aksiwishlist.body}');
+                                          if (aksiwishlist.statusCode == 200) {
+                                            var aksiwishlistJson =
+                                                json.decode(aksiwishlist.body);
+                                            if (aksiwishlistJson['status'] ==
+                                                'tambahwishlist') {
+                                              setState(() {
+                                                isWishlist = true;
+                                                wishlistX = codeX;
+                                              });
+                                              showInSnackBar(
+                                                  '$itemX Berhasil ditambahkan ke barang favorit');
+                                            } else if (aksiwishlistJson[
+                                                    'status'] ==
+                                                'hapuswishlist') {
+                                              showInSnackBar(
+                                                  '$itemX Berhasil dihapus dari barang favorit');
+                                              setState(() {
+                                                isWishlist = false;
+                                                wishlistX = null;
+                                              });
+                                            } else if (aksiwishlistJson[
+                                                    'status'] ==
+                                                'Error') {}
+                                          } else {
+                                            print('${aksiwishlist.body}');
+                                          }
+                                        } on TimeoutException catch (_) {} catch (e) {
+                                          print(e);
                                         }
-                                      } on TimeoutException catch (_) {} catch (e) {
-                                        print(e);
                                       }
                                     },
                                     child: Icon(Icons.favorite,
@@ -552,7 +583,10 @@ class ProductDetailState extends State<ProductDetail> {
                                   child: FlatButton(
                                     onPressed: () async {
                                       var location = stockiesX;
-                                      if (location == null) {
+                                      if (isLoadings == true) {
+                                        showInSnackBar(
+                                            'Sedang memuat halaman, mohon tunggu sebentar');
+                                      } else if (location == null) {
                                         showInSnackBar(
                                             'Silahkan setting alamat terlebih dahulu pada pengaturan akun');
                                       } else {

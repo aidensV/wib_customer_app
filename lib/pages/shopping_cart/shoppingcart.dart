@@ -8,7 +8,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:flutter_image/network.dart';
-import '../../utils/Navigator.dart';
 
 var _scaffoldKeyCart;
 List<ListKeranjang> listNota = [];
@@ -55,8 +54,6 @@ class _KeranjangState extends State<Keranjang> {
   }
 
   Future<void> totalhargaget() async {
-    var storage = new DataStore();
-
     try {
       final nota = await http.get(
         url('api/listKeranjangAndroid'),
@@ -153,32 +150,7 @@ class _KeranjangState extends State<Keranjang> {
     super.initState();
   }
 
-  void _showMaterialDialog() {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('Peringatan'),
-            content:
-                Text('Anda belum memiliki item pada keranjang belanja anda'),
-            actions: <Widget>[
-              FlatButton(
-                  onPressed: () {
-                    _dismissDialog();
-                  },
-                  child: Text('OK')),
-            ],
-          );
-        });
-  }
-
-  _dismissDialog() {
-    Navigator.of(context).pop();
-  }
-
   Widget build(BuildContext context) {
-    NumberFormat _numberFormat =
-        new NumberFormat.simpleCurrency(decimalDigits: 2, name: 'Rp. ');
     return Scaffold(
       key: _scaffoldKeyCart,
       backgroundColor: Colors.white,
@@ -240,15 +212,11 @@ class _KeranjangState extends State<Keranjang> {
                               itemCount: listNota.length,
                               itemBuilder: (BuildContext context, int index) {
                                 qtyinput.text = listNota[index].jumlah;
-                                double totalperitem =
-                                    double.parse(listNota[index].total);
                                 double hargaperitem =
                                     double.parse(listNota[index].harga);
                                 NumberFormat _numberFormat =
                                     new NumberFormat.simpleCurrency(
                                         decimalDigits: 2, name: 'Rp. ');
-                                String finaltotalitem =
-                                    _numberFormat.format(totalperitem);
                                 String finalhargaperitem =
                                     _numberFormat.format(hargaperitem);
                                 return Card(

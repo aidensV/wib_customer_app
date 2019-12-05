@@ -4,7 +4,6 @@ import 'package:wib_customer_app/env.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
 import 'dart:convert';
-import 'package:wib_customer_app/pages/checkout/checkout.dart';
 import 'package:wib_customer_app/storage/storage.dart';
 import 'tracking.dart';
 
@@ -302,7 +301,7 @@ class _DetailState extends State<Detail> {
                 title: Text(totalhargasemuabarangX == null ||
                         totalhargasemuabarangX == '0'
                     ? 'Total Harga Barang : Rp. 0.00'
-                    : 'Total Harga Barang : Rp. ${totalhargasemuabarangX} '),
+                    : 'Total Harga Barang : Rp. $totalhargasemuabarangX'),
               ),
             ),
             Card(
@@ -319,7 +318,7 @@ class _DetailState extends State<Detail> {
                 leading: Icon(Icons.shopping_basket, color: Colors.green),
                 title: Text(totalpembelianX == null || totalpembelianX == '0'
                     ? 'Total Pembelian : Rp. 0.00'
-                    : 'Total Pembelian : Rp. ${totalpembelianX}'),
+                    : 'Total Pembelian : Rp. $totalpembelianX'),
               ),
             ),
             Padding(
@@ -380,24 +379,6 @@ class _DetailState extends State<Detail> {
                 title: Text(ongkirX == null || ongkirX == '0' || ongkirX == '0.00'
                     ? '-'
                     : alamatX == null || alamatX == '' ? '' : alamatX),
-              ),
-            ),
-            Card(
-              child: ListTile(
-                leading: Icon(Icons.location_searching, color: Colors.green),
-                title: Text(
-                    notaX == null ? 'Tunggu Sebentar' : 'Lacak Pengiriman'),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => Tracking(
-                        nota: notaX,
-                        customer: customerX,
-                      ),
-                    ),
-                  );
-                },
               ),
             ),
             listItem.length == 0
@@ -724,6 +705,37 @@ class _DetailState extends State<Detail> {
               ),
             ),
           ],
+        ),
+      ),
+      floatingActionButton: InkWell(
+        onTap: () async {
+          Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Tracking(
+                        nota: notaX,
+                        customer: customerX,
+                      ),
+                    ),
+            );
+        },
+        child: Container(
+          width: 120.0,
+          height: 40.0,
+          decoration: new BoxDecoration(
+            color: Color(0xff31B057),
+            border: new Border.all(color: Colors.transparent, width: 2.0),
+            borderRadius: new BorderRadius.circular(23.0),
+          ),
+          child: Center(
+            child: Text(
+              'Lacak Pengiriman',
+              style: new TextStyle(
+                  fontFamily: 'TitilliumWeb',
+                  fontSize: 14.0,
+                  color: Colors.white),
+            ),
+          ),
         ),
       ),
     );

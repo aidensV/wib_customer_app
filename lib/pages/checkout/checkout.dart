@@ -6,7 +6,6 @@ import 'package:http/http.dart' as http;
 import 'package:wib_customer_app/env.dart';
 import 'dart:async';
 import 'dart:convert';
-import '../../utils/Navigator.dart';
 import 'listkabupaten.dart';
 import 'listkecamatan.dart';
 import 'listprovinsi.dart';
@@ -103,6 +102,7 @@ class _CheckoutState extends State<Checkout> {
         var namakecamatan = notaJson['namakecamatan'];
         var kodeposcustomer = notaJson['kodepos'].toString();
         var alamatcustomer = notaJson['alamat'].toString();
+        print('alamat $alamatcustomer');
         listNota = [];
         for (var i in notas) {
           ListCheckout notax = ListCheckout(
@@ -123,8 +123,8 @@ class _CheckoutState extends State<Checkout> {
         setState(() {
           idkabupatenX = idkabupaten;
           namakabupatenX = namakabupaten;
-          kodeposController.text = kodeposcustomer;
-          alamatController.text = alamatcustomer;
+          kodeposController.text = kodeposcustomer == 'null' || kodeposcustomer == null  ? '' : kodeposcustomer;
+          alamatController.text = alamatcustomer == 'null' || kodeposcustomer == null ? '' : alamatcustomer;
           selectedProvinsi = ListProvinsi(
             id: idprovinsi,
             nama: namaprovinsi,
@@ -141,7 +141,6 @@ class _CheckoutState extends State<Checkout> {
         print('listnota length ${listNota.length}');
         setState(() {
           hargatotalX = totalharga;
-          isLoading = false;
         });
         getOngkir();
         return listNota;
@@ -192,6 +191,7 @@ class _CheckoutState extends State<Checkout> {
         String totalbelanjacustomer = ongkirJson['totalbelanja'].toString();
         print('stock $ongkirvalue');
         setState(() {
+          isLoading = false;
           selectedKabupaten = ListKabupaten(
             id: idkabupatenX,
             nama: namakabupatenX,
@@ -223,7 +223,7 @@ class _CheckoutState extends State<Checkout> {
   void initState() {
     getHeaderHTTP();
     _scaffoldKeyX = new  GlobalKey<ScaffoldState>();
-    isLoading = false;
+    isLoading = true;
     checkboxnoongkir = 'aktif';
     checkboxongkirsaldo = 'aktif';
     checkboxtotalsaldo = 'aktif';
@@ -266,7 +266,13 @@ class _CheckoutState extends State<Checkout> {
         ),
         backgroundColor: Colors.white,
       ),
-      body: ListView(
+      body:
+      isLoading == true
+          ? Center(child: CircularProgressIndicator())
+          :
+       RefreshIndicator(
+              onRefresh: () => listNotaAndroid(),
+              child: ListView(
         // padding: EdgeInsets.all(5.0),
         // child: new Column(
         children: <Widget>[
@@ -708,6 +714,7 @@ class _CheckoutState extends State<Checkout> {
             ),
           ),
         ],
+              ),
         // ),
       ),
       bottomNavigationBar: BottomAppBar(
@@ -743,9 +750,11 @@ class _CheckoutState extends State<Checkout> {
                         showInSnackBar(
                             'Silahkan masukkan alamat lengkap terlebih dahulu');
                       } else {
+                        showInSnackBar('Sedang memproses permintaan anda, mohon tunggu sebentar');
                         _checkoutSekarang();
                       }
                     } else {
+                      showInSnackBar('Sedang memproses permintaan anda, mohon tunggu sebentar');
                       _checkoutSekarang();
                     }
                   },

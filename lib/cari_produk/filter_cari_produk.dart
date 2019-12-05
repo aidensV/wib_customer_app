@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:wib_customer_app/cari_produk/cari_produk.dart';
 import 'package:wib_customer_app/env.dart';
 import 'package:wib_customer_app/error/error.dart';
 import 'package:wib_customer_app/storage/storage.dart';

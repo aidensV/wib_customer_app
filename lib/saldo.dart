@@ -4,9 +4,7 @@ import 'package:intl/intl.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:wib_customer_app/dashboard.dart';
 import 'package:wib_customer_app/env.dart';
-import 'package:wib_customer_app/pages/profile/profile.dart';
 import 'package:wib_customer_app/storage/storage.dart';
 // import 'package:shimmer/shimmer.dart';
 // import 'dashboard.dart';
@@ -55,27 +53,6 @@ class _Saldo extends State<Saldo> {
   var total;
   bool loading = true;
   _Saldo({Key key, this.customer});
-
-  int _currentIndex = 1;
-  void onTabTapped(int index) {
-    _currentIndex = index;
-    if (index == 0) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => DashboardPage(),
-        ),
-      );
-    } else if (index == 1) {
-    } else if (index == 2) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ProfilePage(),
-        ),
-      );
-    }
-  }
 
   Future<Null> getsaldo() async {
     try {

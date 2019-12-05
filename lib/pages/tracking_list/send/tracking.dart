@@ -2,17 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:wib_customer_app/env.dart';
 import 'dart:async';
+import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:wib_customer_app/storage/storage.dart';
 
-var  notas, customers;
+var notas, customers;
 String accessToken, tokenType;
 Map<String, String> requestHeaders = Map();
 List<ListTracking> listTracking;
 bool isLoading;
 
 class Tracking extends StatefulWidget {
-  final String  nota, customer;
+  final String nota, customer;
   Tracking({
     Key key,
     @required this.nota,
@@ -29,12 +30,11 @@ class Tracking extends StatefulWidget {
 }
 
 class _TrackingState extends State<Tracking> {
-  final String  nota, customer;
+  final String nota, customer;
   _TrackingState({
     Key key,
     @required this.nota,
     @required this.customer,
-    
   });
 
   Future<Null> getHeaderHTTP() async {
@@ -53,7 +53,6 @@ class _TrackingState extends State<Tracking> {
     });
     listTrackingNotaAndroid();
   }
-
 
   GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
@@ -131,166 +130,216 @@ class _TrackingState extends State<Tracking> {
 
   @override
   Widget build(BuildContext context) {
+    NumberFormat _numberFormat =
+        new NumberFormat.simpleCurrency(decimalDigits: 2, name: 'Rp. ');
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: Colors.grey[300],
+      // backgroundColor: Colors.grey[300],
       appBar: AppBar(
         title: Text("Lacak Pengiriman"),
-        backgroundColor: Color(0xff31B057),
+        // backgroundColor: Color(0xff31B057),
       ),
       body: Container(
-        padding: EdgeInsets.all(5.0),
-        child: Column(
-          children: <Widget>[
-            Card(
-              child: Container(
-                padding: EdgeInsets.all(15.0),
+        padding: EdgeInsets.only(top:20.0),
+        child: SingleChildScrollView(
+          child: Column(
+            children: <Widget>[
+              isLoading == true
+                  ? Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  : listTracking.length == 0
+                      ?
+                      RefreshIndicator(
+                      onRefresh: () => listTrackingNotaAndroid(),
+                    child: Column(children: <Widget>[
+                       Container(
+                        margin: EdgeInsets.only(
+                          left: 5.0,
+                          right: 5.0,
+                        ),
+                          child: Card(
+                            child: ListTile(
+                              leading:
+                                  Icon(Icons.local_mall, color: Colors.green),
+                              title: Text(
+                                  notas == null ? 'Nota : -' : 'Nota : $notas'),
+                            ),
+                          ),
+                        ),
+                        Container(
+                        margin: EdgeInsets.only(
+                          left: 5.0,
+                          right: 5.0,
+                        ),
+                          child: Card(
+                            child: ListTile(
+                              leading:
+                                  Icon(Icons.person, color: Colors.green),
+                              title: Text(
+                                  customer == null ? 'Customer : -' : 'Customer : $customer'),
+                            ),
+                          ),
+                        ),
+                        Container(
+                        margin: EdgeInsets.only(
+                          left: 5.0,
+                          right: 5.0,
+                        ),
+                          child: Card(
+                            child: ListTile(
+                              leading:
+                                  Icon(Icons.local_shipping, color: Colors.green),
+                              title: Text(
+                                  noresi == null ? 'No Resi : -' : 'No Resi : $noresi'),
+                            ),
+                          ),
+                        ),
+                        Container(
+                        margin: EdgeInsets.only(
+                          left: 5.0,
+                          right: 5.0,
+                        ),
+                          child: Card(
+                            child: ListTile(
+                              leading:
+                                  Icon(Icons.local_atm, color: Colors.green),
+                              title: Text(
+                                  price == null ? 'Biaya Ongkir : Rp.  -' : 'Biaya Ongkir : ' +  _numberFormat.format(double.parse(price.toString()))),
+                            ),
+                          ),
+                        ), Card(
+                          child: ListTile(
+                            title: Text(
+                              'Tidak ada data',
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      ],
+                      ),
+                      )
+                      :
+                      RefreshIndicator(
+                      onRefresh: () => listTrackingNotaAndroid(),
+                    child:Column(children: <Widget>[
+                       Container(
+                        margin: EdgeInsets.only(
+                          left: 5.0,
+                          right: 5.0,
+                        ),
+                          child: Card(
+                            child: ListTile(
+                              leading:
+                                  Icon(Icons.local_mall, color: Colors.green),
+                              title: Text(
+                                  notas == null ? 'Nota : -' : 'Nota : $notas'),
+                            ),
+                          ),
+                        ),
+                        Container(
+                        margin: EdgeInsets.only(
+                          left: 5.0,
+                          right: 5.0,
+                        ),
+                          child: Card(
+                            child: ListTile(
+                              leading:
+                                  Icon(Icons.person, color: Colors.green),
+                              title: Text(
+                                  customer == null ? 'Customer : -' : 'Customer : $customer'),
+                            ),
+                          ),
+                        ),
+                        Container(
+                        margin: EdgeInsets.only(
+                          left: 5.0,
+                          right: 5.0,
+                        ),
+                          child: Card(
+                            child: ListTile(
+                              leading:
+                                  Icon(Icons.local_shipping, color: Colors.green),
+                              title: Text(
+                                  noresi == null ? 'No Resi : -' : 'No Resi : $noresi'),
+                            ),
+                          ),
+                        ),
+                        Container(
+                        margin: EdgeInsets.only(
+                          left: 5.0,
+                          right: 5.0,
+                        ),
+                          child: Card(
+                            child: ListTile(
+                              leading:
+                                  Icon(Icons.local_atm, color: Colors.green),
+                              title: Text(
+                                  price == null ? 'Biaya Ongkir : Rp.  -' : 'Biaya Ongkir : ' +  _numberFormat.format(double.parse(price.toString()))),
+                            ),
+                          ),
+                        ),
+              
+                 Padding(
+                  padding: const EdgeInsets.only(top:20.0,bottom: 20.0),
+                  child: Text('History Pengiriman',textAlign: TextAlign.left,style: TextStyle(color: Colors.green,fontSize: 18,fontWeight: FontWeight.bold),),
+                ),
+              Container(
+                margin: EdgeInsets.only(
+                  top: 0.0,
+                  bottom: 5.0,
+                  left: 5.0,
+                  right: 5.0,
+                ),
                 child: Column(
-                  children: <Widget>[
-                    Row(
-                      children: <Widget>[
-                        Expanded(
-                          flex: 5,
-                          child: Text(
-                            'Nota',
-                            style: TextStyle(
-                              fontSize: 16.0,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 5,
-                          child: Text(
-                            notas,
-                            style: TextStyle(
-                              color: Colors.black54,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Divider(),
-                    Row(
-                      children: <Widget>[
-                        Expanded(
-                          flex: 5,
-                          child: Text(
-                            'Customer',
-                            style: TextStyle(
-                              fontSize: 16.0,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 5,
-                          child: Text(
-                            customers,
-                            style: TextStyle(
-                              color: Colors.black54,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Divider(),
-                    Row(
-                      children: <Widget>[
-                        Expanded(
-                          flex: 5,
-                          child: Text(
-                            'Nomer Resi',
-                            style: TextStyle(
-                              fontSize: 16.0,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 5,
-                          child: Text(
-                            noresi == null ? "Tunggu Sebentar" : noresi,
-                            style: TextStyle(
-                              color: Colors.black54,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Divider(),
-                    Row(
-                      children: <Widget>[
-                        Expanded(
-                          flex: 5,
-                          child: Text(
-                            'Biaya Pengiriman',
-                            style: TextStyle(
-                              fontSize: 16.0,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 5,
-                          child: Text(
-                            price == null ? "Tunggu Sebentar" : "Rp. $price",
-                            style: TextStyle(
-                              color: Colors.black54,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            isLoading == true
-                ? Center(
-              child: CircularProgressIndicator(),
-            )
-                : listTracking.length == 0
-                ? Card(
-              child: ListTile(
-                title: Text(
-                  'Tidak ada data',
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            )
-                : Expanded(
-              child: Scrollbar(
-                child: ListView.builder(
-                  // scrollDirection: Axis.horizontal,
-                  itemCount: listTracking.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return Card(
-                      child: ListTile(
-
-                        title: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: listTracking
+                      .map((ListTracking f) => Container(
+                            child: Card(
+                              child: ListTile(
+                                            title: Row(
                             children: <Widget>[
-                              Icon(Icons.access_time,color: Colors.green,size: 14,),
+                              Icon(
+                                Icons.access_time,
+                                color: Colors.green,
+                                size: 18,
+                              ),
                               Padding(
-                                padding: const EdgeInsets.only(left:10.0),
-                                child: Text(listTracking[index].tanggal == null ? '?' : listTracking[index].tanggal),
+                                padding: const EdgeInsets.only(left: 10.0),
+                                child: Text(f.tanggal== null
+                                    ? '?'
+                                    : f.tanggal),
                               ),
                             ],
-                        ),
-                        subtitle:Padding(
-                          padding: const EdgeInsets.only(top:10.0),
-                          child: Row(children: <Widget>[
-                              Icon(Icons.location_on,color: Colors.green,size: 14,),
-                              Padding(
-                                padding: const EdgeInsets.only(left:10.0),
-                                child: Text(listTracking[index].posisi == null ? '?' : listTracking[index].posisi),
+                          ),
+                                            subtitle: Padding(
+                            padding: const EdgeInsets.only(top: 10.0),
+                            child: Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.location_on,
+                                  color: Colors.green,
+                                  size: 14,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 10.0),
+                                  child: Text(f.posisi == null
+                                      ? '?'
+                                      : f.posisi),
+                                ),
+                              ],
+                            ),
                               ),
-                          ],),
-                        ),
-                         
-                      ),
-                    );
-                  },
+                              ),
+                            ),
+                          ))
+                      .toList(),
                 ),
               ),
-            ),
-          ],
+              ],),
+                      ),
+            ],
+          ),
         ),
       ),
     );
