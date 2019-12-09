@@ -20,6 +20,10 @@ class MyNavigator {
     Navigator.pushNamed(context, "/list_tracking");
   }
 
+  static void goToListCabang(BuildContext context){
+    Navigator.pushNamed(context, "/list_cabang");
+  }
+
   static void goWishlist(BuildContext context){
     Navigator.pushNamed(context, "/wishlist");
   }

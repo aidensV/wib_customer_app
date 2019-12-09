@@ -323,6 +323,20 @@ class _DashboardPageState extends State<DashboardPage>
                           Navigator.pushNamed(context, "/tracking_list");
                         },
                       ),
+                      ListTile(
+                        title: Text(
+                          'Cabang Warung Botol',
+                          style: TextStyle(
+                            fontSize: 16.0,
+                            fontFamily: 'Roboto',
+                            color: Color(0xff25282b),
+                          ),
+                        ),
+                        leading: Icon(Icons.list),
+                        onTap: () {
+                          Navigator.pushNamed(context, "/list_cabang");
+                        },
+                      ),
                     ],
                   ),
                 ),
@@ -466,33 +480,33 @@ class _DashboardPageState extends State<DashboardPage>
                                                 .toList(),
                                           ),
                                         ),
-                              listBannerBasic.length == 0
-                                  ? Container()
-                                  : Container(
-                                      margin: EdgeInsets.only(
-                                        top: 180.0,
-                                        bottom: 30.0,
-                                        left: 10.0,
-                                        right: 10.0,
-                                      ),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: listBannerBasic
-                                            .map((ListBanner f) => Container(
-                                                  padding: EdgeInsets.all(5.0),
-                                                  child: Image(
-                                                    image:
-                                                        NetworkImageWithRetry(
-                                                      urladmin(
-                                                          'storage/image/master/banner/${f.banner}'),
-                                                    ),
-                                                    height: 200.0,
-                                                  ),
-                                                ))
-                                            .toList(),
-                                      ),
-                                    ),
+                              // listBannerBasic.length == 0
+                              //     ? Container()
+                              //     : Container(
+                              //         margin: EdgeInsets.only(
+                              //           top: 180.0,
+                              //           bottom: 30.0,
+                              //           left: 10.0,
+                              //           right: 10.0,
+                              //         ),
+                              //         child: Column(
+                              //           mainAxisAlignment:
+                              //               MainAxisAlignment.center,
+                              //           children: listBannerBasic
+                              //               .map((ListBanner f) => Container(
+                              //                     padding: EdgeInsets.all(5.0),
+                              //                     child: Image(
+                              //                       image:
+                              //                           NetworkImageWithRetry(
+                              //                         urladmin(
+                              //                             'storage/image/master/banner/${f.banner}'),
+                              //                       ),
+                              //                       height: 200.0,
+                              //                     ),
+                              //                   ))
+                              //               .toList(),
+                              //         ),
+                              //       ),
                               Padding(
                                 padding:
                                     EdgeInsets.only(left: 38.0, top: 158.0),

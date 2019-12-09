@@ -7,10 +7,13 @@ import 'dart:convert';
 import 'package:wib_customer_app/storage/storage.dart';
 
 var notas, customers;
+var _scaffoldKeyTrackingDelivery;
 String accessToken, tokenType;
 Map<String, String> requestHeaders = Map();
 List<ListTracking> listTracking;
 bool isLoading;
+bool isLogout;
+bool isError;
 
 class Tracking extends StatefulWidget {
   final String nota, customer;
@@ -54,10 +57,8 @@ class _TrackingState extends State<Tracking> {
     listTrackingNotaAndroid();
   }
 
-  GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-
   void showInSnackBar(String value) {
-    _scaffoldKey.currentState
+    _scaffoldKeyTrackingDelivery.currentState
         .showSnackBar(new SnackBar(content: new Text(value)));
   }
 
@@ -92,38 +93,49 @@ class _TrackingState extends State<Tracking> {
         print('length listTracking ${listTracking.length}');
         setState(() {
           isLoading = false;
+          isLogout = false;
+          isError = false;
         });
         return listTracking;
-      } else {
-        showInSnackBar('Request failed with status: ${item.statusCode}');
+      } else if (item.statusCode == 401) {
         setState(() {
           isLoading = false;
+          isLogout = true;
+          isError = false;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+          isLogout = false;
+          isError = true;
         });
       }
     } on TimeoutException catch (_) {
-      showInSnackBar('Timed out, Try again');
       setState(() {
         isLoading = false;
+        isLogout = false;
+        isError = true;
       });
     } catch (e) {
       print(e);
       setState(() {
         isLoading = false;
+        isLogout = false;
+        isError = true;
       });
     }
-    setState(() {
-      isLoading = false;
-    });
     return null;
   }
 
   @override
   void initState() {
     listTracking = [];
-    isLoading = false;
+    isLoading = true;
+    isLogout = false;
+    isError = false;
+    _scaffoldKeyTrackingDelivery = new GlobalKey<ScaffoldState>();
     notas = nota;
     customers = customer;
-
     getHeaderHTTP();
     super.initState();
   }
@@ -133,215 +145,353 @@ class _TrackingState extends State<Tracking> {
     NumberFormat _numberFormat =
         new NumberFormat.simpleCurrency(decimalDigits: 2, name: 'Rp. ');
     return Scaffold(
-      key: _scaffoldKey,
+      key: _scaffoldKeyTrackingDelivery,
       // backgroundColor: Colors.grey[300],
       appBar: AppBar(
         title: Text("Lacak Pengiriman"),
         // backgroundColor: Color(0xff31B057),
       ),
-      body: Container(
-        padding: EdgeInsets.only(top:20.0),
-        child: SingleChildScrollView(
-          child: Column(
-            children: <Widget>[
-              isLoading == true
-                  ? Center(
-                      child: CircularProgressIndicator(),
-                    )
-                  : listTracking.length == 0
-                      ?
-                      RefreshIndicator(
-                      onRefresh: () => listTrackingNotaAndroid(),
-                    child: Column(children: <Widget>[
-                       Container(
-                        margin: EdgeInsets.only(
-                          left: 5.0,
-                          right: 5.0,
-                        ),
-                          child: Card(
-                            child: ListTile(
-                              leading:
-                                  Icon(Icons.local_mall, color: Colors.green),
-                              title: Text(
-                                  notas == null ? 'Nota : -' : 'Nota : $notas'),
-                            ),
-                          ),
-                        ),
-                        Container(
-                        margin: EdgeInsets.only(
-                          left: 5.0,
-                          right: 5.0,
-                        ),
-                          child: Card(
-                            child: ListTile(
-                              leading:
-                                  Icon(Icons.person, color: Colors.green),
-                              title: Text(
-                                  customer == null ? 'Customer : -' : 'Customer : $customer'),
-                            ),
-                          ),
-                        ),
-                        Container(
-                        margin: EdgeInsets.only(
-                          left: 5.0,
-                          right: 5.0,
-                        ),
-                          child: Card(
-                            child: ListTile(
-                              leading:
-                                  Icon(Icons.local_shipping, color: Colors.green),
-                              title: Text(
-                                  noresi == null ? 'No Resi : -' : 'No Resi : $noresi'),
-                            ),
-                          ),
-                        ),
-                        Container(
-                        margin: EdgeInsets.only(
-                          left: 5.0,
-                          right: 5.0,
-                        ),
-                          child: Card(
-                            child: ListTile(
-                              leading:
-                                  Icon(Icons.local_atm, color: Colors.green),
-                              title: Text(
-                                  price == null ? 'Biaya Ongkir : Rp.  -' : 'Biaya Ongkir : ' +  _numberFormat.format(double.parse(price.toString()))),
-                            ),
-                          ),
-                        ), Card(
-                          child: ListTile(
-                            title: Text(
-                              'Tidak ada data',
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ),
-                      ],
-                      ),
-                      )
-                      :
-                      RefreshIndicator(
-                      onRefresh: () => listTrackingNotaAndroid(),
-                    child:Column(children: <Widget>[
-                       Container(
-                        margin: EdgeInsets.only(
-                          left: 5.0,
-                          right: 5.0,
-                        ),
-                          child: Card(
-                            child: ListTile(
-                              leading:
-                                  Icon(Icons.local_mall, color: Colors.green),
-                              title: Text(
-                                  notas == null ? 'Nota : -' : 'Nota : $notas'),
-                            ),
-                          ),
-                        ),
-                        Container(
-                        margin: EdgeInsets.only(
-                          left: 5.0,
-                          right: 5.0,
-                        ),
-                          child: Card(
-                            child: ListTile(
-                              leading:
-                                  Icon(Icons.person, color: Colors.green),
-                              title: Text(
-                                  customer == null ? 'Customer : -' : 'Customer : $customer'),
-                            ),
-                          ),
-                        ),
-                        Container(
-                        margin: EdgeInsets.only(
-                          left: 5.0,
-                          right: 5.0,
-                        ),
-                          child: Card(
-                            child: ListTile(
-                              leading:
-                                  Icon(Icons.local_shipping, color: Colors.green),
-                              title: Text(
-                                  noresi == null ? 'No Resi : -' : 'No Resi : $noresi'),
-                            ),
-                          ),
-                        ),
-                        Container(
-                        margin: EdgeInsets.only(
-                          left: 5.0,
-                          right: 5.0,
-                        ),
-                          child: Card(
-                            child: ListTile(
-                              leading:
-                                  Icon(Icons.local_atm, color: Colors.green),
-                              title: Text(
-                                  price == null ? 'Biaya Ongkir : Rp.  -' : 'Biaya Ongkir : ' +  _numberFormat.format(double.parse(price.toString()))),
-                            ),
-                          ),
-                        ),
-              
-                 Padding(
-                  padding: const EdgeInsets.only(top:20.0,bottom: 20.0),
-                  child: Text('History Pengiriman',textAlign: TextAlign.left,style: TextStyle(color: Colors.green,fontSize: 18,fontWeight: FontWeight.bold),),
-                ),
-              Container(
-                margin: EdgeInsets.only(
-                  top: 0.0,
-                  bottom: 5.0,
-                  left: 5.0,
-                  right: 5.0,
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: listTracking
-                      .map((ListTracking f) => Container(
-                            child: Card(
-                              child: ListTile(
-                                            title: Row(
-                            children: <Widget>[
-                              Icon(
-                                Icons.access_time,
-                                color: Colors.green,
-                                size: 18,
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 10.0),
-                                child: Text(f.tanggal== null
-                                    ? '?'
-                                    : f.tanggal),
-                              ),
-                            ],
-                          ),
-                                            subtitle: Padding(
-                            padding: const EdgeInsets.only(top: 10.0),
-                            child: Row(
-                              children: <Widget>[
-                                Icon(
-                                  Icons.location_on,
-                                  color: Colors.green,
-                                  size: 14,
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 10.0),
-                                  child: Text(f.posisi == null
-                                      ? '?'
-                                      : f.posisi),
-                                ),
-                              ],
-                            ),
-                              ),
-                              ),
-                            ),
-                          ))
-                      .toList(),
-                ),
+      body: isLoading == true
+          ? Container(
+              child: Center(
+                child: CircularProgressIndicator(),
               ),
-              ],),
+            )
+          :isLogout == true
+              ? Padding(
+                  padding: const EdgeInsets.only(top: 20.0),
+                  child: RefreshIndicator(
+                    onRefresh: () => getHeaderHTTP(),
+                    child: Column(children: <Widget>[
+                      new Container(
+                        width: 100.0,
+                        height: 100.0,
+                        child: Image.asset("images/system-eror.png"),
                       ),
-            ],
-          ),
-        ),
-      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          top: 30.0,
+                          left: 15.0,
+                          right: 15.0,
+                        ),
+                        child: Center(
+                          child: Text(
+                            "Token anda sudah expired, silahkan login ulang kembali",
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey,
+                              height: 1.5,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    ]),
+                  ),
+                )
+              : isError == true
+              ? Padding(
+                  padding: const EdgeInsets.only(top: 20.0),
+                  child: RefreshIndicator(
+                    onRefresh: () => getHeaderHTTP(),
+                    child: Column(children: <Widget>[
+                      new Container(
+                        width: 100.0,
+                        height: 100.0,
+                        child: Image.asset("images/system-eror.png"),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          top: 30.0,
+                          left: 15.0,
+                          right: 15.0,
+                        ),
+                        child: Center(
+                          child: Text(
+                            "Gagal memuat halaman, tekan tombol muat ulang halaman untuk refresh halaman",
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey,
+                              height: 1.5,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            top: 20.0, left: 15.0, right: 15.0),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: RaisedButton(
+                            color: Colors.white,
+                            textColor: Colors.green,
+                            disabledColor: Colors.grey,
+                            disabledTextColor: Colors.black,
+                            padding: EdgeInsets.all(15.0),
+                            splashColor: Colors.blueAccent,
+                            onPressed: () async {
+                              getHeaderHTTP();
+                            },
+                            child: Text(
+                              "Muat Ulang Halaman",
+                              style: TextStyle(fontSize: 14.0),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ]),
+                  ),
+                )
+              : Container(
+                  padding: EdgeInsets.only(top: 20.0),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: <Widget>[
+                        isLoading == true
+                            ? Center(
+                                child: CircularProgressIndicator(),
+                              )
+                            : listTracking.length == 0
+                                ? RefreshIndicator(
+                                    onRefresh: () => listTrackingNotaAndroid(),
+                                    child: Column(
+                                      children: <Widget>[
+                                        Container(
+                                          margin: EdgeInsets.only(
+                                            left: 5.0,
+                                            right: 5.0,
+                                          ),
+                                          child: Card(
+                                            child: ListTile(
+                                              leading: Icon(Icons.local_mall,
+                                                  color: Colors.green),
+                                              title: Text(notas == null
+                                                  ? 'Nota : -'
+                                                  : 'Nota : $notas'),
+                                            ),
+                                          ),
+                                        ),
+                                        Container(
+                                          margin: EdgeInsets.only(
+                                            left: 5.0,
+                                            right: 5.0,
+                                          ),
+                                          child: Card(
+                                            child: ListTile(
+                                              leading: Icon(Icons.person,
+                                                  color: Colors.green),
+                                              title: Text(customer == null
+                                                  ? 'Customer : -'
+                                                  : 'Customer : $customer'),
+                                            ),
+                                          ),
+                                        ),
+                                        Container(
+                                          margin: EdgeInsets.only(
+                                            left: 5.0,
+                                            right: 5.0,
+                                          ),
+                                          child: Card(
+                                            child: ListTile(
+                                              leading: Icon(
+                                                  Icons.local_shipping,
+                                                  color: Colors.green),
+                                              title: Text(noresi == null
+                                                  ? 'No Resi : -'
+                                                  : 'No Resi : $noresi'),
+                                            ),
+                                          ),
+                                        ),
+                                        Container(
+                                          margin: EdgeInsets.only(
+                                            left: 5.0,
+                                            right: 5.0,
+                                          ),
+                                          child: Card(
+                                            child: ListTile(
+                                              leading: Icon(Icons.local_atm,
+                                                  color: Colors.green),
+                                              title: Text(price == null
+                                                  ? 'Biaya Ongkir : Rp.  -'
+                                                  : 'Biaya Ongkir : ' +
+                                                      _numberFormat.format(
+                                                          double.parse(price
+                                                              .toString()))),
+                                            ),
+                                          ),
+                                        ),
+                                        Card(
+                                          child: ListTile(
+                                            title: Text(
+                                              'Tidak ada data',
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                : RefreshIndicator(
+                                    onRefresh: () => listTrackingNotaAndroid(),
+                                    child: Column(
+                                      children: <Widget>[
+                                        Container(
+                                          margin: EdgeInsets.only(
+                                            left: 5.0,
+                                            right: 5.0,
+                                          ),
+                                          child: Card(
+                                            child: ListTile(
+                                              leading: Icon(Icons.local_mall,
+                                                  color: Colors.green),
+                                              title: Text(notas == null
+                                                  ? 'Nota : -'
+                                                  : 'Nota : $notas'),
+                                            ),
+                                          ),
+                                        ),
+                                        Container(
+                                          margin: EdgeInsets.only(
+                                            left: 5.0,
+                                            right: 5.0,
+                                          ),
+                                          child: Card(
+                                            child: ListTile(
+                                              leading: Icon(Icons.person,
+                                                  color: Colors.green),
+                                              title: Text(customer == null
+                                                  ? 'Customer : -'
+                                                  : 'Customer : $customer'),
+                                            ),
+                                          ),
+                                        ),
+                                        Container(
+                                          margin: EdgeInsets.only(
+                                            left: 5.0,
+                                            right: 5.0,
+                                          ),
+                                          child: Card(
+                                            child: ListTile(
+                                              leading: Icon(
+                                                  Icons.local_shipping,
+                                                  color: Colors.green),
+                                              title: Text(noresi == null
+                                                  ? 'No Resi : -'
+                                                  : 'No Resi : $noresi'),
+                                            ),
+                                          ),
+                                        ),
+                                        Container(
+                                          margin: EdgeInsets.only(
+                                            left: 5.0,
+                                            right: 5.0,
+                                          ),
+                                          child: Card(
+                                            child: ListTile(
+                                              leading: Icon(Icons.local_atm,
+                                                  color: Colors.green),
+                                              title: Text(price == null
+                                                  ? 'Biaya Ongkir : Rp.  -'
+                                                  : 'Biaya Ongkir : ' +
+                                                      _numberFormat.format(
+                                                          double.parse(price
+                                                              .toString()))),
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                              top: 20.0, bottom: 20.0),
+                                          child: Text(
+                                            'History Pengiriman',
+                                            textAlign: TextAlign.left,
+                                            style: TextStyle(
+                                                color: Colors.green,
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ),
+                                        Container(
+                                          margin: EdgeInsets.only(
+                                            top: 0.0,
+                                            bottom: 5.0,
+                                            left: 5.0,
+                                            right: 5.0,
+                                          ),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: listTracking
+                                                .map((ListTracking f) =>
+                                                    Container(
+                                                      child: Card(
+                                                        child: ListTile(
+                                                          title: Row(
+                                                            children: <Widget>[
+                                                              Icon(
+                                                                Icons
+                                                                    .access_time,
+                                                                color: Colors
+                                                                    .green,
+                                                                size: 18,
+                                                              ),
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        left:
+                                                                            10.0),
+                                                                child: Text(
+                                                                    f.tanggal ==
+                                                                            null
+                                                                        ? '?'
+                                                                        : f.tanggal),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          subtitle: Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .only(
+                                                                    top: 10.0),
+                                                            child: Row(
+                                                              children: <
+                                                                  Widget>[
+                                                                Icon(
+                                                                  Icons
+                                                                      .location_on,
+                                                                  color: Colors
+                                                                      .green,
+                                                                  size: 14,
+                                                                ),
+                                                                Padding(
+                                                                  padding: const EdgeInsets
+                                                                          .only(
+                                                                      left:
+                                                                          10.0),
+                                                                  child: Text(
+                                                                      f.posisi ==
+                                                                              null
+                                                                          ? '?'
+                                                                          : f.posisi),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ))
+                                                .toList(),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                      ],
+                    ),
+                  ),
+                ),
     );
   }
 }

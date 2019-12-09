@@ -12,7 +12,9 @@ List<ListProvinsi> listNota = [];
 List<ListProvinsi> filteredlistNota = [];
 String tokenType, accessToken;
 bool isLoading;
-var _scaffoldKeyZ;
+bool isLogout;
+bool isError;
+var _scaffoldKeyProvince;
 Map<String, String> requestHeaders = Map();
 
 class ProvinsiSending extends StatefulWidget {
@@ -47,7 +49,7 @@ class _ProvinsiState extends State<ProvinsiSending> {
   }
 
   void showInSnackBar(String value) {
-    _scaffoldKeyZ.currentState
+    _scaffoldKeyProvince.currentState
         .showSnackBar(new SnackBar(content: new Text(value)));
   }
 
@@ -76,8 +78,6 @@ class _ProvinsiState extends State<ProvinsiSending> {
         var notaJson = json.decode(nota.body);
         var notas = notaJson['provinsi'];
 
-        print('notaJson $notaJson');
-
         listNota = [];
         for (var i in notas) {
           ListProvinsi notax = ListProvinsi(
@@ -86,31 +86,41 @@ class _ProvinsiState extends State<ProvinsiSending> {
           );
           listNota.add(notax);
         }
-
-        print('listnota $listNota');
-        print('listnota length ${listNota.length}');
         setState(() {
           isLoading = false;
+          isLogout = false;
+          isError = false;
         });
         return listNota;
-      } else {
-        showInSnackBar('Request failed with status: ${nota.statusCode}');
+      }else if(nota.statusCode == 401){
         setState(() {
           isLoading = false;
+          isLogout = true;
+          isError = false;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+          isLogout = false;
+          isError = true;
         });
         return null;
       }
     } on TimeoutException catch (_) {
       setState(() {
-        isLoading = false;
-      });
+          isLoading = false;
+          isLogout = false;
+          isError = true;
+        });
       showInSnackBar('Timed out, Try again');
     } catch (e) {
+      setState(() {
+          isLoading = false;
+          isLogout = false;
+          isError = true;
+        });
       debugPrint('$e');
-    }
-    setState(() {
-      isLoading = false;
-    });
+    }    
     return null;
   }
 
@@ -127,7 +137,7 @@ class _ProvinsiState extends State<ProvinsiSending> {
 
   @override
   void initState() {
-    _scaffoldKeyZ = GlobalKey<ScaffoldState>();
+    _scaffoldKeyProvince = GlobalKey<ScaffoldState>();
     listNotaAndroid().then((usersFromServer) {
       setState(() {
         listNota = usersFromServer;
@@ -136,7 +146,9 @@ class _ProvinsiState extends State<ProvinsiSending> {
     });
 
     getHeaderHTTP();
-    isLoading = false;
+    isLoading = true;
+    isLogout = false;
+    isError = false;
     print(requestHeaders);
     super.initState();
   }
@@ -145,7 +157,7 @@ class _ProvinsiState extends State<ProvinsiSending> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      key: _scaffoldKeyZ,
+      key: _scaffoldKeyProvince,
       appBar: new AppBar(
           iconTheme: IconThemeData(
             color: Color(0xff25282b),
@@ -171,12 +183,94 @@ class _ProvinsiState extends State<ProvinsiSending> {
         child: Column(
           children: <Widget>[
             isLoading == true
-                ? Expanded(
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  )
-                : Expanded(
+          ? Center(child: CircularProgressIndicator())
+          : isLogout == true
+              ? Padding(
+                  padding: const EdgeInsets.only(top: 20.0),
+                  child: RefreshIndicator(
+                    onRefresh: () => listNotaAndroid(),
+                    child: Column(children: <Widget>[
+                      new Container(
+                        width: 100.0,
+                        height: 100.0,
+                        child: Image.asset("images/system-eror.png"),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          top: 30.0,
+                          left: 15.0,
+                          right: 15.0,
+                        ),
+                        child: Center(
+                          child: Text(
+                            "Token anda sudah expired, silahkan login ulang kembali",
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey,
+                              height: 1.5,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    ]),
+                  ),
+                )
+              : isError == true
+                  ? Padding(
+                      padding: const EdgeInsets.only(top: 20.0),
+                      child: RefreshIndicator(
+                        onRefresh: () => listNotaAndroid(),
+                        child: Column(children: <Widget>[
+                          new Container(
+                            width: 100.0,
+                            height: 100.0,
+                            child: Image.asset("images/system-eror.png"),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              top: 30.0,
+                              left: 15.0,
+                              right: 15.0,
+                            ),
+                            child: Center(
+                              child: Text(
+                                "Gagal memuat halaman, tekan tombol muat ulang halaman untuk refresh halaman",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey,
+                                  height: 1.5,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                                top: 20.0, left: 15.0, right: 15.0),
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: RaisedButton(
+                                color: Colors.white,
+                                textColor: Colors.green,
+                                disabledColor: Colors.grey,
+                                disabledTextColor: Colors.black,
+                                padding: EdgeInsets.all(15.0),
+                                splashColor: Colors.blueAccent,
+                                onPressed: () async {
+                                  getHeaderHTTP();
+                                },
+                                child: Text(
+                                  "Muat Ulang Halaman",
+                                  style: TextStyle(fontSize: 14.0),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ]),
+                      ),
+                    )
+                  : Expanded(
                     // child: Scrollbar(
                     child: RefreshIndicator(
                       onRefresh: () => listNotaAndroid(),
