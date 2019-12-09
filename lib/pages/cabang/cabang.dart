@@ -7,7 +7,7 @@ import 'model.dart';
 import 'dart:convert';
 import 'stockiescabang.dart';
 
-var _scaffoldKeyCabang;
+GlobalKey<ScaffoldState> _scaffoldKeyCabang;
 List<ListCabang> listCabang = [];
 String tokenType, accessToken;
 bool isLoading;

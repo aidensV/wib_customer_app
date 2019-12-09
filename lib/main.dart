@@ -59,7 +59,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<ShopBloc>(
-      builder: (context) => ShopBloc(),
+      create: (context) => ShopBloc(),
       child: MaterialApp(
         title: "Warung Islami Bogor Shop",
         home: new SplashScreen(),
