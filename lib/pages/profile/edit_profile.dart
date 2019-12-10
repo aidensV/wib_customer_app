@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
-import 'package:wib_customer_app/env.dart';
+import 'package:wib_customer_app/env.dart' as env;
 import 'package:http/http.dart' as http;
 import 'package:async/async.dart';
 import 'package:path/path.dart';
@@ -146,7 +146,7 @@ class _EditProfile extends State<EditProfile>{
       province = await storage.getDataString("province") == 'Tidak ditemukan' ? '' : await storage.getDataString("province");
       city = await storage.getDataString("city") == 'Tidak ditemukan' ? '' : await storage.getDataString("city");
       district = await storage.getDataString("district") == 'Tidak ditemukan' ? '' : await storage.getDataString("district");
-      bank = await storage.getDataString("bank") == 'Tidak ditemukan' ? '' : await storage.getDataString("bank");
+      bank = await storage.getDataString("bank") == 'Tidak ditemukan' ? null : await storage.getDataString("bank");
       rekening = await storage.getDataString("nbank") == 'Tidak ditemukan' ? '' : await storage.getDataString("nbank");
       postal = await storage.getDataString("postalcode") == 'Tidak ditemukan' ? '' : await storage.getDataString("postalcode");
       tempatlahir = await storage.getDataString("tempatlahir") == 'Tidak ditemukan' ? '' : await storage.getDataString("tempatlahir");
@@ -198,7 +198,7 @@ class _EditProfile extends State<EditProfile>{
       
         try {
           final getUser =
-              await http.get("https://warungislamibogor-store.alamraya.site/api/getDataUser", headers: requestHeaders);
+              await http.get(env.url("api/getDataUser"), headers: requestHeaders);
           // print('getUser ' + getUser.body);
 
           if (getUser.statusCode == 200) {
@@ -258,7 +258,7 @@ class _EditProfile extends State<EditProfile>{
     requestHeaders['Authorization'] = '$tokenType $accessToken';
     Map<String, String> headers = requestHeaders;
 
-    var request = new http.MultipartRequest("POST", urlpath('api/updateprofileAndroid'));
+    var request = new http.MultipartRequest("POST", env.urlpath('api/updateprofileAndroid'));
   // print(imageFile);
     request.headers.addAll(headers);
   if(imageFile != null){
@@ -318,6 +318,9 @@ class _EditProfile extends State<EditProfile>{
   void initState() {
     image = null;
     gender = '' ;
+    selectedProvinsi = null;
+    selectedkecamatan = null;
+    selectedKabupaten = null;
     getheader();
     _khususedit_profile = GlobalKey<ScaffoldState>();
     datepickerfirst = FocusNode();
@@ -604,7 +607,7 @@ class _EditProfile extends State<EditProfile>{
                     Card(
                       child: ListTile(
                         leading: Icon(Icons.create, color: Colors.green),
-                        title: Text( selectedProvinsi != null ? selectedProvinsi.nama : namaprovinsi),
+                        title: Text( selectedProvinsi != null ? selectedProvinsi.nama : namaprovinsi != null ? namaprovinsi : 'Pilih Provinsi'),
                         onTap: () { 
                             _pilihprovinsi(context);
                         },
@@ -614,7 +617,7 @@ class _EditProfile extends State<EditProfile>{
                     Card(
                       child: ListTile(
                         leading: Icon(Icons.create, color: Colors.green),
-                        title: Text(selectedKabupaten != null ? selectedKabupaten.nama : namakota),
+                        title: Text(selectedKabupaten != null ? selectedKabupaten.nama : namakota != null ? namakota : 'Pilih Kabupaten/Kota'),
                         onTap: () {
                           _pilihkabupaten(context);
                         },
@@ -623,7 +626,7 @@ class _EditProfile extends State<EditProfile>{
                     Card(
                       child: ListTile(
                         leading: Icon(Icons.create, color: Colors.green),
-                        title: Text( selectedkecamatan != null ? selectedkecamatan.nama : namadesa),
+                        title: Text( selectedkecamatan != null ? selectedkecamatan.nama : namadesa != null ? namadesa : 'Pilih Kecamatan'),
                         onTap: () {
                             _pilihkecamatan(context);
                         },
@@ -647,7 +650,7 @@ class _EditProfile extends State<EditProfile>{
                       child: ListTile(
                         leading: Icon(FontAwesomeIcons.moneyBillAlt, color: Colors.green),
                         title: DropdownButton<String>(
-                          value: bank == null ? '' : bank,
+                          value: bank,
                           hint: Text('Pilih Bank'),
                           elevation: 16,
                           style: TextStyle(color: Colors.black),
