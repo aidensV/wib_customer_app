@@ -10,7 +10,8 @@ import 'dart:convert';
 import 'filter.dart';
 
 List<ListNota> listNota;
-var _tanggalawalprocess, _tanggalakhirprocess, _urutkantransaksiprocess, _scaffoldKeyprocess;
+var _tanggalawalprocess, _tanggalakhirprocess, _urutkantransaksiprocess;
+GlobalKey<ScaffoldState> _scaffoldKeyprocess;
 FocusNode datepickerFocus;
 String tokenType, accessToken;
 Map<String, String> requestHeaders = Map();

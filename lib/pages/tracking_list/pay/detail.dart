@@ -15,7 +15,7 @@ import 'package:wib_customer_app/storage/storage.dart';
 import 'package:async/async.dart';
 
 var idX, notaX, customerX, statusX;
-var _scaffolddetailpay;
+GlobalKey<ScaffoldState> _scaffolddetailpay;
 String accessToken,
     tokenType,
     stockiesX,

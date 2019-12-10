@@ -16,7 +16,7 @@ String tokenType, accessToken;
 bool isLoading;
 bool isError;
 bool isLogout;
-var _scaffoldKeyKabupaten;
+GlobalKey<ScaffoldState> _scaffoldKeyKabupaten;
 Map<String, String> requestHeaders = Map();
 ListProvinsi provinsi;
 

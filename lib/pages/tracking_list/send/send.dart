@@ -11,7 +11,8 @@ import 'filter.dart';
 
  
 List<ListNota> listNota;
-var _tanggalawaldelivered, _tanggalakhirdelivered, _urutkantransaksidelivered, _scaffoldKeydelivered;
+var _tanggalawaldelivered, _tanggalakhirdelivered, _urutkantransaksidelivered;
+GlobalKey<ScaffoldState> _scaffoldKeydelivered;
 String tokenType, accessToken;
 FocusNode datepickerFocus;
 Map<String, String> requestHeaders = Map();

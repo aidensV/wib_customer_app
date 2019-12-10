@@ -7,7 +7,8 @@ import 'dart:convert';
 import 'package:wib_customer_app/storage/storage.dart';
 import 'tracking.dart';
 
-var idX, notaX, customerX, statusX, _scaffolddetaildelivered;
+var idX, notaX, customerX, statusX;
+GlobalKey<ScaffoldState> _scaffolddetaildelivered;
 String accessToken,
     tokenType,
     stockiesX,
