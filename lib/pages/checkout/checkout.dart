@@ -13,6 +13,7 @@ import '../tracking_list/tracking.dart';
 import 'model.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_image/network.dart';
+import '../shopping_cart/shoppingcart.dart';
 import '../../dashboard.dart';
 
 List<ListCheckout> listNota = [];
@@ -22,7 +23,7 @@ String tokenType,
     checkboxongkirsaldo,
     checkboxbayartempo,
     checkboxtotalsaldo;
-var _scaffoldKeyX;
+GlobalKey<ScaffoldState> _scaffoldKeyX;
 Map<String, String> requestHeaders = Map();
 bool isLoading;
 bool isError;
@@ -914,17 +915,11 @@ class _CheckoutState extends State<Checkout> {
                               ).toList(),
                             ),
                           ),
-                        ],
-                      ),
-                      // ),
-                    ),
-      bottomNavigationBar: BottomAppBar(
-        child: new Row(
-          mainAxisSize: MainAxisSize.max,
-          children: <Widget>[
-            SizedBox(
-                width: MediaQuery.of(context).size.width, // specific value
-                child: FlatButton(
+                          Padding(
+              padding: const EdgeInsets.only(top: 0.0,left:10.0,right: 10.0),
+              child: SizedBox(
+                width: double.infinity,
+                child: RaisedButton(
                   color: Colors.green,
                   textColor: Colors.white,
                   disabledColor: Colors.grey,
@@ -963,12 +958,37 @@ class _CheckoutState extends State<Checkout> {
                   },
                   child: Text(
                     "Checkout Sekarang",
-                    style: TextStyle(fontSize: 18.0),
+                    style: TextStyle(fontSize: 14.0),
                   ),
-                ))
-          ],
-        ),
-      ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 10.0,left:10.0,right: 10.0),
+              child: SizedBox(
+                width: double.infinity,
+                child: RaisedButton(
+                  color: Colors.white,
+                  textColor: Colors.green,
+                  disabledColor: Colors.grey,
+                  disabledTextColor: Colors.black,
+                  padding: EdgeInsets.all(15.0),
+                  splashColor: Colors.blueAccent,
+                  onPressed: () async {
+                    _backtocart();
+                  },
+                  child: Text(
+                    "Batal checkout / kembali ke keranjang",
+                    style: TextStyle(fontSize: 14.0),
+                  ),
+                ),
+              ),
+            ),
+                          
+                        ],
+                      ),
+                      // ),
+                    ),
     );
   }
 
@@ -1005,16 +1025,56 @@ class _CheckoutState extends State<Checkout> {
     formSerialize['discv'] = List();
     formSerialize['hargabarang'] = List();
 
-    formSerialize['provinsi'] = _value2 == true ? "0" : selectedProvinsi.id;
-    formSerialize['kota'] = _value2 == true ? "0" : selectedKabupaten.id;
-    formSerialize['kecamatan'] = _value2 == true ? "0" : selectedkecamatan.id;
-    formSerialize['tunai'] = _value1 == true ? 'Y' : 'N';
-    formSerialize['paydeliver'] = _bayarongkirsaldo == true ? 'Y' : 'N';
-    formSerialize['accongkir'] = _value2 == true ? 'Y' : 'N';
-    formSerialize['ongkir'] = _value2 == true ? 0 : selectedKabupaten.ongkir;
-    formSerialize['kodepos'] = _value2 == true ? '-' : kodeposController.text;
-    formSerialize['alamat'] = _value2 == true ? '-' : alamatController.text;
-    formSerialize['tempo'] = _bayartempo == true ? 'Y' : 'N';
+    if (_value2 == true) {
+      formSerialize['provinsi'] = "0";
+    } else {
+      formSerialize['provinsi'] = selectedProvinsi.id;
+    }
+    if (_value2 == true) {
+      formSerialize['kota'] = "0";
+    } else {
+      formSerialize['kota'] = selectedKabupaten.id;
+    }
+    if (_value2 == true) {
+      formSerialize['kecamatan'] = "0";
+    } else {
+      formSerialize['kecamatan'] = selectedkecamatan.id;
+    }
+    if (_value1 == true) {
+      formSerialize['tunai'] = 'Y';
+    } else {
+      formSerialize['tunai'] = 'N';
+    }
+    if (_bayarongkirsaldo == true) {
+      formSerialize['paydeliver'] = 'Y';
+    } else {
+      formSerialize['paydeliver'] = 'N';
+    }
+    if (_value2 == true) {
+      formSerialize['accongkir'] = 'Y';
+    } else {
+      formSerialize['accongkir'] = 'N';
+    }
+    if (_value2 == true) {
+      formSerialize['ongkir'] = 0;
+    } else {
+      formSerialize['ongkir'] = selectedKabupaten.ongkir;
+    }
+    if (_value2 == true) {
+      formSerialize['kodepos'] = '-';
+    } else {
+      formSerialize['kodepos'] = kodeposController.text;
+    }
+    if (_value2 == true) {
+      formSerialize['alamat'] = '-';
+    } else {
+      formSerialize['alamat'] = alamatController.text;
+    }
+    if (_bayartempo == true) {
+      formSerialize['tempo'] = 'Y';
+    } else {
+      formSerialize['tempo'] = 'N';
+    }
     for (int i = 0; i < listNota.length; i++) {
       formSerialize['id'].add(listNota[i].id);
       formSerialize['namabarang'].add(listNota[i].item);
@@ -1063,6 +1123,49 @@ class _CheckoutState extends State<Checkout> {
               MaterialPageRoute(builder: (context) => DashboardPage()));
         }
         print('response decoded $responseJson');
+      } else {
+        print('${response.body}');
+        showInSnackBar('Request failed with status: ${response.statusCode}');
+      }
+    } on TimeoutException catch (_) {
+      showInSnackBar('Timed out, Try again');
+    } catch (e) {
+      print(e);
+    }
+  }
+  void _backtocart() async {
+    formSerialize = Map<String, dynamic>();
+    
+    formSerialize['id'] = List();
+
+    for (int i = 0; i < listNota.length; i++) {
+      formSerialize['id'].add(listNota[i].id);
+    }
+
+    print(formSerialize);
+
+    Map<String, dynamic> requestHeadersX = requestHeaders;
+
+    requestHeadersX['Content-Type'] = "application/x-www-form-urlencoded";
+    try {
+      final response = await http.post(
+        url('api/kembali_kekeranjang'),
+        headers: requestHeadersX,
+        body: {
+          'type_platform': 'android',
+          'data': jsonEncode(formSerialize),
+        },
+        encoding: Encoding.getByName("utf-8"),
+      );
+
+      if (response.statusCode == 200) {
+        dynamic responseJson = jsonDecode(response.body);
+        if (responseJson['status'] == 'sukses') {
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => Keranjang()));
+        }else if(responseJson['status'] == 'gagal'){
+          showInSnackBar('Hubungi Pengembang Software');  
+        }
       } else {
         print('${response.body}');
         showInSnackBar('Request failed with status: ${response.statusCode}');

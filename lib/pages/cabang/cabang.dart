@@ -7,7 +7,7 @@ import 'model.dart';
 import 'dart:convert';
 import 'stockiescabang.dart';
 
-var _scaffoldKeyCabang;
+GlobalKey<ScaffoldState> _scaffoldKeyCabang;
 List<ListCabang> listCabang = [];
 String tokenType, accessToken;
 bool isLoading;
@@ -47,6 +47,7 @@ class _CabangState extends State<Cabang> {
   }
 
   Future<List<ListCabang>> listNotaAndroid() async {
+    print('coba se');
     setState(() {
       isLoading = true;
     });
@@ -87,12 +88,15 @@ class _CabangState extends State<Cabang> {
           isError = false;
           isLogout = true;
         });
+        print('eror');
       } else {
         setState(() {
           isLoading = false;
           isError = true;
           isLogout = false;
         });
+        print('eror ini');
+        print('listnota length ${cabang.body}');
 
         return null;
       }

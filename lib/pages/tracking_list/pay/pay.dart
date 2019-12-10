@@ -9,7 +9,7 @@ import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'filter.dart';
 
-var _scaffoldKeypay;
+GlobalKey<ScaffoldState> _scaffoldKeypay;
 List<ListNota> listNota;
 bool isLoading;
 FocusNode datepickerFocus;

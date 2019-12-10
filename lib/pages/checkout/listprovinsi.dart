@@ -14,7 +14,7 @@ String tokenType, accessToken;
 bool isLoading;
 bool isLogout;
 bool isError;
-var _scaffoldKeyProvince;
+GlobalKey<ScaffoldState> _scaffoldKeyProvince;
 Map<String, String> requestHeaders = Map();
 
 class ProvinsiSending extends StatefulWidget {

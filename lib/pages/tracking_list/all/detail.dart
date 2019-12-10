@@ -8,7 +8,7 @@ import 'dart:convert';
 import 'package:wib_customer_app/storage/storage.dart';
 
 var idX, notaX, customerX, statusX;
-var _scaffolddetailAll;
+GlobalKey<ScaffoldState> _scaffolddetailAll;
 String accessToken,
     tokenType,
     stockiesX,
@@ -827,13 +827,15 @@ class _DetailState extends State<Detail> {
                               formSerialize['cabang'] = null;
                               formSerialize['item'] = List();
                               formSerialize['qty'] = List();
-                              formSerialize['berat'] = List();
+                              formSerialize['beratproduk'] = List();
+                              formSerialize['namabarang'] = List();
 
                               formSerialize['cabang'] = stockiesX;
                               for (int i = 0; i < listItem.length; i++) {
                                 formSerialize['item'].add(listItem[i].code);
                                 formSerialize['qty'].add(listItem[i].qty);
-                                formSerialize['berat'].add(listItem[i].berat);
+                                formSerialize['beratproduk'].add(listItem[i].berat);
+                                formSerialize['namabarang'].add(listItem[i].nama);
                               }
 
                               print(formSerialize);
@@ -859,23 +861,27 @@ class _DetailState extends State<Detail> {
                                       jsonDecode(response.body);
                                   if (responseJson['status'] == 'success') {
                                     Navigator.pop(context);
-                                    // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Checkout()));
-                                    Navigator.push(
+                                    Navigator.pop(context);
+                                    Navigator.pushReplacement(
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) => Checkout(),
                                         ));
+                                  }else if(responseJson['status'] == 'erorstock'){
+                                    Navigator.pop(context);
+                                    showInSnackBar(responseJson['error']);
                                   } else {
+                                    Navigator.pop(context);
                                     showInSnackBar(
                                         'Hubungi Pengembang Software');
                                     print('${response.body}');
                                   }
                                   print('response decoded $responseJson');
                                 } else {
+                                  Navigator.pop(context);
                                   print('${response.body}');
                                   showInSnackBar(
                                       'Request failed with status: ${response.statusCode}');
-                                  Navigator.pop(context);
                                 }
                               } on TimeoutException catch (_) {
                                 Navigator.pop(context);

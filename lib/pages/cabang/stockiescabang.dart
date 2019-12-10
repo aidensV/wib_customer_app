@@ -12,7 +12,8 @@ List<ListStockies> listStockies = [];
 List<ListStockies> filteredlistStockies = [];
 String tokenType, accessToken;
 bool isLoading;
-var _scaffoldKeyStockies, namacabangX;
+var namacabangX;
+GlobalKey<ScaffoldState> _scaffoldKeyStockies;
 Map<String, String> requestHeaders = Map();
 
 class ProvinsiSending extends StatefulWidget {

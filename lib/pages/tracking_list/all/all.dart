@@ -13,7 +13,8 @@ List<ListNota> listNota;
 FocusNode datepickerFocus;
 String tokenType, accessToken;
 bool isLoading;
-var _tanggalawalall, _tanggalakhirall, _urutkantransaksiall, _scaffoldKeyall;
+var _tanggalawalall, _tanggalakhirall, _urutkantransaksiall;
+GlobalKey<ScaffoldState> _scaffoldKeyall;
 Map<String, String> requestHeaders = Map();
 
 void showInSnackBar(String value) {

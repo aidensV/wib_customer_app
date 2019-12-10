@@ -9,7 +9,7 @@ import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:flutter_image/network.dart';
 
-var _scaffoldKeyCart;
+GlobalKey<ScaffoldState> _scaffoldKeyCart;
 List<ListKeranjang> listNota = [];
 String tokenType, accessToken, totalhargaX;
 bool isLoading;

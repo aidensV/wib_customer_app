@@ -16,7 +16,7 @@ bool isError;
 bool isLogout;
 Map<String, String> requestHeaders = Map();
 ListKabupaten kabupaten;
-var _scaffoldKeyKecamatan;
+GlobalKey<ScaffoldState> _scaffoldKeyKecamatan;
 
 class KecamatanSending extends StatefulWidget {
   final ListKabupaten kabupaten;

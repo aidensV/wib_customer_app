@@ -15,7 +15,7 @@ var itemX, priceX, codeX, descX, diskonX, tipeX;
 String tokenType, accessToken;
 bool isLoading;
 bool isError;
-var _scaffoldKeyDetail;
+GlobalKey<ScaffoldState> _scaffoldKeyDetail;
 List<ListKeranjang> listNota = [];
 String stockiesX, wishlistX, stockX;
 Map<String, String> requestHeaders = Map();

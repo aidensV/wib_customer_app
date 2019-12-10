@@ -25,9 +25,10 @@ import 'pages/wishlist/wishlist.dart';
 import 'pages/shopping_cart/shoppingcart.dart';
 
 bool bottom;
-String tokenType, accessToken;
+String tokenType, accessToken, rekomX;
 Map<String, String> requestHeaders = Map();
 List<ListBanner> listBannerSlider, listBannerBasic;
+List<RecomendationModel>listrecomeitem;
 bool isLoading;
 int pageSize = 6;
 
@@ -113,7 +114,44 @@ class _DashboardPageState extends State<DashboardPage>
       print('Error : $e');
     }
   }
+  Future<void> getrekom() async {
+    var storage = new DataStore();
 
+    var tokenTypeStorage = await storage.getDataString('token_type');
+    var accessTokenStorage = await storage.getDataString('access_token');
+
+    tokenType = tokenTypeStorage;
+    accessToken = accessTokenStorage;
+    requestHeaders['Accept'] = 'application/json';
+    requestHeaders['Authorization'] = '$tokenType $accessToken';
+
+    try {
+      final response = await http.get(
+        url('api/cek_rekomendasiproduk'),
+        headers: requestHeaders,
+      );
+
+      if (response.statusCode == 200) {
+        var rekomJson = json.decode(response.body);
+        String rekomvalue = rekomJson['cekrekom'].toString();
+        print('oke bro $rekomvalue');
+        setState(() {
+          rekomX = rekomvalue;
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+        return null;
+      }
+    } catch (e) {
+      setState(() {
+          isLoading = false;
+        });
+      print('Error : $e');
+    }
+  }
   Future<void> dataProfile() async {
     DataStore storage = new DataStore();
 
@@ -222,15 +260,13 @@ class _DashboardPageState extends State<DashboardPage>
     listBannerSlider = List();
     listBannerBasic = List();
     listBannerAndroid();
-    pagewiseLoadControllerVertical = PagewiseLoadController(
-      pageSize: pageSize,
-      pageFuture: (pageIndex) =>
-          BackendService.getDataRecom(pageIndex, pageSize),
-    );
-
     pageWiseLoadControllerHorizontal = PagewiseLoadController(
       pageSize: pageSize,
       pageFuture: (pageIndex) => BackendService.getData(pageIndex, pageSize),
+    );
+    pagewiseLoadControllerVertical = PagewiseLoadController(
+      pageSize: pageSize,
+      pageFuture: (pageIndex) => BackendService.listrecomendationitem(pageIndex, pageSize),
     );
 
     scrollController = ScrollController(initialScrollOffset: 0.0);
@@ -242,8 +278,10 @@ class _DashboardPageState extends State<DashboardPage>
     maxOffsetToColor = 0.0;
     tabController = TabController(vsync: this, length: 4);
     getCategory();
+    getrekom();
     isLoading = true;
     dataProfile();
+    rekomX = '1';
     // print(requestHeaders);
 
     notificationService = new NotificationService(context: context);
@@ -530,6 +568,10 @@ class _DashboardPageState extends State<DashboardPage>
                               ),
                             ],
                           ),
+                          rekomX == '0'?
+                          Container(
+                            
+                          ):
                           Padding(
                             padding: EdgeInsets.only(
                                 left: 20.0, right: 20.0, top: 25.0),
@@ -541,37 +583,22 @@ class _DashboardPageState extends State<DashboardPage>
                                   style: TextStyle(
                                       fontSize: 21.0, fontFamily: 'Roboto'),
                                 ),
-                                Text(
-                                  "Lihat Semua",
-                                  style: TextStyle(
-                                      fontSize: 16.0,
-                                      fontFamily: 'Roboto',
-                                      color: Color(0xff31B057)),
-                                )
                               ],
                             ),
                           ),
+                          rekomX == '0'?
+                          Container(
+
+                          ):
                           Container(
                             padding: EdgeInsets.only(
                                 top: 10, left: 20, bottom: 10.0),
                             height: 225,
-                            // decoration: BoxDecoration(
-                            //   gradient: LinearGradient(
-                            //     begin: Alignment.topCenter,
-                            //     end: Alignment.bottomCenter,
-                            //     stops: [0.1, 0.4, 0.6, 0.9],
-                            //     colors: [
-                            //       Colors.white,
-                            //       Colors.white,
-                            //       Colors.white,
-                            //       Colors.grey[100]
-                            //     ],
-                            //   ),
-                            // ),
                             width: MediaQuery.of(context).size.width,
                             child: PagewiseListView(
                               pageLoadController:
                                   pagewiseLoadControllerVertical,
+
                               padding: EdgeInsets.all(2.0),
                               scrollDirection: Axis.horizontal,
                               primary: false,
@@ -1258,8 +1285,7 @@ class BackendService {
       return null;
     }
   }
-
-  static Future<List<RecomendationModel>> getDataRecom(index, limit) async {
+   static Future<List<RecomendationModel>> listrecomendationitem(index, limit) async {
     var storage = new DataStore();
 
     // print('index $index');
@@ -1276,12 +1302,20 @@ class BackendService {
         var data = json.decode(responseBody.body);
         var product = data['itemslider'];
 
-        return RecomendationModel.fromJsonList(product);
+        if(product != null){
+          return RecomendationModel.fromJsonList(product);
+        }
       } else if (responseBody.statusCode == 401) {
         showInSnackBarDashboard('Token kedaluwarsa, silahkan login kembali');
         return null;
       } else {
         showInSnackBarDashboard('Error code : ${responseBody.statusCode}');
+        Map responseJson = jsonDecode(responseBody.body);
+
+        print('Error Code : ${responseBody.statusCode}');
+        if (responseJson.containsKey('message')) {
+          showInSnackBarDashboard('Message ${responseJson['message']}');
+        }
         print('Error Code : ${responseBody.statusCode}');
         print(jsonDecode(responseBody.body));
         return null;
@@ -1295,34 +1329,7 @@ class BackendService {
       return null;
     }
   }
-}
 
-class RecomendationModel {
-  String item;
-  String price;
-  String gambar;
-  String code;
-  String wishlist;
-  String desc;
-  String tipe;
-  String diskon;
-
-  RecomendationModel.fromJson(obj) {
-    this.item = obj['i_name'];
-    this.price = obj['ipr_sunitprice'];
-    this.gambar = obj['ip_path'];
-    this.code = obj['i_code'];
-    this.wishlist = obj['wl_ciproduct'];
-    this.desc = obj['itp_tagdesc'];
-    this.tipe = obj['ity_name'];
-    this.diskon = obj['gpp_sellprice'];
-  }
-
-  static List<RecomendationModel> fromJsonList(jsonList) {
-    return jsonList
-        .map<RecomendationModel>((obj) => RecomendationModel.fromJson(obj))
-        .toList();
-  }
 }
 
 class ProductModel {
@@ -1358,4 +1365,31 @@ class ListBanner {
   final String banner;
 
   ListBanner({this.idbanner, this.banner});
+}
+class RecomendationModel {
+  String item;
+  String price;
+  String gambar;
+  String code;
+  String wishlist;
+  String desc;
+  String tipe;
+  String diskon;
+
+  RecomendationModel.fromJson(obj) {
+    this.item = obj['i_name'];
+    this.price = obj['ipr_sunitprice'];
+    this.gambar = obj['ip_path'];
+    this.code = obj['i_code'];
+    this.wishlist = obj['wl_ciproduct'];
+    this.desc = obj['itp_tagdesc'];
+    this.tipe = obj['ity_name'];
+    this.diskon = obj['gpp_sellprice'];
+  }
+
+  static List<RecomendationModel> fromJsonList(jsonList) {
+    return jsonList
+        .map<RecomendationModel>((obj) => RecomendationModel.fromJson(obj))
+        .toList();
+  }
 }

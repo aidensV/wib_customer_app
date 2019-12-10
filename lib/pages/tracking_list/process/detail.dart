@@ -6,7 +6,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:wib_customer_app/storage/storage.dart';
 
-var idX, notaX, customerX, statusX, _scaffolddetailprocess;
+var idX, notaX, customerX, statusX;
+GlobalKey<ScaffoldState> _scaffolddetailprocess;
 String accessToken,
     tokenType,
     stockiesX,
