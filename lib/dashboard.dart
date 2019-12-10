@@ -105,7 +105,16 @@ class _DashboardPageState extends State<DashboardPage>
         this.setState(() {
           category = json.decode(response.body);
         });
-      } else if (response.statusCode == 401) {}
+      } else if (response.statusCode == 401) {
+        showInSnackBarDashboard('Token Kedaluwarsa, silahkan login kembali');
+      } else {
+        showInSnackBarDashboard('Error Code : ${response.statusCode}');
+        Map responseJson = jsonDecode(response.body);
+        print('Error Code : ${response.statusCode}');
+        if(responseJson.containsKey('message')){
+          showInSnackBarDashboard('Message ${responseJson['message']}');
+        }
+      }
 
       // print(category[1]["ity_code"]);
 
@@ -217,6 +226,11 @@ class _DashboardPageState extends State<DashboardPage>
         });
       } else {
         showInSnackBarProduk('Error Code : ${banner.statusCode}');
+        print('Error Code : ${banner.statusCode}');
+        Map responseJson = jsonDecode(banner.body);
+        if(responseJson.containsKey('message')){
+          showInSnackBarDashboard('Message ${responseJson['message']}');
+        }
         setState(() {
           isLoading = false;
         });
@@ -315,8 +329,8 @@ class _DashboardPageState extends State<DashboardPage>
               // Profil Drawer Here
               UserAccountsDrawerHeader(
                 // Below this my gf name :))))), jk
-                accountName: Text(
-                    namaCustomer == null ? 'Nama Lengkap' : namaCustomer),
+                accountName:
+                    Text(namaCustomer == null ? 'Nama Lengkap' : namaCustomer),
                 accountEmail:
                     Text(emailprofile == null ? 'Email Anda' : emailprofile),
                 // This how you set profil image in sidebar
@@ -327,7 +341,7 @@ class _DashboardPageState extends State<DashboardPage>
                   child: imageprofile != null
                       ? ClipOval(
                           child: Image(
-                          fit: BoxFit.cover,
+                            fit: BoxFit.cover,
                             image: NetworkImageWithRetry(
                               url('storage/image/member/profile/$imageprofile'),
                             ),
@@ -1098,7 +1112,15 @@ class _DashboardPageState extends State<DashboardPage>
                                     });
                                   }
                                 } else {
-                                  print('${hapuswishlist.body}');
+                                  print(hapuswishlist.statusCode);
+                                  Map responseJson =
+                                      jsonDecode(hapuswishlist.body);
+                                  print(
+                                      'Error Code : ${hapuswishlist.statusCode}');
+                                  if (responseJson.containsKey('message')) {
+                                    showInSnackBarDashboard(
+                                        'Message ${responseJson['message']}');
+                                  }
                                 }
                               } on TimeoutException catch (_) {} catch (e) {
                                 print(e);
@@ -1273,7 +1295,11 @@ class BackendService {
         return null;
       } else {
         showInSnackBarDashboard('Error Code : ${responseBody.statusCode}');
+        Map responseJson = jsonDecode(responseBody.body);
         print('Error Code : ${responseBody.statusCode}');
+        if (responseJson.containsKey('message')) {
+          showInSnackBarDashboard('Message ${responseJson['message']}');
+        }
         return null;
       }
     } on TimeoutException catch (_) {
