@@ -398,43 +398,46 @@ class _CariProdukLebihDetailState extends State<CariProdukLebihDetail> {
         ),
       ),
       body: Scrollbar(
-        child: PagewiseGridView.count(
-          pageSize: pageSize,
-          primary: false,
-          // physics: NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          crossAxisCount:
-              MediaQuery.of(context).orientation == Orientation.landscape
-                  ? 3
-                  : 2,
-          // mainAxisSpacing: 10.0,
-          crossAxisSpacing: 5.0,
-          childAspectRatio: 0.6,
-          itemBuilder: (BuildContext context, Produk produk, int i) {
-            return produkCard(produk);
-          },
-          loadingBuilder: (BuildContext context) => Center(
-            child: CircularProgressIndicator(),
+        child: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: PagewiseGridView.count(
+            pageSize: pageSize,
+            primary: false,
+            // physics: NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            crossAxisCount:
+                MediaQuery.of(context).orientation == Orientation.landscape
+                    ? 3
+                    : 2,
+            // mainAxisSpacing: 10.0,
+            crossAxisSpacing: 5.0,
+            childAspectRatio: 0.6,
+            itemBuilder: (BuildContext context, Produk produk, int i) {
+              return produkCard(produk);
+            },
+            loadingBuilder: (BuildContext context) => Center(
+              child: CircularProgressIndicator(),
+            ),
+            retryBuilder: (BuildContext context, Function onPress) {
+              return ErrorCobalLagi(
+                onPress: onPress(),
+              );
+            },
+            noItemsFoundBuilder: (BuildContext context) {
+              return ListTile(
+                title: Text(
+                  'Produk tidak ditemukan',
+                  textAlign: TextAlign.center,
+                ),
+              );
+            },
+            pageFuture: (pageIndex) {
+              return cariProduk(
+                namaProduk: widget.namaProduk,
+                index: pageIndex,
+              );
+            },
           ),
-          retryBuilder: (BuildContext context, Function onPress) {
-            return ErrorCobalLagi(
-              onPress: onPress(),
-            );
-          },
-          noItemsFoundBuilder: (BuildContext context) {
-            return ListTile(
-              title: Text(
-                'Produk tidak ditemukan',
-                textAlign: TextAlign.center,
-              ),
-            );
-          },
-          pageFuture: (pageIndex) {
-            return cariProduk(
-              namaProduk: widget.namaProduk,
-              index: pageIndex,
-            );
-          },
         ),
       ),
     );

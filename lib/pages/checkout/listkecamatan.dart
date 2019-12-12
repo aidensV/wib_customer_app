@@ -168,7 +168,7 @@ class _KecamatanState extends State<KecamatanSending> {
           ),
           title: new TextField(
             decoration: InputDecoration(
-              labelText: 'Cari Alamat Kecamatan',
+              hintText: 'Cari Alamat Kecamatan',
             ),
             onChanged: (string) {
               _debouncer.run(() {
@@ -187,7 +187,12 @@ class _KecamatanState extends State<KecamatanSending> {
         child: Column(
           children: <Widget>[
             isLoading == true
-                ? Center(child: CircularProgressIndicator())
+                ? Container(
+                  margin: EdgeInsets.only(top: 10.0),
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            )
                 : isLogout == true
                     ? Padding(
                         padding: const EdgeInsets.only(top: 20.0),

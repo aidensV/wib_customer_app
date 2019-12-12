@@ -229,7 +229,7 @@ class ProductDetailState extends State<ProductDetail> {
               ),
             )
           : isError == true
-              ? Padding(
+              ? SingleChildScrollView(
                   padding: const EdgeInsets.only(top: 20.0),
                   child: RefreshIndicator(
                     onRefresh: () => getHeaderHTTP(),
@@ -259,7 +259,7 @@ class ProductDetailState extends State<ProductDetail> {
                       ),
                       Padding(
                         padding: const EdgeInsets.only(
-                            top: 20.0, left: 15.0, right: 15.0),
+                            top: 20.0, left: 15.0, right: 15.0,bottom: 40.0),
                         child: SizedBox(
                           width: double.infinity,
                           child: RaisedButton(
@@ -595,6 +595,9 @@ class ProductDetailState extends State<ProductDetail> {
                                       if (isLoading == true) {
                                         showInSnackBar(
                                             'Sedang memuat halaman mohon tunggu sebentar');
+                                      }else if(isError == true){
+                                        showInSnackBar(
+                                            'Gagal memuat halaman, mohon muat ulang');
                                       } else {
                                         var idx = codeX;
                                         try {
@@ -653,6 +656,9 @@ class ProductDetailState extends State<ProductDetail> {
                                       if (isLoading == true) {
                                         showInSnackBar(
                                             'Sedang memuat halaman, mohon tunggu sebentar');
+                                      }else if(isError == true){
+                                        showInSnackBar(
+                                            'Gagal memuat halaman, mohon muat ulang halaman kembali');
                                       } else if (location == null) {
                                         showInSnackBar(
                                             'Silahkan setting alamat terlebih dahulu pada pengaturan akun');

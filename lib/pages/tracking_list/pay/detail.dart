@@ -4,13 +4,10 @@ import 'package:http/http.dart' as http;
 import 'package:wib_customer_app/env.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
-
 import 'package:image_picker/image_picker.dart';
-// import '../../../utils/Navigator.dart';
 import 'dart:convert';
 import 'package:path/path.dart';
 import 'package:wib_customer_app/env.dart' as prefix0;
-// import 'package:wib_customer_app/pages/checkout/checkout.dart';
 import 'package:wib_customer_app/storage/storage.dart';
 import 'package:async/async.dart';
 
@@ -197,6 +194,7 @@ class _DetailState extends State<Detail> {
               image: i['ip_path'],
               code: i['i_code'],
               berat: i['itp_weight'].toString(),
+              hargadiskonpercent:  i['sd_discpercent'].toString(),
               hargadiskon: i['sd_discvalue']);
           listItem.add(notax);
         }
@@ -322,14 +320,20 @@ class _DetailState extends State<Detail> {
       key: _scaffolddetailpay,
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("Detail Nota"),
-        backgroundColor: Color(0xff31B057),
+        textTheme: TextTheme(
+          title: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+          ),
+        ),
         iconTheme: IconThemeData(
           color: Colors.white,
         ),
         actionsIconTheme: IconThemeData(
           color: Colors.white,
         ),
+        title: Text('Detail Transaksi'),
+        backgroundColor: Color(0xff31B057),
       ),
       body: isLoading == true
           ? Container(
@@ -549,29 +553,25 @@ class _DetailState extends State<Detail> {
                                     ),
                                   ),
                                 )
-                              : Padding(
+                              : 
+                              Padding(
                                   padding: const EdgeInsets.only(
                                       top: 25.0, left: 15.0),
                                   child: new Text('Daftar barang'),
                                 ),
                           Divider(),
-                          Padding(
-                            padding: EdgeInsets.all(0.0),
-                            child: GridView.count(
-                              shrinkWrap: true,
-                              crossAxisCount: 1,
-                              mainAxisSpacing: 0.0,
-                              crossAxisSpacing: 0.0,
-                              physics: NeverScrollableScrollPhysics(),
-                              childAspectRatio:
-                                  MediaQuery.of(context).orientation ==
-                                          Orientation.portrait
-                                      ? 2.2
-                                      : 4.2,
-                              children: listItem.map(
-                                (item) {
-                                  var children2 = <Widget>[
-                                    Container(
+                          Container(
+                                      margin: EdgeInsets.only(
+                                        top: 0.0,
+                                        left: 10.0,
+                                        right: 10.0,
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: listItem
+                                            .map((ListItem item) =>
+                                            Container(
                                       child: Column(
                                         children: <Widget>[
                                           Padding(
@@ -604,17 +604,6 @@ class _DetailState extends State<Detail> {
                                                                     _numberFormat.format(double.parse(item
                                                                         .totalharga
                                                                         .toString())),
-                                                            style: TextStyle(
-                                                                color: Colors
-                                                                    .black)),
-                                                      ),
-                                                      Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .only(
-                                                                left: 0.0),
-                                                        child: Text(
-                                                            ' | ${item.qty} Qty',
                                                             style: TextStyle(
                                                                 color: Colors
                                                                     .black)),
@@ -723,109 +712,297 @@ class _DetailState extends State<Detail> {
                                               ],
                                             ),
                                           ),
-                                          Padding(
-                                            padding:
-                                                const EdgeInsets.only(top: 0.0),
-                                            child: Row(
-                                              children: <Widget>[
-                                                Expanded(
-                                                  flex: 5,
-                                                  child: Image.network(
-                                                    item.image != null
-                                                        ? urladmin(
-                                                            'storage/image/master/produk/${item.image}',
-                                                          )
-                                                        : prefix0.url(
-                                                            'assets/img/noimage.jpg',
-                                                          ),
-                                                    width: 80.0,
-                                                    height: 80.0,
-                                                  ),
+                                        Container(
+                                          height: 10.0,
+                                        ),
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 0.0),
+                                          child: Row(
+                                            children: <Widget>[
+                                              Expanded(
+                                                flex: 4,
+                                                child: Image.network(
+                                                  item.image != null
+                                                      ? urladmin(
+                                                          'storage/image/master/produk/${item.image}',
+                                                        )
+                                                      : prefix0.url(
+                                                          'assets/img/noimage.jpg',
+                                                        ),
+                                                  width: 80.0,
+                                                  height: 80.0,
                                                 ),
-                                                Expanded(
-                                                  flex: 5,
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: <Widget>[
-                                                      Container(
-                                                        child: Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .only(
-                                                                  top: 10.0),
-                                                          child: Text(
-                                                            item.nama,
-                                                            style: TextStyle(
-                                                                color: Color(
-                                                                    0xff25282b),
-                                                                fontSize: 15.0,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
-                                                          ),
+                                              ),
+                                              Expanded(
+                                                flex: 6,
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: <Widget>[
+                                                    Container(
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .only(top: 0.0),
+                                                        child: Text(
+                                                          item.nama,
+                                                          style: TextStyle(
+                                                              color: Color(
+                                                                  0xff25282b),
+                                                              fontSize: 15.0,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
                                                         ),
                                                       ),
-                                                      Container(
-                                                        height: 30.0,
-                                                        child: Row(
-                                                          children: <Widget>[
-                                                            Padding(
-                                                              padding:
-                                                                  const EdgeInsets
+                                                    ),
+                                                    Container(
+                                                      child: Row(
+                                                        children: <Widget>[
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .only(
+                                                                    left: 0.0),
+                                                            child: Text(
+                                                                'Harga : ',
+                                                                style:
+                                                                    TextStyle()),
+                                                          ),
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .only(
+                                                                    left: 0.0),
+                                                            child: Text(
+                                                                item.hargasales == null ||
+                                                                item.hargasales == 'null' ||
+                                                                        item.hargasales ==
+                                                                            '0' ||
+                                                                        item.hargasales ==
+                                                                            '0.00' ||
+                                                                        item.hargasales ==
+                                                                            ''
+                                                                    ? '0.00'
+                                                                    : _numberFormat.format(double.parse(item
+                                                                        .hargasales
+                                                                        .toString())),
+                                                                style:
+                                                                    TextStyle(
+                                                                  color: Colors
+                                                                      .deepOrange,
+                                                                )),
+                                                          ),
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .only(
+                                                                    left: 0.0),
+                                                            child: Text(
+                                                                item.satuan ==
+                                                                            null ||
+                                                                        item.satuan ==
+                                                                            ''
+                                                                    ? ' / Satuan'
+                                                                    : ' / ' +
+                                                                        item
+                                                                            .satuan,
+                                                                style:
+                                                                    TextStyle(
+                                                                  color: Colors
+                                                                      .green,
+                                                                )),
+                                                          )
+                                                        ],
+                                                      ),
+                                                      padding: EdgeInsets.only(
+                                                          left: 0.0, top: 10.0),
+                                                    ),
+                                                    Container(
+                                                      child: Row(
+                                                        children: <Widget>[
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .only(
+                                                                    left: 0.0),
+                                                            child: Text(
+                                                                'Jumlah : ',
+                                                                style:
+                                                                    TextStyle()),
+                                                          ),
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .only(
+                                                                    left: 0.0),
+                                                            child: Text(
+                                                                item.qty == null ||
+                                                                item.qty == 'null' ||
+                                                                        item.qty ==
+                                                                            '0' ||
+                                                                        item.qty ==
+                                                                            '0.00' ||
+                                                                        item.qty ==
+                                                                            ''
+                                                                    ? '0.00'
+                                                                    : item.qty,
+                                                                style:
+                                                                    TextStyle(
+                                                                  color: Colors
+                                                                      .deepOrange,
+                                                                )),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      padding: EdgeInsets.only(
+                                                          left: 0.0, top: 10.0),
+                                                    ),
+                                                    item.hargadiskon == null ||
+                                                            item.hargadiskon ==
+                                                                'null' ||
+                                                            item.hargadiskon ==
+                                                                '' ||
+                                                            item.hargadiskon ==
+                                                                '0.00' ||
+                                                            item.hargadiskon ==
+                                                                '0'
+                                                        ? item.hargadiskonpercent ==
+                                                                    null ||
+                                                                item.hargadiskonpercent ==
+                                                                    'null' ||
+                                                                item.hargadiskonpercent ==
+                                                                    '' ||
+                                                                item.hargadiskonpercent ==
+                                                                    '0.00' ||
+                                                                item.hargadiskonpercent ==
+                                                                    '0'
+                                                            ? Container(
+                                                                child: Row(
+                                                                  children: <
+                                                                      Widget>[
+                                                                    Padding(
+                                                                      padding: const EdgeInsets
+                                                                              .only(
+                                                                          left:
+                                                                              0.0),
+                                                                      child: Text(
+                                                                          'Diskon : ',
+                                                                          style:
+                                                                              TextStyle()),
+                                                                    ),
+                                                                    Padding(
+                                                                      padding: const EdgeInsets
+                                                                              .only(
+                                                                          left:
+                                                                              0.0),
+                                                                      child: Text(
+                                                                          'Rp. 0.00',
+                                                                          style:
+                                                                              TextStyle(
+                                                                            color:
+                                                                                Colors.deepOrange,
+                                                                          )),
+                                                                    )
+                                                                  ],
+                                                                ),
+                                                                padding: EdgeInsets
+                                                                    .only(
+                                                                        left:
+                                                                            0.0,
+                                                                        top:
+                                                                            10.0),
+                                                              )
+                                                            : Container(
+                                                                child: Row(
+                                                                  children: <
+                                                                      Widget>[
+                                                                    Padding(
+                                                                      padding: const EdgeInsets
+                                                                              .only(
+                                                                          left:
+                                                                              0.0),
+                                                                      child: Text(
+                                                                          'Diskon : ',
+                                                                          style:
+                                                                              TextStyle(
+                                                                          )),
+                                                                    ),
+                                                                    Padding(
+                                                                      padding: const EdgeInsets
+                                                                              .only(
+                                                                          left:
+                                                                              0.0),
+                                                                      child: Text(
+                                                                          _numberFormat.format((double.parse(item.hargasales.toString()) *
+                                                                              int.parse(item.qty.toString()) *
+                                                                              int.parse(item.hargadiskonpercent) /
+                                                                              100)),
+                                                                          style: TextStyle(
+                                                                            color:
+                                                                                Colors.deepOrange,
+                                                                          )),
+                                                                    )
+                                                                  ],
+                                                                ),
+                                                                padding: EdgeInsets
+                                                                    .only(
+                                                                        left:
+                                                                            0.0,
+                                                                        top:
+                                                                            10.0),
+                                                              )
+                                                        : Container(
+                                                            child: Row(
+                                                              children: <
+                                                                  Widget>[
+                                                                Padding(
+                                                                  padding: const EdgeInsets
                                                                           .only(
                                                                       left:
                                                                           0.0),
-                                                              child: Text(
-                                                                  item.jenis ==
-                                                                              null ||
-                                                                          item.jenis ==
-                                                                              ''
-                                                                      ? 'Jenis Barang'
-                                                                      : item
-                                                                          .jenis,
-                                                                  style:
-                                                                      TextStyle(
-                                                                    color: Colors
-                                                                        .green,
-                                                                  )),
-                                                            )
-                                                          ],
-                                                        ),
-                                                        padding:
-                                                            EdgeInsets.only(
-                                                                left: 0.0,
-                                                                top: 10.0),
-                                                      ),
-                                                    ],
-                                                  ),
+                                                                  child: Text(
+                                                                      'Diskon : ',
+                                                                      style:
+                                                                          TextStyle()),
+                                                                ),
+                                                                Padding(
+                                                                  padding: const EdgeInsets
+                                                                          .only(
+                                                                      left:
+                                                                          0.0),
+                                                                  child: Text(
+                                                                      _numberFormat.format(double.parse(item
+                                                                          .hargadiskon
+                                                                          .toString())),
+                                                                      style: TextStyle(
+                                                                          color:
+                                                                              Colors.deepOrange)),
+                                                                )
+                                                              ],
+                                                            ),
+                                                            padding:
+                                                                EdgeInsets.only(
+                                                                    left: 0.0,
+                                                                    top: 10.0),
+                                                          ),
+                                                  ],
                                                 ),
-                                              ],
-                                            ),
+                                              ),
+                                            ],
                                           ),
+                                        ),
+                                        Container(
+                                          height: 30.0,
+                                        ),
+                                        Divider(),
                                         ],
                                       ),
-                                    ),
-                                  ];
-                                  return Container(
-                                    decoration: BoxDecoration(
-                                      border:
-                                          Border.all(color: Colors.transparent),
-                                    ),
-                                    // padding: const EdgeInsets.all(10.0),
-                                    // margin: EdgeInsets.all(5.0),
-                                    child: Card(
-                                      elevation: 0.0,
-                                      child: Column(
-                                        children: children2,
+                                    ))
+                                            .toList(),
                                       ),
                                     ),
-                                  );
-                                },
-                              ).toList(),
-                            ),
-                          ),
                         ],
                       ),
                     ),
@@ -1007,6 +1184,7 @@ class ListItem {
   final String hargasales;
   final String totalharga;
   final String hargadiskon;
+  String hargadiskonpercent;
 
   ListItem({
     this.nama,
@@ -1018,6 +1196,7 @@ class ListItem {
     this.price,
     this.berat,
     this.totalharga,
+    this.hargadiskonpercent,
     this.hargasales,
     this.hargadiskon,
   });

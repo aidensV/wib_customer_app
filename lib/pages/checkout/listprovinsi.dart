@@ -164,7 +164,7 @@ class _ProvinsiState extends State<ProvinsiSending> {
           ),
           title: new TextField(
             decoration: InputDecoration(
-              labelText: 'Cari Alamat Provinsi',
+              hintText: 'Cari Alamat Provinsi',
             ),
             onChanged: (string) {
               _debouncer.run(() {
@@ -183,7 +183,12 @@ class _ProvinsiState extends State<ProvinsiSending> {
         child: Column(
           children: <Widget>[
             isLoading == true
-          ? Center(child: CircularProgressIndicator())
+          ? Container(
+            margin: EdgeInsets.only(top: 10.0),
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            )
           : isLogout == true
               ? Padding(
                   padding: const EdgeInsets.only(top: 20.0),

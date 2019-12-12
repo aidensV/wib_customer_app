@@ -13,6 +13,7 @@ List<ListNota> listNota;
 FocusNode datepickerFocus;
 String tokenType, accessToken;
 bool isLoading;
+bool isError;
 var _tanggalawalall, _tanggalakhirall, _urutkantransaksiall;
 GlobalKey<ScaffoldState> _scaffoldKeyall;
 Map<String, String> requestHeaders = Map();
@@ -97,7 +98,6 @@ class _AllNotaState extends State<AllNota> {
     accessToken = accessTokenStorage;
     requestHeaders['Accept'] = 'application/json';
     requestHeaders['Authorization'] = '$tokenType $accessToken';
-    // print(requestHeaders);
 
     try {
       setState(() {
@@ -115,8 +115,6 @@ class _AllNotaState extends State<AllNota> {
         // return nota;
         var notaJson = json.decode(nota.body);
         var notas = notaJson['nota'];
-
-        print('notaJson $notaJson');
 
         listNota = [];
         for (var i in notas) {
@@ -136,13 +134,13 @@ class _AllNotaState extends State<AllNota> {
         }
         setState(() {
           isLoading = false;
+          isError = false;
         });
-        print('listnota $listNota');
-        print('listnota length ${listNota.length}');
         return listNota;
-      } else if (nota.statusCode == 500) {
+      } else {
         setState(() {
           isLoading = false;
+          isError = true;
         });
         showInSnackBar('Request failed with status: ${nota.statusCode}');
         print(nota.body);
@@ -151,11 +149,13 @@ class _AllNotaState extends State<AllNota> {
     } on TimeoutException catch (_) {
       setState(() {
         isLoading = false;
+        isError = true;
       });
       showInSnackBar('Timed out, Try again');
     } catch (e) {
       setState(() {
         isLoading = false;
+        isError = true;
       });
       debugPrint('$e');
     }
@@ -173,6 +173,7 @@ class _AllNotaState extends State<AllNota> {
   void initState() {
     _scaffoldKeyall = new GlobalKey<ScaffoldState>();
     isLoading = true;
+    isError = false;
     listNotaAndroid();
     _urutkantransaksiall = 'kosong';
     _tanggalawalall = 'kosong';
@@ -204,6 +205,60 @@ class _AllNotaState extends State<AllNota> {
                       child: CircularProgressIndicator(),
                     ),
                   )
+              : isError == true
+              ? Padding(
+                  padding: const EdgeInsets.only(top: 20.0),
+                  child: RefreshIndicator(
+                    onRefresh: () => listNotaAndroid(),
+                    child: Column(children: <Widget>[
+                      new Container(
+                        width: 100.0,
+                        height: 100.0,
+                        child: Image.asset("images/system-eror.png"),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          top: 30.0,
+                          left: 15.0,
+                          right: 15.0,
+                        ),
+                        child: Center(
+                          child: Text(
+                            "Gagal memuat data, tekan tombol muat ulang data",
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey,
+                              height: 1.5,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            top: 20.0, left: 15.0, right: 15.0),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: RaisedButton(
+                            color: Colors.white,
+                            textColor: Colors.green,
+                            disabledColor: Colors.grey,
+                            disabledTextColor: Colors.black,
+                            padding: EdgeInsets.all(15.0),
+                            splashColor: Colors.blueAccent,
+                            onPressed: () async {
+                              listNotaAndroid();
+                            },
+                            child: Text(
+                              "Muat Ulang Data",
+                              style: TextStyle(fontSize: 14.0),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ]),
+                  ),
+                )
                 : listNota.length == 0
                     ? RefreshIndicator(
                         onRefresh: () => listNotaAndroid(),

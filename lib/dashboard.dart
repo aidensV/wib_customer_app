@@ -143,12 +143,13 @@ class _DashboardPageState extends State<DashboardPage>
       if (response.statusCode == 200) {
         var rekomJson = json.decode(response.body);
         String rekomvalue = rekomJson['cekrekom'].toString();
-        print('oke bro $rekomvalue');
         setState(() {
           rekomX = rekomvalue;
           isLoading = false;
         });
       } else {
+        print('testign ${response.body}');
+        showInSnackBarProduk('Error Code : ${response.statusCode}');
         setState(() {
           isLoading = false;
         });
@@ -454,6 +455,7 @@ class _DashboardPageState extends State<DashboardPage>
                   children: <Widget>[
                     RefreshIndicator(
                       onRefresh: () async {
+                        getrekom();
                         listBannerAndroid();
                         pagewiseLoadControllerVertical.reset();
                         pageWiseLoadControllerHorizontal.reset();
@@ -973,7 +975,7 @@ class _DashboardPageState extends State<DashboardPage>
               child: Row(
                 children: <Widget>[
                   Text(
-                    entry.item == null ? 'Unknown Item' : entry.item,
+                    entry.item == null ? 'Nama Item' : entry.item,
                     style: TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
@@ -986,15 +988,30 @@ class _DashboardPageState extends State<DashboardPage>
 
             IntrinsicHeight(
               child: Padding(
-                padding: EdgeInsets.only(left: 5.0, right: 5.0),
+                padding: EdgeInsets.only(left: 5.0, right: 5.0,top:10.0),
                 child: Row(
                   children: <Widget>[
+                    entry.diskon == null || entry.diskon == '' ?
                     Expanded(
                       flex: 5,
                       child: Text(
-                        entry.price == null
+                        entry.price == null || entry.price == ''
                             ? 'Rp. 0.00'
                             : _numberFormat.format(double.parse(entry.price)),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                            color: Colors.deepOrange),
+                        maxLines: 1,
+                        textAlign: TextAlign.left,
+                      ),
+                    ):
+                    Expanded(
+                      flex: 5,
+                      child: Text(
+                        entry.diskon == null || entry.diskon == ''
+                            ? 'Rp. 0.00'
+                            : _numberFormat.format(double.parse(entry.diskon)),
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 13,
@@ -1006,7 +1023,7 @@ class _DashboardPageState extends State<DashboardPage>
                     Expanded(
                       flex: 5,
                       child: Text(
-                        entry.tipe == null ? 'Unknown Tipe' : entry.tipe,
+                        entry.tipe == null || entry.tipe == '' ? 'Jenis' : entry.tipe,
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 13,
@@ -1140,7 +1157,7 @@ class _DashboardPageState extends State<DashboardPage>
                         Container(
                           alignment: Alignment.topLeft,
                           child: Text(
-                            entry.item,
+                            entry.item == null || entry.item == '' ? 'Nama Item' : entry.item,
                             style: TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 16,
@@ -1163,7 +1180,7 @@ class _DashboardPageState extends State<DashboardPage>
                                   : Container(
                                       alignment: Alignment.topLeft,
                                       child: Text(
-                                        entry.price == null
+                                        entry.price == null || entry.price == ''
                                             ? 'Rp. 0.00'
                                             : _numberFormat.format(
                                                 double.parse(entry.price)),
@@ -1185,7 +1202,7 @@ class _DashboardPageState extends State<DashboardPage>
                                         Expanded(
                                           flex: 5,
                                           child: Text(
-                                            entry.price == null
+                                            entry.price == null || entry.price == ''
                                                 ? 'Rp. 0.00'
                                                 : _numberFormat.format(
                                                     double.parse(entry.price)),
@@ -1199,7 +1216,7 @@ class _DashboardPageState extends State<DashboardPage>
                                         Expanded(
                                           flex: 5,
                                           child: Text(
-                                            entry.tipe,
+                                            entry.tipe == null || entry.tipe == '' ? 'Jenis' : entry.tipe,
                                             style: TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 14,
@@ -1230,7 +1247,7 @@ class _DashboardPageState extends State<DashboardPage>
                                         Expanded(
                                           flex: 5,
                                           child: Text(
-                                            entry.tipe,
+                                            entry.tipe == null || entry.tipe == '' ? 'Jenis' : entry.tipe,
                                             style: TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 14,

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:wib_customer_app/pages/checkout/model.dart';
-import 'package:wib_customer_app/pages/tracking_list/send/detail.dart';
 import 'package:wib_customer_app/storage/storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:wib_customer_app/env.dart';
@@ -169,7 +168,7 @@ class _KabupatenState extends State<KabupatenSending> {
           ),
           title: new TextField(
             decoration: InputDecoration(
-              labelText: 'Cari Alamat Kabupaten',
+              hintText: 'Cari Alamat Kabupaten',
             ),
             onChanged: (string) {
               _debouncer.run(() {
@@ -188,7 +187,12 @@ class _KabupatenState extends State<KabupatenSending> {
         child: Column(
           children: <Widget>[
             isLoading == true
-                ? Center(child: CircularProgressIndicator())
+                ? Container(
+                  margin: EdgeInsets.only(top: 10.0),
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            )
                 : isLogout == true
                     ? Padding(
                         padding: const EdgeInsets.only(top: 20.0),

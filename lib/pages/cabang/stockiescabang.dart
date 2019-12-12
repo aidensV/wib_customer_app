@@ -147,8 +147,7 @@ class _ProvinsiState extends State<ProvinsiSending> {
           ),
           title: new TextField(
             decoration: InputDecoration(
-              labelText: 'Kabupaten Stockies $namacabangX',
-              labelStyle: TextStyle(fontSize: 12,color: Colors.grey),
+              hintText: 'Kabupaten Stockies $namacabangX',
             ),
             
             onChanged: (string) {

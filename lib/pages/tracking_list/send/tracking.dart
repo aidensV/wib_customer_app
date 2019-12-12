@@ -149,6 +149,12 @@ class _TrackingState extends State<Tracking> {
       // backgroundColor: Colors.grey[300],
       appBar: AppBar(
         title: Text("Lacak Pengiriman"),
+        textTheme: TextTheme(
+          title: TextStyle(
+            color : Colors.black,
+            fontSize: 18,
+          ),
+        ),
         // backgroundColor: Color(0xff31B057),
       ),
       body: isLoading == true
@@ -319,6 +325,18 @@ class _TrackingState extends State<Tracking> {
                                                           double.parse(price
                                                               .toString()))),
                                             ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                              top: 20.0, bottom: 20.0),
+                                          child: Text(
+                                            'History Pengiriman',
+                                            textAlign: TextAlign.left,
+                                            style: TextStyle(
+                                                color: Colors.green,
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold),
                                           ),
                                         ),
                                         Card(

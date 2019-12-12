@@ -13,6 +13,8 @@ List<ListNota> listNota;
 var _tanggalawalprocess, _tanggalakhirprocess, _urutkantransaksiprocess;
 GlobalKey<ScaffoldState> _scaffoldKeyprocess;
 FocusNode datepickerFocus;
+bool isLoading;
+bool isError;
 String tokenType, accessToken;
 Map<String, String> requestHeaders = Map();
 
@@ -84,7 +86,6 @@ class ProcessNota extends StatefulWidget {
 }
 
 class _ProcessNotaState extends State<ProcessNota> {  
-  bool isLoading;
   Future<List<ListNota>> listNotaAndroid() async {
   DataStore storage = new DataStore();
 
@@ -112,8 +113,6 @@ class _ProcessNotaState extends State<ProcessNota> {
       var notaJson = json.decode(nota.body);
       var notas = notaJson['nota'];
 
-      print('notaJson $notaJson');
-
       listNota = [];
       for (var i in notas) {
         ListNota notax = ListNota(
@@ -130,26 +129,31 @@ class _ProcessNotaState extends State<ProcessNota> {
         );
         listNota.add(notax);
       }
-
-      print('listnota $listNota');
-      print('listnota length ${listNota.length}');
       setState(() {
         isLoading = false; 
+        isError = false;
       });
       return listNota;
     } else {
-//      showInSnackBar('Request failed with status: ${nota.statusCode}');
+      showInSnackBar('Request failed with status: ${nota.statusCode}');
+      setState(() {
+        isLoading = false; 
+        isError = true;
+      });
+
       return null;
     }
   } on TimeoutException catch (_) {
     setState(() {
         isLoading = false; 
-      });
+        isError = true;
+    });
     showInSnackBar('Timed out, Try again');
   } catch (e) {
     setState(() {
         isLoading = false; 
-      });
+        isError = true;
+    });
     debugPrint('$e');
   }
   return null;
@@ -168,6 +172,7 @@ class _ProcessNotaState extends State<ProcessNota> {
     listNotaAndroid();
     _scaffoldKeyprocess =  new GlobalKey<ScaffoldState>();
     isLoading = true;
+    isError = false;
     _urutkantransaksiprocess = 'kosong';
     _tanggalawalprocess = 'kosong';
     datepickerFocus = FocusNode();
@@ -200,6 +205,60 @@ class _ProcessNotaState extends State<ProcessNota> {
                       child: CircularProgressIndicator(),
                     ),
                   )
+              : isError == true
+              ? Padding(
+                  padding: const EdgeInsets.only(top: 20.0),
+                  child: RefreshIndicator(
+                    onRefresh: () => listNotaAndroid(),
+                    child: Column(children: <Widget>[
+                      new Container(
+                        width: 100.0,
+                        height: 100.0,
+                        child: Image.asset("images/system-eror.png"),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          top: 30.0,
+                          left: 15.0,
+                          right: 15.0,
+                        ),
+                        child: Center(
+                          child: Text(
+                            "Gagal memuat data, tekan tombol muat ulang data",
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey,
+                              height: 1.5,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            top: 20.0, left: 15.0, right: 15.0),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: RaisedButton(
+                            color: Colors.white,
+                            textColor: Colors.green,
+                            disabledColor: Colors.grey,
+                            disabledTextColor: Colors.black,
+                            padding: EdgeInsets.all(15.0),
+                            splashColor: Colors.blueAccent,
+                            onPressed: () async {
+                              listNotaAndroid();
+                            },
+                            child: Text(
+                              "Muat Ulang Data",
+                              style: TextStyle(fontSize: 14.0),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ]),
+                  ),
+                )
                 : listNota.length == 0
                     ? RefreshIndicator(
                         onRefresh: () => listNotaAndroid(),

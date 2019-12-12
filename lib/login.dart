@@ -112,6 +112,9 @@ class _LoginPageState extends State<LoginPage> {
             store.setDataString("postalcode", datauser['cm_postalcode']);
             store.setDataString("tempatlahir", datauser['cm_cityborn']);
             store.setDataString("lahir", datauser['cm_born']);
+            store.setDataString("idprovinsi", datauser['cm_province']);
+            store.setDataString("idkota", datauser['cm_city']);
+            store.setDataString("idkecamatan", datauser['cm_district']);
             store.setDataString("namaprovinsi", datauser['p_nama']);
             store.setDataString("namakota", datauser['c_nama']);
             store.setDataString("namadesa", datauser['d_nama']);
