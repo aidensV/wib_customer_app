@@ -36,7 +36,7 @@ dependencies:
   intl: ^0.15.0
   flutter_local_notifications: ^0.8.3
   pusher_websocket_flutter: ^0.1.1
-  flutter_image: ^2.0.0
+  flutter_image: ^3.0.0
   autocomplete_textfield: ^1.7.3
   image_picker:
   flutter_pagewise:
