@@ -1,8 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:wib_customer_app/pages/checkout/checkout.dart';
-// import 'package:wib_customer_app/pages/wishlist/wishlist.dart';
 import 'package:wib_customer_app/storage/storage.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
@@ -409,7 +407,7 @@ class ProductDetailState extends State<ProductDetail> {
                             Padding(
                               padding: const EdgeInsets.only(left: 8.0),
                               child: Text(
-                                'Warung Islami Bogor',
+                                'Warung Botol',
                                 textAlign: TextAlign.left,
                               ),
                             ),
@@ -540,7 +538,7 @@ class ProductDetailState extends State<ProductDetail> {
                               Text(
                                 descX == null || descX == ''
                                     ? 'Tidak ada deskripsi untuk barang ini'
-                                    : descX,
+                                    : 'Tidak ada deskripsi untuk barang ini',
                               )
                             ],
                           ),
@@ -662,6 +660,9 @@ class ProductDetailState extends State<ProductDetail> {
                                       } else if (location == null) {
                                         showInSnackBar(
                                             'Silahkan setting alamat terlebih dahulu pada pengaturan akun');
+                                      }else if(location == 'Tidak Ada Cabang Terdekat'){
+                                        showInSnackBar(
+                                            'Silahkan ubah alamat anda sesuai stockies yang ada pada cabang warung botol');
                                       } else {
                                         var idx = codeX;
                                         try {
