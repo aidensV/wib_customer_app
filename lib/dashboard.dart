@@ -973,7 +973,7 @@ class _DashboardPageState extends State<DashboardPage>
                 errorWidget: (context, url, error) => Container(
                           height: 130.0,
                           width: MediaQuery.of(context).size.width,
-                          child: Image.asset("images/noimage.jpg"),
+                          child: Image.asset("images/noimage.jpg",fit: BoxFit.cover,),
                         ),
                 fit: BoxFit.cover,
                 height: 130.0,
@@ -1103,7 +1103,7 @@ class _DashboardPageState extends State<DashboardPage>
                         errorWidget: (context, url, error) => Container(
                           height: 150.0,
                           width: MediaQuery.of(context).size.width,
-                          child: Image.asset("images/noimage.jpg"),
+                          child: Image.asset("images/noimage.jpg",fit: BoxFit.cover,),
                         ),
                         fit: BoxFit.cover,
                         height: 150.0,

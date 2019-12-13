@@ -304,28 +304,34 @@ class _WishlistState extends State<Wishlist> {
                                               );
                                             },
                                             leading: CachedNetworkImage(
-                                                        placeholder:
-                                                            (context, url) =>
-                                                                Container(
-                                                          width: 70.0,
+                                              placeholder: (context, url) =>
+                                                  Container(
+                                                width: 70.0,
+                                                height: 100.0,
+                                                child: Image.asset(
+                                                    "images/loadingitem.gif"),
+                                              ),
+                                              errorWidget:
+                                                  (context, url, error) =>
+                                                      Container(
+                                                width: 70.0,
+                                                height: 100.0,
+                                                child: Image.asset(
+                                                  "images/noimage.jpg",
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ),
+                                              width: 70.0,
                                               height: 100.0,
-                                                          child: Image.asset(
-                                                              "images/loadingitem.gif"),
+                                              imageUrl:
+                                                  listNota[index].image != null
+                                                      ? urladmin(
+                                                          'storage/image/master/produk/${listNota[index].image}',
+                                                        )
+                                                      : url(
+                                                          'assets/img/noimage.jpg',
                                                         ),
-                                                        errorWidget: (context,
-                                                                url, error) =>
-                                                            Icon(Icons.error),
-                                                        width: 70.0,
-                                              height: 100.0,
-                                                        imageUrl:
-                                                            listNota[index].image != null
-                                                    ? urladmin(
-                                                        'storage/image/master/produk/${listNota[index].image}',
-                                                      )
-                                                    : url(
-                                                        'assets/img/noimage.jpg',
-                                                      ),
-                                                      ),
+                                            ),
                                             //  Image(
                                             //   image: new NetworkImageWithRetry(
                                             //     listNota[index].image != null

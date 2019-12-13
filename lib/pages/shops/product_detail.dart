@@ -14,6 +14,7 @@ var itemX, priceX, codeX, descX, diskonX, tipeX;
 String tokenType, accessToken;
 bool isLoading;
 bool isError;
+bool loadingaddcart;
 GlobalKey<ScaffoldState> _scaffoldKeyDetail;
 List<ListKeranjang> listNota = [];
 String stockiesX, wishlistX, stockX;
@@ -154,42 +155,6 @@ class ProductDetailState extends State<ProductDetail> {
     }
   }
 
-  Future<void> precacheImage(
-    ImageProvider provider,
-    BuildContext context, {
-    Size size,
-    ImageErrorListener onError,
-  }) {
-    final ImageConfiguration config =
-        createLocalImageConfiguration(context, size: size);
-    final Completer<void> completer = Completer<void>();
-    final ImageStream stream = provider.resolve(config);
-    ImageStreamListener listener;
-    listener = ImageStreamListener(
-      (ImageInfo image, bool sync) {
-        completer.complete();
-        stream.removeListener(listener);
-      },
-      onError: (dynamic exception, StackTrace stackTrace) {
-        completer.complete();
-        stream.removeListener(listener);
-        if (onError != null) {
-          onError(exception, stackTrace);
-        } else {
-          FlutterError.reportError(FlutterErrorDetails(
-            context: ErrorDescription('image failed to precache'),
-            library: 'image resource service',
-            exception: exception,
-            stack: stackTrace,
-            silent: true,
-          ));
-        }
-      },
-    );
-    stream.addListener(listener);
-    return completer.future;
-  }
-
   int totalRefresh = 0;
   refreshFunction() async {
     setState(() {
@@ -222,6 +187,7 @@ class ProductDetailState extends State<ProductDetail> {
     wishlistX = null;
     isWishlist = false;
     getHeaderHTTP();
+    loadingaddcart = false;
     stockiesX = null;
     stockX = null;
     itemX = widget.item;
@@ -327,7 +293,7 @@ class ProductDetailState extends State<ProductDetail> {
                               ? new Container(
                                   child: CachedNetworkImage(
                                     placeholder: (context, url) => Container(
-                                      height: 130.0,
+                                      
                                       width: MediaQuery.of(context).size.width,
                                       child: Image.asset("images/loadingitem.gif"),
                                     ),
@@ -335,7 +301,6 @@ class ProductDetailState extends State<ProductDetail> {
                                                 (context, url, error) =>
                                                     Icon(Icons.error),
                                     fit: BoxFit.cover,
-                                    height: 130.0,
                                     width: MediaQuery.of(context).size.width,
                                     imageUrl: url(
                                       'assets/img/noimage.jpg',
@@ -375,7 +340,6 @@ class ProductDetailState extends State<ProductDetail> {
                                           child: CachedNetworkImage(
                                             placeholder: (context, url) =>
                                                 Container(
-                                              height: 130.0,
                                               width: MediaQuery.of(context)
                                                   .size
                                                   .width,
@@ -385,16 +349,12 @@ class ProductDetailState extends State<ProductDetail> {
                                                 (context, url, error) =>
                                                     Icon(Icons.error),
                                             fit: BoxFit.fitHeight,
+                                            width: MediaQuery.of(context)
+                                                  .size
+                                                  .width,
                                             imageUrl: urladmin(
                                                 'storage/image/master/produk/${listNota[i].item}'),
                                           ),
-                                          // decoration: BoxDecoration(
-                                          //   image: DecorationImage(
-                                          //     image: NetworkImageWithRetry(urladmin(
-                                          //         'storage/image/master/produk/${listNota[i].item}')),
-                                          //     fit: BoxFit.fitHeight,
-                                          //   ),
-                                          // ),
                                         ),
                                     ],
                                   ),
@@ -718,21 +678,36 @@ class ProductDetailState extends State<ProductDetail> {
                                   height: 20.0,
                                   buttonColor: Color(0xff388bf2),
                                   child: FlatButton(
-                                    onPressed: () async {
+                                    onPressed: loadingaddcart == true ? null : () async {
+                                      setState(() {
+                                        loadingaddcart = true;
+                                      });
                                       var location = stockiesX;
                                       if (isLoading == true) {
                                         showInSnackBar(
                                             'Sedang memuat halaman, mohon tunggu sebentar');
+                                        setState(() {
+                                          loadingaddcart = false;
+                                        });
                                       } else if (isError == true) {
                                         showInSnackBar(
                                             'Gagal memuat halaman, mohon muat ulang halaman kembali');
+                                        setState(() {
+                                          loadingaddcart = false;
+                                        });
                                       } else if (location == null) {
                                         showInSnackBar(
                                             'Silahkan setting alamat terlebih dahulu pada pengaturan akun');
+                                          setState(() {
+                                            loadingaddcart = false;
+                                          });
                                       } else if (location ==
                                           'Tidak Ada Cabang Terdekat') {
                                         showInSnackBar(
                                             'Silahkan ubah alamat anda sesuai stockies yang ada pada cabang warung botol');
+                                            setState(() {
+                                              loadingaddcart = false;
+                                            });
                                       } else {
                                         var idx = codeX;
                                         try {
@@ -752,26 +727,44 @@ class ProductDetailState extends State<ProductDetail> {
                                             if (addcartJson['done'] == 'done') {
                                               showInSnackBar(
                                                   '$itemX berhasil dimasukkan ke keranjang');
+                                                setState(() {
+                                                  loadingaddcart = false;
+                                                });
                                             } else if (addcartJson['status'] ==
                                                 'minbeli') {
                                               showInSnackBar(
                                                   '${addcartJson['minbuy']}');
+                                                  setState(() {
+                                                    loadingaddcart = false;
+                                                  });
                                             } else if (addcartJson['status'] ==
                                                 'stockkurangminbeli') {
                                               showInSnackBar(
                                                   '${addcartJson['message']}');
+                                                  setState(() {
+                                                    loadingaddcart = false;
+                                                  });
                                             } else if (addcartJson['status'] ==
                                                 'maxstock') {
                                               showInSnackBar(
                                                   '${addcartJson['messagestock']}');
+                                                  setState(() {
+                                                    loadingaddcart = false;
+                                                  });
                                             } else if (addcartJson['error'] ==
                                                 'error') {
                                               showInSnackBar(
                                                   '$itemX sudah ada dikeranjang');
+                                                  setState(() {
+                                                    loadingaddcart = false;
+                                                  });
                                             } else if (addcartJson['error'] ==
                                                 'Berat Barang Belum Di Set') {
                                               showInSnackBar(
                                                   'Mohon Maaf, berat barang belum disetting');
+                                                  setState(() {
+                                                    loadingaddcart = false;
+                                                  });
                                             }
                                           } else {
                                             print('${adcart.body}');
@@ -781,8 +774,8 @@ class ProductDetailState extends State<ProductDetail> {
                                         }
                                       }
                                     },
-                                    child: const Text(
-                                      'Add to Cart',
+                                    child: Text(
+                                      loadingaddcart == true ? 'Tunggu Sebentar' : 'Add to Cart',
                                       style: TextStyle(fontSize: 18),
                                     ),
                                     color: Colors.white,

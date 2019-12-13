@@ -16,6 +16,7 @@ String tokenType, accessToken, totalhargaX;
 bool isLoading;
 bool isLogout;
 bool isError;
+bool loadingtocheckout;
 Map<String, String> requestHeaders = Map();
 
 class Keranjang extends StatefulWidget {
@@ -164,6 +165,7 @@ class _KeranjangState extends State<Keranjang> {
     totalhargaX = null;
     isLoading = true;
     isLogout = false;
+    loadingtocheckout= false;
     isError = false;
     print(requestHeaders);
     super.initState();
@@ -299,13 +301,6 @@ class _KeranjangState extends State<Keranjang> {
                                     ),
                                   ),
                                 ]
-
-                                    // child: ListTile(
-                                    //   title: Text(
-                                    //     'Tidak ada data',
-                                    //     textAlign: TextAlign.center,
-                                    //   ),
-                                    // ),
                                     ),
                               )
                             : Expanded(
@@ -403,7 +398,7 @@ class _KeranjangState extends State<Keranjang> {
                                                           buttonColor:
                                                               Color(0xff388bf2),
                                                           child: FlatButton(
-                                                            onPressed:
+                                                            onPressed: loadingtocheckout == true ? null :
                                                                 () async {
                                                               var idX =
                                                                   listNota[
@@ -501,22 +496,6 @@ class _KeranjangState extends State<Keranjang> {
                                                                 'assets/img/noimage.jpg',
                                                               ),
                                                       ),
-                                                      // child: new Image(
-                                                      //   image:
-                                                      //       new NetworkImageWithRetry(
-                                                      //     listNota[index]
-                                                      //                 .image !=
-                                                      //             null
-                                                      //         ? urladmin(
-                                                      //             'storage/image/master/produk/${listNota[index].image}',
-                                                      //           )
-                                                      //         : url(
-                                                      //             'assets/img/noimage.jpg',
-                                                      //           ),
-                                                      //   ),
-                                                      //   width: 100.0,
-                                                      //   height: 100.0,
-                                                      // ),
                                                     ),
                                                     Expanded(
                                                       flex: 5,
@@ -650,7 +629,7 @@ class _KeranjangState extends State<Keranjang> {
                                                                             EdgeInsets.all(
                                                                           0.0,
                                                                         ),
-                                                                        onPressed:
+                                                                        onPressed: loadingtocheckout == true ? null :
                                                                             () async {
                                                                           var idX =
                                                                               listNota[index].id;
@@ -715,7 +694,7 @@ class _KeranjangState extends State<Keranjang> {
                                                                       keyboardType: TextInputType.number,
                                                                       controller: listNota[index].qtyinput,
                                                                       decoration: InputDecoration(),
-                                                                      onChanged: (text) async {
+                                                                      onChanged: loadingtocheckout == true ? null :(text) async {
                                                                         var idX =
                                                                             listNota[index].id;
                                                                         var jumlah = text.length ==
@@ -803,7 +782,7 @@ class _KeranjangState extends State<Keranjang> {
                                                                               .all(
                                                                         0.0,
                                                                       ),
-                                                                      onPressed:
+                                                                      onPressed: loadingtocheckout == true ? null :
                                                                           () async {
                                                                         var idX =
                                                                             listNota[index].id;
@@ -930,11 +909,14 @@ class _KeranjangState extends State<Keranjang> {
                     child: RaisedButton(
                       color: Colors.green,
                       textColor: Colors.white,
-                      disabledColor: Colors.grey,
-                      disabledTextColor: Colors.black,
+                      disabledColor: Colors.green[400],
+                      disabledTextColor: Colors.white,
                       padding: EdgeInsets.all(15.0),
                       splashColor: Colors.blueAccent,
-                      onPressed: () async {
+                      onPressed: loadingtocheckout == true ? null : () async {
+                        setState(() {
+                          loadingtocheckout = true;
+                        });
                         try {
                           final tambahqty = await http.post(
                             url('api/gocheckkeranjangAndroid'),
@@ -948,12 +930,6 @@ class _KeranjangState extends State<Keranjang> {
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => Checkout()));
-                              // Navigator.push(
-                              //     context,
-                              //     MaterialPageRoute(
-                              //       builder: (context) => Checkout(),
-                              //     ));
-
                             } else if (tambahqtyJson['status'] == 'failed') {
                               for (int i = 0;
                                   i < tambahqtyJson['namaproduk'].length;
@@ -961,20 +937,28 @@ class _KeranjangState extends State<Keranjang> {
                                 showInSnackBar(
                                     '${tambahqtyJson['namaproduk'][i]} Jumlahnya 0');
                               }
+                              setState(() {
+                                loadingtocheckout = false;
+                              });
                             }
                           } else {
                             showInSnackBar(
                                 'Request failed with status: ${tambahqty.statusCode}');
-                            print('${tambahqty.body}');
+                            setState(() {
+                                loadingtocheckout = false;
+                              });
                           }
                         } on TimeoutException catch (_) {
                           showInSnackBar('Timed out, Try again');
+                          setState(() {
+                                loadingtocheckout = false;
+                              });
                         } catch (e) {
                           print(e);
                         }
                       },
                       child: Text(
-                        "Bayar Semua Barang",
+                        loadingtocheckout == true ? 'Mohon Tunggu Sebentar' : "Bayar Semua Barang",
                         style: TextStyle(fontSize: 18.0),
                       ),
                     ),

@@ -159,9 +159,8 @@ class _CategoryItemState extends State<CategoryItem> {
                         errorWidget: (context, url, error) => Container(
                           height: 150.0,
                           width: MediaQuery.of(context).size.width,
-                          child: Image.asset("images/noimage.jpg"),
+                          child: Image.asset("images/noimage.jpg",fit: BoxFit.cover,),
                         ),
-                        fit: BoxFit.cover,
                         height: 150.0,
                         width: MediaQuery.of(context).size.width,
                         imageUrl: entry.gambar != null

@@ -4,6 +4,7 @@ import 'package:wib_customer_app/env.dart';
 import 'package:intl/intl.dart';
 import 'package:wib_customer_app/pages/checkout/checkout.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:wib_customer_app/pages/shopping_cart/shoppingcart.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:wib_customer_app/storage/storage.dart';
@@ -28,6 +29,7 @@ Map<String, dynamic> formSerialize;
 Map<String, String> requestHeaders = Map();
 List<ListItem> listItem = [];
 bool isLoading;
+bool loadingtocheckout;
 bool isError;
 
 class Detail extends StatefulWidget {
@@ -188,6 +190,7 @@ class _DetailState extends State<Detail> {
     kabupatenX = null;
     kecamatanX = null;
     kodeposX = null;
+    loadingtocheckout = false;
     alamatX = null;
     expedisiX = null;
     deliveredX = null;
@@ -686,17 +689,6 @@ class _DetailState extends State<Detail> {
                                                           'assets/img/noimage.jpg',
                                                         ),
                                                 ),
-                                                // child: Image.network(
-                                                //   item.image != null
-                                                //       ? urladmin(
-                                                //           'storage/image/master/produk/${item.image}',
-                                                //         )
-                                                //       : url(
-                                                //           'assets/img/noimage.jpg',
-                                                //         ),
-                                                //   width: 80.0,
-                                                //   height: 80.0,
-                                                // ),
                                               ),
                                               Expanded(
                                                 flex: 6,
@@ -1022,16 +1014,22 @@ class _DetailState extends State<Detail> {
                           height: 40.0,
                           width: 80.0,
                           child: RaisedButton(
-                            onPressed: () async {
+                            onPressed: loadingtocheckout == true ? null : () async {
                               if (stockiesX == null ||
                                   stockiesX == 'null' ||
                                   stockiesX == '') {
                                 showInSnackBar(
                                     'Silahkan setting alamat dulu pada pengaturan akun');
+                                    setState(() {
+                                      loadingtocheckout = false;
+                                    });
                               } else if (stockiesX ==
                                   'Tidak Ada Cabang Terdekat') {
                                 showInSnackBar(
                                     'Silahkan ubah alamat anda sesuai stockies yang ada pada cabang warung botol');
+                                    setState(() {
+                                      loadingtocheckout = false;
+                                    });
                               } else {
                                 formSerialize = Map<String, dynamic>();
                                 formSerialize['cabang'] = null;
@@ -1083,11 +1081,17 @@ class _DetailState extends State<Detail> {
                                         'erorstock') {
                                       Navigator.pop(context);
                                       showInSnackBar(responseJson['error']);
+                                      setState(() {
+                                      loadingtocheckout = false;
+                                    });
                                     } else {
                                       Navigator.pop(context);
                                       showInSnackBar(
                                           'Hubungi Pengembang Software');
                                       print('${response.body}');
+                                      setState(() {
+                                      loadingtocheckout = false;
+                                    });
                                     }
                                     print('response decoded $responseJson');
                                   } else {
@@ -1095,6 +1099,9 @@ class _DetailState extends State<Detail> {
                                     print('${response.body}');
                                     showInSnackBar(
                                         'Request failed with status: ${response.statusCode}');
+                                     setState(() {
+                                      loadingtocheckout = false;
+                                    });
                                   }
                                 } on TimeoutException catch (_) {
                                   Navigator.pop(context);
@@ -1105,7 +1112,7 @@ class _DetailState extends State<Detail> {
                               }
                             },
                             color: Color(0xff31B057),
-                            child: Text("Ya",
+                            child: Text( loadingtocheckout == true ? 'Mohon Tunggu Sebentar' :"Ya",
                                 style: TextStyle(
                                     fontFamily: 'TitilliumWeb',
                                     fontSize: 16.0,

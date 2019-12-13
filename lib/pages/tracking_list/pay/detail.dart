@@ -737,17 +737,6 @@ class _DetailState extends State<Detail> {
                                                                   'assets/img/noimage.jpg',
                                                                 ),
                                                     ),
-                                                    // child: Image.network(
-                                                    //   item.image != null
-                                                    //       ? urladmin(
-                                                    //           'storage/image/master/produk/${item.image}',
-                                                    //         )
-                                                    //       : prefix0.url(
-                                                    //           'assets/img/noimage.jpg',
-                                                    //         ),
-                                                    //   width: 80.0,
-                                                    //   height: 80.0,
-                                                    // ),
                                                   ),
                                                   Expanded(
                                                     flex: 6,
