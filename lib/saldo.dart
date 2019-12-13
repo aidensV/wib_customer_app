@@ -226,19 +226,22 @@ class _Saldo extends State<Saldo> {
                             Column(
                               children: history.map((History f)  => Card(
                                 child: ListTile(
-                                  contentPadding:EdgeInsets.symmetric(horizontal: 20.0,vertical: 5.0),
+                                  contentPadding:EdgeInsets.only(left: 20.0, right: 20.0,bottom: 15.0),
                                   leading: Container(
-                                    height:MediaQuery.of(context).size.height *0.06,
                                     padding: EdgeInsets.only(right: 12),
-                                    decoration: new BoxDecoration(
-                                      border: new Border(
-                                        right: new BorderSide(width: 1,color: Colors.black87))),
-                                    child: Icon(
-                                      Icons.attach_money,
-                                      color: Colors.black87,
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children:<Widget>[
+                                        Icon(
+                                          Icons.attach_money,
+                                          color: Colors.black87,
+                                        ),
+                                      ]
                                     ),
                                   ),
-                                  title: Text(
+                                  title: Container(
+                                    child: Text(
                                     f.type =='K'? ' - ' +f.saldo: ' + ' +f.saldo,
                                     style: TextStyle(
                                       fontSize: 13.0,
@@ -246,9 +249,9 @@ class _Saldo extends State<Saldo> {
                                       fontWeight:FontWeight.bold
                                     ),
                                   ),
+                                  ),
                                   subtitle: Container(
                                     width:MediaQuery.of(context).size.width * 0.8,
-                                    height: MediaQuery.of(context).size.height * 0.06,
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: <Widget>[
