@@ -3,16 +3,14 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:wib_customer_app/env.dart' as env;
 import 'package:http/http.dart' as http;
-import 'package:async/async.dart';
-import 'package:path/path.dart';
+
 // import 'package:wib_customer_app/env.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:wib_customer_app/pages/checkout/checkout.dart' as prefix0;
-// import 'package:wib_customer_app/pages/checkout/checkout.dart';
+
 import 'package:wib_customer_app/pages/checkout/model.dart';
 import 'package:wib_customer_app/storage/storage.dart';
 import 'listkabupaten.dart';
@@ -20,7 +18,7 @@ import '../checkout/listkecamatan.dart';
 import '../checkout/listprovinsi.dart';
 import 'imagecropper.dart';
 
-GlobalKey<ScaffoldState> _khususedit_profile;
+GlobalKey<ScaffoldState> khususeditprofile;
 var datepickerfirst;
 ListProvinsi selectedProvinsi;
 ListKabupaten selectedKabupaten;
@@ -41,7 +39,7 @@ class EditProfile extends StatefulWidget{
 class _EditProfile extends State<EditProfile>{
 
   void modalkeluar(String value) {
-    _khususedit_profile.currentState
+    khususeditprofile.currentState
         .showSnackBar(new SnackBar(content: new Text(value)));
   }
   TextEditingController emailcontroller = new TextEditingController();
@@ -52,8 +50,6 @@ class _EditProfile extends State<EditProfile>{
   TextEditingController phonecontroller = new TextEditingController();
   TextEditingController tempatlahircontroller = new TextEditingController();
     bool back = false;
-    var _id;
-    var _user;
     String name;
     String gender;
     String phone;
@@ -87,7 +83,7 @@ class _EditProfile extends State<EditProfile>{
     });
   }
   void showInSnackBar(String value) {
-    _khususedit_profile.currentState
+    khususeditprofile.currentState
         .showSnackBar(new SnackBar(content: new Text(value)));
   }
   
@@ -163,8 +159,6 @@ class _EditProfile extends State<EditProfile>{
       idkota = await storage.getDataString("idkota") == 'Tidak ditemukan' ? null : await storage.getDataString("idkota");
       idkecamatan = await storage.getDataString("idkecamatan") == 'Tidak ditemukan' ? null : await storage.getDataString("idkecamatan");
       lahir = await storage.getDataString("lahir") == 'Tidak ditemukan' ? null : await storage.getDataString("lahir") ;
-      _id = await storage.getDataInteger("id");
-      _user = await storage.getDataString("username");
       // imageprofile = await storage.getDataString('image');
       emailcontroller = TextEditingController(text: email);
       addresscontroller = TextEditingController(text: address);
@@ -215,14 +209,11 @@ class _EditProfile extends State<EditProfile>{
         try {
           final getUser =
               await http.get(env.url("api/getDataUser"), headers: requestHeaders);
-          // print('getUser ' + getUser.body);
 
           if (getUser.statusCode == 200) {
             dynamic datauser = json.decode(getUser.body);
 
             DataStore store = new DataStore();
-
-            // store.setDataInteger("user_id", int.parse(datajson['user']["u_id"]));
             store.setDataInteger("id", datauser['cm_id']);
             store.setDataString("username", datauser['cm_username']);
             store.setDataString("name", datauser['cm_name']);
@@ -247,8 +238,6 @@ class _EditProfile extends State<EditProfile>{
             store.setDataString("idkecamatan", datauser['cm_district']);
 
             print(datauser);
-            // print('statement else is true');
-            // print(datauser);
             setState(() {
               back = true;            
             });
@@ -281,11 +270,6 @@ class _EditProfile extends State<EditProfile>{
   // print(imageFile);
     request.headers.addAll(headers);
   if(imageFile != null){
-    // var stream new http.ByteStream(DelegatingStream.typed(imageFile.openRead()));
-    // var length = await imageFile.length();
-    // var kirimfile = new http.MultipartFile("gambar", stream, length,
-    //     filename: basename(imageFile.path));
-    // request.files.add(kirimfile);
     request.fields['gambar'] = base64Encode(imageFile.readAsBytesSync());
   } 
     request.fields['email'] = emailcontroller.text ;
@@ -343,7 +327,7 @@ class _EditProfile extends State<EditProfile>{
     selectedProvinsi = null;
     selectedKabupaten = null;
     selectedkecamatan = null;
-    _khususedit_profile = GlobalKey<ScaffoldState>();
+    khususeditprofile = GlobalKey<ScaffoldState>();
     datepickerfirst = FocusNode();
     loading  = false;
     super.initState();
@@ -354,7 +338,7 @@ class _EditProfile extends State<EditProfile>{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _khususedit_profile,
+      key: khususeditprofile,
       appBar: loading ? null : AppBar(
         title: Text('Ubah Profile'),
         backgroundColor: Color.fromRGBO(43, 204, 86, 1),
@@ -478,27 +462,6 @@ class _EditProfile extends State<EditProfile>{
                                   )
                               ),
                             ),
-
-                            // InkWell(
-                            //   onTap: (){
-                            //     getimagegallery();
-                            //   },
-                            //   child : Container(
-                            //     decoration: BoxDecoration(
-                            //       color: Color.fromRGBO(45, 204, 91, 1),
-                            //       borderRadius: BorderRadius.circular(20.0),
-                            //     ),
-                            //     width: MediaQuery.of(context).size.width * 0.40,
-                            //     padding: EdgeInsets.symmetric(vertical: 10.0 ,horizontal: 20.0),
-                            //       child:Text(
-                            //         'Ambil Galery',
-                            //         textAlign: TextAlign.center,
-                            //         style: TextStyle(
-                            //           color: Colors.white,
-                            //         ),
-                            //       )
-                            //   ),
-                            // ),
                           ],
                         ),
                       ),

@@ -97,7 +97,6 @@ class _DetailState extends State<Detail> {
         // return nota;
         var itemJson = json.decode(item.body);
         String stockies = itemJson['stockies'].toString();
-        var itemproduct = itemJson['item'];
         var ongkir = itemJson['ongkir'];
         var totalhargasemuabarang = itemJson['totalhargabarang'];
         var totalpembelian = itemJson['totalpembelian'];
@@ -109,8 +108,7 @@ class _DetailState extends State<Detail> {
         String expedisi = itemJson['expedisi'];
         String resi = itemJson['resi'];
         String delivered = itemJson['delivered'];
-        print('biaya $ongkir');
-        print('item ini $itemproduct');
+        print('biaya $stockies');
         print(itemJson);
         listItem = [];
         for (var i in itemJson['item']) {
@@ -173,23 +171,6 @@ class _DetailState extends State<Detail> {
     return null;
   }
 
-  void _showAlamatNull() {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('Peringatan'),
-            content: Text('Silahkan Setting alamat dulu pada profile'),
-            actions: <Widget>[
-              FlatButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, "/profile");
-                  },
-                  child: Text('OK')),
-            ],
-          );
-        });
-  }
 
   @override
   void initState() {
@@ -578,11 +559,17 @@ class _DetailState extends State<Detail> {
                                                           Color(0xff388bf2),
                                                       child: FlatButton(
                                                         onPressed: () async {
-                                                          var location =
-                                                              stockiesX;
-                                                          if (location ==
-                                                              null) {
-                                                            _showAlamatNull();
+                                                          if (stockiesX ==
+                                                                  null ||
+                                                              stockiesX ==
+                                                                  'null' ||
+                                                              stockiesX == '') {
+                                                            showInSnackBar(
+                                                                'Silahkan setting alamat dulu pada pengaturan akun');
+                                                          } else if (stockiesX ==
+                                                              'Tidak Ada Cabang Terdekat') {
+                                                            showInSnackBar(
+                                                                'Silahkan ubah alamat anda sesuai stockies yang ada pada cabang warung botol');
                                                           } else {
                                                             try {
                                                               final adcart =
@@ -729,7 +716,8 @@ class _DetailState extends State<Detail> {
                                                                     left: 0.0),
                                                             child: Text(
                                                                 item.hargasales == null ||
-                                                                item.hargasales == 'null' ||
+                                                                        item.hargasales ==
+                                                                            'null' ||
                                                                         item.hargasales ==
                                                                             '0' ||
                                                                         item.hargasales ==
@@ -791,7 +779,8 @@ class _DetailState extends State<Detail> {
                                                                     left: 0.0),
                                                             child: Text(
                                                                 item.qty == null ||
-                                                                item.qty == 'null' ||
+                                                                        item.qty ==
+                                                                            'null' ||
                                                                         item.qty ==
                                                                             '0' ||
                                                                         item.qty ==
@@ -878,8 +867,7 @@ class _DetailState extends State<Detail> {
                                                                       child: Text(
                                                                           'Diskon : ',
                                                                           style:
-                                                                              TextStyle(
-                                                                          )),
+                                                                              TextStyle()),
                                                                     ),
                                                                     Padding(
                                                                       padding: const EdgeInsets
@@ -1010,74 +998,85 @@ class _DetailState extends State<Detail> {
                           width: 80.0,
                           child: RaisedButton(
                             onPressed: () async {
-                              formSerialize = Map<String, dynamic>();
-                              formSerialize['cabang'] = null;
-                              formSerialize['item'] = List();
-                              formSerialize['qty'] = List();
-                              formSerialize['beratproduk'] = List();
-                              formSerialize['namabarang'] = List();
+                              if (stockiesX == null ||
+                                  stockiesX == 'null' ||
+                                  stockiesX == '') {
+                                showInSnackBar(
+                                    'Silahkan setting alamat dulu pada pengaturan akun');
+                              } else if (stockiesX ==
+                                  'Tidak Ada Cabang Terdekat') {
+                                showInSnackBar(
+                                    'Silahkan ubah alamat anda sesuai stockies yang ada pada cabang warung botol');
+                              } else {
+                                formSerialize = Map<String, dynamic>();
+                                formSerialize['cabang'] = null;
+                                formSerialize['item'] = List();
+                                formSerialize['qty'] = List();
+                                formSerialize['beratproduk'] = List();
+                                formSerialize['namabarang'] = List();
 
-                              formSerialize['cabang'] = stockiesX;
-                              for (int i = 0; i < listItem.length; i++) {
-                                formSerialize['item'].add(listItem[i].code);
-                                formSerialize['qty'].add(listItem[i].qty);
-                                formSerialize['beratproduk']
-                                    .add(listItem[i].berat);
-                                formSerialize['namabarang']
-                                    .add(listItem[i].nama);
-                              }
+                                formSerialize['cabang'] = stockiesX;
+                                for (int i = 0; i < listItem.length; i++) {
+                                  formSerialize['item'].add(listItem[i].code);
+                                  formSerialize['qty'].add(listItem[i].qty);
+                                  formSerialize['beratproduk']
+                                      .add(listItem[i].berat);
+                                  formSerialize['namabarang']
+                                      .add(listItem[i].nama);
+                                }
 
-                              print(formSerialize);
+                                print(formSerialize);
 
-                              Map<String, dynamic> requestHeadersX =
-                                  requestHeaders;
+                                Map<String, dynamic> requestHeadersX =
+                                    requestHeaders;
 
-                              requestHeadersX['Content-Type'] =
-                                  "application/x-www-form-urlencoded";
-                              try {
-                                final response = await http.post(
-                                  url('api/checkout_repeat_order_android'),
-                                  headers: requestHeadersX,
-                                  body: {
-                                    'type_platform': 'android',
-                                    'data': jsonEncode(formSerialize),
-                                  },
-                                  encoding: Encoding.getByName("utf-8"),
-                                );
+                                requestHeadersX['Content-Type'] =
+                                    "application/x-www-form-urlencoded";
+                                try {
+                                  final response = await http.post(
+                                    url('api/checkout_repeat_order_android'),
+                                    headers: requestHeadersX,
+                                    body: {
+                                      'type_platform': 'android',
+                                      'data': jsonEncode(formSerialize),
+                                    },
+                                    encoding: Encoding.getByName("utf-8"),
+                                  );
 
-                                if (response.statusCode == 200) {
-                                  dynamic responseJson =
-                                      jsonDecode(response.body);
-                                  if (responseJson['status'] == 'success') {
-                                    Navigator.pop(context);
-                                    Navigator.pop(context);
-                                    Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => Checkout(),
-                                        ));
-                                  } else if (responseJson['status'] ==
-                                      'erorstock') {
-                                    Navigator.pop(context);
-                                    showInSnackBar(responseJson['error']);
+                                  if (response.statusCode == 200) {
+                                    dynamic responseJson =
+                                        jsonDecode(response.body);
+                                    if (responseJson['status'] == 'success') {
+                                      Navigator.pop(context);
+                                      Navigator.pop(context);
+                                      Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => Checkout(),
+                                          ));
+                                    } else if (responseJson['status'] ==
+                                        'erorstock') {
+                                      Navigator.pop(context);
+                                      showInSnackBar(responseJson['error']);
+                                    } else {
+                                      Navigator.pop(context);
+                                      showInSnackBar(
+                                          'Hubungi Pengembang Software');
+                                      print('${response.body}');
+                                    }
+                                    print('response decoded $responseJson');
                                   } else {
                                     Navigator.pop(context);
-                                    showInSnackBar(
-                                        'Hubungi Pengembang Software');
                                     print('${response.body}');
+                                    showInSnackBar(
+                                        'Request failed with status: ${response.statusCode}');
                                   }
-                                  print('response decoded $responseJson');
-                                } else {
+                                } on TimeoutException catch (_) {
                                   Navigator.pop(context);
-                                  print('${response.body}');
-                                  showInSnackBar(
-                                      'Request failed with status: ${response.statusCode}');
+                                  showInSnackBar('Timed out, Try again');
+                                } catch (e) {
+                                  print(e);
                                 }
-                              } on TimeoutException catch (_) {
-                                Navigator.pop(context);
-                                showInSnackBar('Timed out, Try again');
-                              } catch (e) {
-                                print(e);
                               }
                             },
                             color: Color(0xff31B057),

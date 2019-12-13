@@ -96,7 +96,6 @@ class _DetailState extends State<Detail> {
         // return nota;
         var itemJson = json.decode(item.body);
         String stockies = itemJson['stockies'].toString();
-        var itemproduct = itemJson['item'];
         var ongkir = itemJson['ongkir'];
         var totalhargasemuabarang = itemJson['totalhargabarang'];
         var totalpembelian = itemJson['totalpembelian'];
@@ -165,24 +164,6 @@ class _DetailState extends State<Detail> {
       });
     }
     return null;
-  }
-
-  void _showAlamatNull() {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('Peringatan'),
-            content: Text('Silahkan Setting alamat dulu pada profile'),
-            actions: <Widget>[
-              FlatButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, "/profile");
-                  },
-                  child: Text('OK')),
-            ],
-          );
-        });
   }
 
   @override
@@ -540,11 +521,17 @@ class _DetailState extends State<Detail> {
                                                           Color(0xff388bf2),
                                                       child: FlatButton(
                                                         onPressed: () async {
-                                                          var location =
-                                                              stockiesX;
-                                                          if (location ==
-                                                              null) {
-                                                            _showAlamatNull();
+                                                          if (stockiesX ==
+                                                                  null ||
+                                                              stockiesX ==
+                                                                  'null' ||
+                                                              stockiesX == '') {
+                                                            showInSnackBar(
+                                                                'Silahkan setting alamat dulu pada pengaturan akun');
+                                                          } else if (stockiesX ==
+                                                              'Tidak Ada Cabang Terdekat') {
+                                                            showInSnackBar(
+                                                                'Silahkan ubah alamat anda sesuai stockies yang ada pada cabang warung botol');
                                                           } else {
                                                             try {
                                                               final adcart =
@@ -691,7 +678,8 @@ class _DetailState extends State<Detail> {
                                                                     left: 0.0),
                                                             child: Text(
                                                                 item.hargasales == null ||
-                                                                item.hargasales == 'null' ||
+                                                                        item.hargasales ==
+                                                                            'null' ||
                                                                         item.hargasales ==
                                                                             '0' ||
                                                                         item.hargasales ==
@@ -753,7 +741,8 @@ class _DetailState extends State<Detail> {
                                                                     left: 0.0),
                                                             child: Text(
                                                                 item.qty == null ||
-                                                                item.qty == 'null' ||
+                                                                        item.qty ==
+                                                                            'null' ||
                                                                         item.qty ==
                                                                             '0' ||
                                                                         item.qty ==
@@ -840,8 +829,7 @@ class _DetailState extends State<Detail> {
                                                                       child: Text(
                                                                           'Diskon : ',
                                                                           style:
-                                                                              TextStyle(
-                                                                          )),
+                                                                              TextStyle()),
                                                                     ),
                                                                     Padding(
                                                                       padding: const EdgeInsets
