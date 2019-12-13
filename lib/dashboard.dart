@@ -1,12 +1,14 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter_image/network.dart';
+// import 'package:flutter_image/network.dart';
 // import 'package:provider/provider.dart';
+
 import 'package:wib_customer_app/cari_produk/cari_produk.dart';
 import 'package:wib_customer_app/notification_service/notification_service.dart';
 import 'package:wib_customer_app/pages/profile/profile.dart';
 import 'package:wib_customer_app/pusher/pusher_service.dart';
 import 'package:wib_customer_app/saldo.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 // import 'utils/Navigator.dart';
 import 'package:wib_customer_app/storage/storage.dart';
 import 'package:flutter/cupertino.dart';
@@ -28,7 +30,7 @@ bool bottom;
 String tokenType, accessToken, rekomX;
 Map<String, String> requestHeaders = Map();
 List<ListBanner> listBannerSlider, listBannerBasic;
-List<RecomendationModel>listrecomeitem;
+List<RecomendationModel> listrecomeitem;
 bool isLoading;
 int pageSize = 6;
 
@@ -111,7 +113,7 @@ class _DashboardPageState extends State<DashboardPage>
         showInSnackBarDashboard('Error Code : ${response.statusCode}');
         Map responseJson = jsonDecode(response.body);
         print('Error Code : ${response.statusCode}');
-        if(responseJson.containsKey('message')){
+        if (responseJson.containsKey('message')) {
           showInSnackBarDashboard('Message ${responseJson['message']}');
         }
       }
@@ -123,6 +125,7 @@ class _DashboardPageState extends State<DashboardPage>
       print('Error : $e');
     }
   }
+
   Future<void> getrekom() async {
     var storage = new DataStore();
 
@@ -157,11 +160,12 @@ class _DashboardPageState extends State<DashboardPage>
       }
     } catch (e) {
       setState(() {
-          isLoading = false;
-        });
+        isLoading = false;
+      });
       print('Error : $e');
     }
   }
+
   Future<void> dataProfile() async {
     DataStore storage = new DataStore();
 
@@ -229,7 +233,7 @@ class _DashboardPageState extends State<DashboardPage>
         showInSnackBarProduk('Error Code : ${banner.statusCode}');
         print('Error Code : ${banner.statusCode}');
         Map responseJson = jsonDecode(banner.body);
-        if(responseJson.containsKey('message')){
+        if (responseJson.containsKey('message')) {
           showInSnackBarDashboard('Message ${responseJson['message']}');
         }
         setState(() {
@@ -281,7 +285,8 @@ class _DashboardPageState extends State<DashboardPage>
     );
     pagewiseLoadControllerVertical = PagewiseLoadController(
       pageSize: pageSize,
-      pageFuture: (pageIndex) => BackendService.listrecomendationitem(pageIndex, pageSize),
+      pageFuture: (pageIndex) =>
+          BackendService.listrecomendationitem(pageIndex, pageSize),
     );
 
     scrollController = ScrollController(initialScrollOffset: 0.0);
@@ -341,11 +346,18 @@ class _DashboardPageState extends State<DashboardPage>
                   height: 30,
                   child: imageprofile != null
                       ? ClipOval(
-                          child: Image(
-                            fit: BoxFit.cover,
-                            image: NetworkImageWithRetry(
-                              url('storage/image/member/profile/$imageprofile'),
+                          child: CachedNetworkImage(
+                            placeholder: (context, url) => Container(
+                              // width: MediaQuery.of(context).size.width,
+
+                              child: CircularProgressIndicator(),
                             ),
+                            errorWidget: (context, url, error) =>
+                                Icon(Icons.error),
+                            fit: BoxFit.cover,
+                            width: MediaQuery.of(context).size.width,
+                            imageUrl: url(
+                                'storage/image/member/profile/$imageprofile'),
                           ),
                         )
                       : Image.asset('images/jisoocu.jpg'),
@@ -519,48 +531,33 @@ class _DashboardPageState extends State<DashboardPage>
                                                     margin:
                                                         EdgeInsets.symmetric(
                                                             horizontal: 5.0),
-                                                    decoration: BoxDecoration(
-                                                      image: DecorationImage(
-                                                        image:
-                                                            NetworkImageWithRetry(
-                                                          urladmin(
-                                                              'storage/image/master/banner/${listBannerSlider.banner}'),
-                                                        ),
-                                                        fit: BoxFit.fitHeight,
-                                                      ),
+                                                    child: CachedNetworkImage(
+                                                      placeholder:
+                                                          (context, url) =>Center(
+                                      child: Padding(
+                                        padding:
+                                            const EdgeInsets.only(top: 0.0),
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                    ),
+                                                      errorWidget: (context,
+                                                              url, error) =>
+                                                          Icon(Icons.error),
+                                                      fit: BoxFit.cover,
+                                                      height: 130.0,
+                                                      width:
+                                                          MediaQuery.of(context)
+                                                              .size
+                                                              .width,
+                                                      imageUrl:
+                                                          urladmin('storage/image/master/banner/${listBannerSlider.banner}'),
                                                     ),
+
                                                   ),
                                                 )
                                                 .toList(),
                                           ),
                                         ),
-                              // listBannerBasic.length == 0
-                              //     ? Container()
-                              //     : Container(
-                              //         margin: EdgeInsets.only(
-                              //           top: 180.0,
-                              //           bottom: 30.0,
-                              //           left: 10.0,
-                              //           right: 10.0,
-                              //         ),
-                              //         child: Column(
-                              //           mainAxisAlignment:
-                              //               MainAxisAlignment.center,
-                              //           children: listBannerBasic
-                              //               .map((ListBanner f) => Container(
-                              //                     padding: EdgeInsets.all(5.0),
-                              //                     child: Image(
-                              //                       image:
-                              //                           NetworkImageWithRetry(
-                              //                         urladmin(
-                              //                             'storage/image/master/banner/${f.banner}'),
-                              //                       ),
-                              //                       height: 200.0,
-                              //                     ),
-                              //                   ))
-                              //               .toList(),
-                              //         ),
-                              //       ),
                               Padding(
                                 padding:
                                     EdgeInsets.only(left: 38.0, top: 158.0),
@@ -584,45 +581,43 @@ class _DashboardPageState extends State<DashboardPage>
                               ),
                             ],
                           ),
-                          rekomX == '0'?
-                          Container(
-                            
-                          ):
-                          Padding(
-                            padding: EdgeInsets.only(
-                                left: 20.0, right: 20.0, top: 25.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                Text(
-                                  "Rekomendasi Produk",
-                                  style: TextStyle(
-                                      fontSize: 21.0, fontFamily: 'Roboto'),
+                          rekomX == '0'
+                              ? Container()
+                              : Padding(
+                                  padding: EdgeInsets.only(
+                                      left: 20.0, right: 20.0, top: 25.0),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: <Widget>[
+                                      Text(
+                                        "Rekomendasi Produk",
+                                        style: TextStyle(
+                                            fontSize: 21.0,
+                                            fontFamily: 'Roboto'),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ],
-                            ),
-                          ),
-                          rekomX == '0'?
-                          Container(
-
-                          ):
-                          Container(
-                            padding: EdgeInsets.only(
-                                top: 10, left: 20, bottom: 10.0),
-                            height: 225,
-                            width: MediaQuery.of(context).size.width,
-                            child: PagewiseListView(
-                              pageLoadController:
-                                  pagewiseLoadControllerVertical,
-
-                              padding: EdgeInsets.all(2.0),
-                              scrollDirection: Axis.horizontal,
-                              primary: false,
-                              itemBuilder: (BuildContext context, data, int i) {
-                                return _recItemBuilder(context, data, i);
-                              },
-                            ),
-                          ),
+                          rekomX == '0'
+                              ? Container()
+                              : Container(
+                                  padding: EdgeInsets.only(
+                                      top: 10, left: 20, bottom: 10.0),
+                                  height: 225,
+                                  width: MediaQuery.of(context).size.width,
+                                  child: PagewiseListView(
+                                    pageLoadController:
+                                        pagewiseLoadControllerVertical,
+                                    padding: EdgeInsets.all(2.0),
+                                    scrollDirection: Axis.horizontal,
+                                    primary: false,
+                                    itemBuilder:
+                                        (BuildContext context, data, int i) {
+                                      return _recItemBuilder(context, data, i);
+                                    },
+                                  ),
+                                ),
                           Container(
                             // color: Colors.grey[100],
                             child: Column(
@@ -954,19 +949,42 @@ class _DashboardPageState extends State<DashboardPage>
           children: <Widget>[
             ClipRRect(
               borderRadius: BorderRadius.circular(0),
-              child: Image(
-                image: NetworkImageWithRetry(
-                  entry.gambar != null
-                      ? urladmin(
-                          'storage/image/master/produk/${entry.gambar}',
-                        )
-                      : url(
-                          'assets/img/noimage.jpg',
-                        ),
+
+              // child: Image(
+              //   image: NetworkImageWithRetry(
+              //     entry.gambar != null
+              //         ? urladmin(
+              //             'storage/image/master/produk/${entry.gambar}',
+              //           )
+              //         : url(
+              //             'assets/img/noimage.jpg',
+              //           ),
+              //   ),
+              //   fit: BoxFit.cover,
+              //   height: 130.0,
+              //   width: MediaQuery.of(context).size.width,
+              // ),
+              child: CachedNetworkImage(
+                placeholder: (context, url) => Container(
+                  height: 130.0,
+                  width: MediaQuery.of(context).size.width,
+                  child: Image.asset("images/loadingitem.gif"),
                 ),
+                errorWidget: (context, url, error) => Container(
+                          height: 130.0,
+                          width: MediaQuery.of(context).size.width,
+                          child: Image.asset("images/noimage.jpg"),
+                        ),
                 fit: BoxFit.cover,
                 height: 130.0,
                 width: MediaQuery.of(context).size.width,
+                imageUrl: entry.gambar != null
+                    ? urladmin(
+                        'storage/image/master/produk/${entry.gambar}',
+                      )
+                    : url(
+                        'assets/img/noimage.jpg',
+                      ),
               ),
             ),
             // SizedBox(height: 7),
@@ -988,42 +1006,46 @@ class _DashboardPageState extends State<DashboardPage>
 
             IntrinsicHeight(
               child: Padding(
-                padding: EdgeInsets.only(left: 5.0, right: 5.0,top:10.0),
+                padding: EdgeInsets.only(left: 5.0, right: 5.0, top: 10.0),
                 child: Row(
                   children: <Widget>[
-                    entry.diskon == null || entry.diskon == '' ?
+                    entry.diskon == null || entry.diskon == ''
+                        ? Expanded(
+                            flex: 5,
+                            child: Text(
+                              entry.price == null || entry.price == ''
+                                  ? 'Rp. 0.00'
+                                  : _numberFormat
+                                      .format(double.parse(entry.price)),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                  color: Colors.deepOrange),
+                              maxLines: 1,
+                              textAlign: TextAlign.left,
+                            ),
+                          )
+                        : Expanded(
+                            flex: 5,
+                            child: Text(
+                              entry.diskon == null || entry.diskon == ''
+                                  ? 'Rp. 0.00'
+                                  : _numberFormat
+                                      .format(double.parse(entry.diskon)),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                  color: Colors.deepOrange),
+                              maxLines: 1,
+                              textAlign: TextAlign.left,
+                            ),
+                          ),
                     Expanded(
                       flex: 5,
                       child: Text(
-                        entry.price == null || entry.price == ''
-                            ? 'Rp. 0.00'
-                            : _numberFormat.format(double.parse(entry.price)),
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
-                            color: Colors.deepOrange),
-                        maxLines: 1,
-                        textAlign: TextAlign.left,
-                      ),
-                    ):
-                    Expanded(
-                      flex: 5,
-                      child: Text(
-                        entry.diskon == null || entry.diskon == ''
-                            ? 'Rp. 0.00'
-                            : _numberFormat.format(double.parse(entry.diskon)),
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
-                            color: Colors.deepOrange),
-                        maxLines: 1,
-                        textAlign: TextAlign.left,
-                      ),
-                    ),
-                    Expanded(
-                      flex: 5,
-                      child: Text(
-                        entry.tipe == null || entry.tipe == '' ? 'Jenis' : entry.tipe,
+                        entry.tipe == null || entry.tipe == ''
+                            ? 'Jenis'
+                            : entry.tipe,
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 13,
@@ -1072,19 +1094,27 @@ class _DashboardPageState extends State<DashboardPage>
                   children: <Widget>[
                     ClipRRect(
                       borderRadius: BorderRadius.circular(0.0),
-                      child: Image(
-                        image: NetworkImageWithRetry(
-                          entry.gambar != null
-                              ? urladmin(
-                                  'storage/image/master/produk/${entry.gambar}',
-                                )
-                              : url(
-                                  'assets/img/noimage.jpg',
-                                ),
+                      child: CachedNetworkImage(
+                        placeholder: (context, url) => Container(
+                          height: 150.0,
+
+                          child: Image.asset("images/loadingitem.gif"),
+                        ),
+                        errorWidget: (context, url, error) => Container(
+                          height: 150.0,
+                          width: MediaQuery.of(context).size.width,
+                          child: Image.asset("images/noimage.jpg"),
                         ),
                         fit: BoxFit.cover,
                         height: 150.0,
                         width: MediaQuery.of(context).size.width,
+                        imageUrl: entry.gambar != null
+                            ? urladmin(
+                                'storage/image/master/produk/${entry.gambar}',
+                              )
+                            : url(
+                                'assets/img/noimage.jpg',
+                              ),
                       ),
                     ),
                     Positioned(
@@ -1157,7 +1187,9 @@ class _DashboardPageState extends State<DashboardPage>
                         Container(
                           alignment: Alignment.topLeft,
                           child: Text(
-                            entry.item == null || entry.item == '' ? 'Nama Item' : entry.item,
+                            entry.item == null || entry.item == ''
+                                ? 'Nama Item'
+                                : entry.item,
                             style: TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 16,
@@ -1202,7 +1234,8 @@ class _DashboardPageState extends State<DashboardPage>
                                         Expanded(
                                           flex: 5,
                                           child: Text(
-                                            entry.price == null || entry.price == ''
+                                            entry.price == null ||
+                                                    entry.price == ''
                                                 ? 'Rp. 0.00'
                                                 : _numberFormat.format(
                                                     double.parse(entry.price)),
@@ -1216,7 +1249,10 @@ class _DashboardPageState extends State<DashboardPage>
                                         Expanded(
                                           flex: 5,
                                           child: Text(
-                                            entry.tipe == null || entry.tipe == '' ? 'Jenis' : entry.tipe,
+                                            entry.tipe == null ||
+                                                    entry.tipe == ''
+                                                ? 'Jenis'
+                                                : entry.tipe,
                                             style: TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 14,
@@ -1247,7 +1283,10 @@ class _DashboardPageState extends State<DashboardPage>
                                         Expanded(
                                           flex: 5,
                                           child: Text(
-                                            entry.tipe == null || entry.tipe == '' ? 'Jenis' : entry.tipe,
+                                            entry.tipe == null ||
+                                                    entry.tipe == ''
+                                                ? 'Jenis'
+                                                : entry.tipe,
                                             style: TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 14,
@@ -1328,7 +1367,9 @@ class BackendService {
       return null;
     }
   }
-   static Future<List<RecomendationModel>> listrecomendationitem(index, limit) async {
+
+  static Future<List<RecomendationModel>> listrecomendationitem(
+      index, limit) async {
     var storage = new DataStore();
 
     // print('index $index');
@@ -1345,7 +1386,7 @@ class BackendService {
         var data = json.decode(responseBody.body);
         var product = data['itemslider'];
 
-        if(product != null){
+        if (product != null) {
           return RecomendationModel.fromJsonList(product);
         }
       } else if (responseBody.statusCode == 401) {
@@ -1372,7 +1413,6 @@ class BackendService {
       return null;
     }
   }
-
 }
 
 class ProductModel {
@@ -1409,6 +1449,7 @@ class ListBanner {
 
   ListBanner({this.idbanner, this.banner});
 }
+
 class RecomendationModel {
   String item;
   String price;

@@ -8,11 +8,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'listkabupaten.dart';
 import 'listkecamatan.dart';
+// import 'package:flutter_image/network.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'listprovinsi.dart';
 import '../tracking_list/tracking.dart';
 import 'model.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_image/network.dart';
 import '../shopping_cart/shoppingcart.dart';
 import '../../dashboard.dart';
 
@@ -756,20 +757,50 @@ class _CheckoutState extends State<Checkout> {
                                                     children: <Widget>[
                                                       Expanded(
                                                         flex: 5,
-                                                        child: new Image(
-                                                          image:
-                                                              new NetworkImageWithRetry(
-                                                                  item.image !=
+                                                        child: CachedNetworkImage(
+                                                        placeholder:
+                                                            (context, url) =>
+                                                                Container(
+                                                          width: 80.0,
+                                                          height: 80.0,
+                                                          child: Image.asset(
+                                                              "images/loadingitem.gif"),
+                                                        ),
+                                                        errorWidget: (context,
+                                                                url, error) =>
+                                                            Container(
+                                                          width: 80.0,
+                                                          height: 80.0,
+                                                          child: Image.asset(
+                                                              "images/noimage.jpg"),
+                                                        ),
+                                                        width: 80.0,
+                                                          height: 80.0,
+                                                        imageUrl:
+                                                            item.image !=
                                                                           null
                                                                       ? urladmin(
                                                                           'storage/image/master/produk/${item.image}',
                                                                         )
                                                                       : url(
                                                                           'assets/img/noimage.jpg',
-                                                                        )),
-                                                          width: 80.0,
-                                                          height: 80.0,
-                                                        ),
+                                                                        ),
+                                                      ),
+
+                                                        // child: new Image(
+                                                        //   image:
+                                                        //       new NetworkImageWithRetry(
+                                                        //           item.image !=
+                                                        //                   null
+                                                        //               ? urladmin(
+                                                        //                   'storage/image/master/produk/${item.image}',
+                                                        //                 )
+                                                        //               : url(
+                                                        //                   'assets/img/noimage.jpg',
+                                                        //                 )),
+                                                        //   width: 80.0,
+                                                        //   height: 80.0,
+                                                        // ),
                                                       ),
                                                       Expanded(
                                                         flex: 5,

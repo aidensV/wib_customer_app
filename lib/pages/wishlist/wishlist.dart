@@ -4,9 +4,10 @@ import 'package:http/http.dart' as http;
 import 'package:wib_customer_app/env.dart';
 import 'dart:async';
 import 'package:intl/intl.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:convert';
 import '../shops/product_detail.dart';
-import 'package:flutter_image/network.dart';
+// import 'package:flutter_image/network.dart';
 
 var _scaffoldKeyWishlist;
 List<ListWishlist> listNota = [];
@@ -302,19 +303,42 @@ class _WishlistState extends State<Wishlist> {
                                                 ),
                                               );
                                             },
-                                            leading: new Image(
-                                              image: new NetworkImageWithRetry(
-                                                listNota[index].image != null
+                                            leading: CachedNetworkImage(
+                                                        placeholder:
+                                                            (context, url) =>
+                                                                Container(
+                                                          width: 70.0,
+                                              height: 100.0,
+                                                          child: Image.asset(
+                                                              "images/loadingitem.gif"),
+                                                        ),
+                                                        errorWidget: (context,
+                                                                url, error) =>
+                                                            Icon(Icons.error),
+                                                        width: 70.0,
+                                              height: 100.0,
+                                                        imageUrl:
+                                                            listNota[index].image != null
                                                     ? urladmin(
                                                         'storage/image/master/produk/${listNota[index].image}',
                                                       )
                                                     : url(
                                                         'assets/img/noimage.jpg',
                                                       ),
-                                              ),
-                                              width: 70.0,
-                                              height: 100.0,
-                                            ),
+                                                      ),
+                                            //  Image(
+                                            //   image: new NetworkImageWithRetry(
+                                            //     listNota[index].image != null
+                                            //         ? urladmin(
+                                            //             'storage/image/master/produk/${listNota[index].image}',
+                                            //           )
+                                            //         : url(
+                                            //             'assets/img/noimage.jpg',
+                                            //           ),
+                                            //   ),
+                                            //   width: 70.0,
+                                            //   height: 100.0,
+                                            // ),
 
                                             // leading: FlutterLogo(size: 72.0),
                                             title: Padding(

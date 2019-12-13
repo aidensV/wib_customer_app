@@ -1,7 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter_image/network.dart';
+// import 'package:flutter_image/network.dart';
 import 'dart:async';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 // import 'package:flutter_image/network.dart';
 // import 'package:wib_customer_app/env.dart';
@@ -133,12 +134,19 @@ class _ProfilePage extends State<ProfilePage>{
                             Container(
                               width: double.infinity,
                               height: 300,
-                              child : Image(
-                                fit: BoxFit.cover,
-                                image: NetworkImageWithRetry(
-                                  url('storage/image/member/profile/$image'),
-                                ),
-                              ),
+                              child: CachedNetworkImage(
+                                                      errorWidget: (context, url, error) =>
+                                Icon(Icons.error),
+                                                      fit: BoxFit.cover,
+                                                      imageUrl:
+                                                          url('storage/image/member/profile/$image'),
+                                                    ),
+                              // child : Image(
+                              //   fit: BoxFit.cover,
+                              //   image: NetworkImageWithRetry(
+                              //     url('storage/image/member/profile/$image'),
+                              //   ),
+                              // ),
                             ),
 
                             Container(

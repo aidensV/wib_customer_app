@@ -9,6 +9,7 @@ import 'package:wib_customer_app/env.dart';
 import 'package:wib_customer_app/error/error.dart';
 import 'package:wib_customer_app/pages/shops/product_detail.dart';
 import 'package:wib_customer_app/storage/storage.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:wib_customer_app/utils/utils.dart';
 import 'package:http/http.dart' as http;
 
@@ -115,18 +116,40 @@ class _CariProdukLebihDetailState extends State<CariProdukLebihDetail> {
                   children: <Widget>[
                     ClipRRect(
                       borderRadius: BorderRadius.circular(0.0),
-                      child: Image.network(
-                        produk.gambar != null
+                      child: CachedNetworkImage(
+                        placeholder: (context, url) => Container(
+                          height: 150.0,
+                          width: MediaQuery.of(context).size.width,
+                          child: Image.asset("images/loadingitem.gif"),
+                        ),
+                        errorWidget: (context, url, error) => Container(
+                          height: 150.0,
+                          width: MediaQuery.of(context).size.width,
+                          child: Image.asset("images/noimage.jpg"),
+                        ),
+                        fit: BoxFit.cover,
+                        width: MediaQuery.of(context).size.width,
+                        height: 150.0,
+                        imageUrl: produk.gambar != null
                             ? urladmin(
                                 'storage/image/master/produk/${produk.gambar}',
                               )
                             : url(
                                 'assets/img/noimage.jpg',
                               ),
-                        fit: BoxFit.cover,
-                        height: 150.0,
-                        width: MediaQuery.of(context).size.width,
                       ),
+                      // child: Image.network(
+                      //   produk.gambar != null
+                      //       ? urladmin(
+                      //           'storage/image/master/produk/${produk.gambar}',
+                      //         )
+                      //       : url(
+                      //           'assets/img/noimage.jpg',
+                      //         ),
+                      //   fit: BoxFit.cover,
+                      //   height: 150.0,
+                      //   width: MediaQuery.of(context).size.width,
+                      // ),
                     ),
                     Positioned(
                         top: 5.0,
@@ -183,8 +206,7 @@ class _CariProdukLebihDetailState extends State<CariProdukLebihDetail> {
                 // SizedBox(width: 15),
                 Expanded(
                   child: Container(
-                    margin:
-                        EdgeInsets.all(10.0),
+                    margin: EdgeInsets.all(10.0),
                     child: Stack(
                       children: <Widget>[
                         Container(

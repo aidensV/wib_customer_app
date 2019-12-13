@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:wib_customer_app/env.dart';
 import 'package:wib_customer_app/storage/storage.dart';
 import 'package:flutter_pagewise/flutter_pagewise.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../shops/product_detail.dart';
 
 var ids, categorys, categoryids;
@@ -148,18 +149,41 @@ class _CategoryItemState extends State<CategoryItem> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(0.0),
                     clipBehavior: Clip.antiAlias,
-                    child: Image.network(
-                      entry.gambar != null
-                          ? urladmin(
-                              'storage/image/master/produk/${entry.gambar}',
-                            )
-                          : url(
-                              'assets/img/noimage.jpg',
-                            ),
-                      fit: BoxFit.cover,
-                      height: 150.0,
-                      width: MediaQuery.of(context).size.width,
-                    ),
+                    child: CachedNetworkImage(
+                        placeholder: (context, url) => Container(
+                          // width: MediaQuery.of(context).size.width,
+                          height: 150.0,
+
+                          child: Image.asset("images/loadingitem.gif"),
+                        ),
+                        errorWidget: (context, url, error) => Container(
+                          height: 150.0,
+                          width: MediaQuery.of(context).size.width,
+                          child: Image.asset("images/noimage.jpg"),
+                        ),
+                        fit: BoxFit.cover,
+                        height: 150.0,
+                        width: MediaQuery.of(context).size.width,
+                        imageUrl: entry.gambar != null
+                            ? urladmin(
+                                'storage/image/master/produk/${entry.gambar}',
+                              )
+                            : url(
+                                'assets/img/noimage.jpg',
+                              ),
+                      ),
+                    // child: Image.network(
+                    //   entry.gambar != null
+                    //       ? urladmin(
+                    //           'storage/image/master/produk/${entry.gambar}',
+                    //         )
+                    //       : url(
+                    //           'assets/img/noimage.jpg',
+                    //         ),
+                    //   fit: BoxFit.cover,
+                    //   height: 150.0,
+                    //   width: MediaQuery.of(context).size.width,
+                    // ),
                   ),
                   Positioned(
                       top: 5.0,

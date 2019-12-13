@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:wib_customer_app/env.dart';
 import 'package:intl/intl.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:async';
 import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
@@ -709,17 +710,44 @@ class _DetailState extends State<Detail> {
                                                 children: <Widget>[
                                                   Expanded(
                                                     flex: 4,
-                                                    child: Image.network(
-                                                      item.image != null
-                                                          ? urladmin(
-                                                              'storage/image/master/produk/${item.image}',
-                                                            )
-                                                          : prefix0.url(
-                                                              'assets/img/noimage.jpg',
-                                                            ),
+                                                    child: CachedNetworkImage(
+                                                      placeholder:
+                                                          (context, url) =>
+                                                              Container(
+                                                        width: 80.0,
+                                                        height: 80.0,
+                                                        child: Image.asset(
+                                                            "images/loadingitem.gif"),
+                                                      ),
+                                                      errorWidget: (context,
+                                                              url, error) =>
+                                                          Container(
+                                                        width: 80.0,
+                                                        height: 80.0,
+                                                        child: Image.asset("images/noimage.jpg"),
+                                                      ),
                                                       width: 80.0,
                                                       height: 80.0,
+                                                      imageUrl:
+                                                          item.image != null
+                                                              ? urladmin(
+                                                                  'storage/image/master/produk/${item.image}',
+                                                                )
+                                                              : prefix0.url(
+                                                                  'assets/img/noimage.jpg',
+                                                                ),
                                                     ),
+                                                    // child: Image.network(
+                                                    //   item.image != null
+                                                    //       ? urladmin(
+                                                    //           'storage/image/master/produk/${item.image}',
+                                                    //         )
+                                                    //       : prefix0.url(
+                                                    //           'assets/img/noimage.jpg',
+                                                    //         ),
+                                                    //   width: 80.0,
+                                                    //   height: 80.0,
+                                                    // ),
                                                   ),
                                                   Expanded(
                                                     flex: 6,

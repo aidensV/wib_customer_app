@@ -1,8 +1,9 @@
 import 'dart:convert';
-import 'package:flutter_image/network.dart';
+// import 'package:flutter_image/network.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:http/http.dart' as http;
 import 'package:wib_customer_app/env.dart';
 import 'package:wib_customer_app/storage/storage.dart';
@@ -163,12 +164,25 @@ class _Saldo extends State<Saldo> {
                       width: MediaQuery.of(context).size.height * 0.15,
                       height: MediaQuery.of(context).size.height * 0.15,
                       child: ClipOval(
-                        child: Image(
-                          fit: BoxFit.cover,
-                          image: NetworkImageWithRetry(
-                            url('storage/image/member/profile/$imageprofile'),
+                        child: CachedNetworkImage(
+                          placeholder: (context, url) => Container(
+                            // width: MediaQuery.of(context).size.width,
+
+                            child: Image.asset("images/loadingitem.gif"),
                           ),
+                          errorWidget: (context, url, error) =>
+                              Icon(Icons.error),
+                          fit: BoxFit.cover,
+                          width: MediaQuery.of(context).size.width,
+                          imageUrl:
+                              url('storage/image/member/profile/$imageprofile'),
                         ),
+                        // child: Image(
+                        //   fit: BoxFit.cover,
+                        //   image: NetworkImageWithRetry(
+                        //     url('storage/image/member/profile/$imageprofile'),
+                        //   ),
+                        // ),
                       ),
                     ),
                     Text(
@@ -193,7 +207,8 @@ class _Saldo extends State<Saldo> {
                         child: Column(
                       children: <Widget>[
                         Container(
-                          margin: EdgeInsets.only(top: 5,left: 5.0,right: 5.0),
+                          margin:
+                              EdgeInsets.only(top: 5, left: 5.0, right: 5.0),
                           padding: EdgeInsets.symmetric(vertical: 10),
                           width: MediaQuery.of(context).size.width,
                           decoration: new BoxDecoration(
