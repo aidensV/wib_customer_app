@@ -207,143 +207,73 @@ class _Saldo extends State<Saldo> {
                             textAlign: TextAlign.center,
                           ),
                         ),
+                        
                         Container(
-                          height: MediaQuery.of(context).size.height * 0.50,
-                          child: Scrollbar(
-                              child: FutureBuilder(
-                                  future: historyAndroid(),
-                                  builder: (BuildContext context,
-                                      AsyncSnapshot snapshot) {
-                                    switch (snapshot.connectionState) {
-                                      case ConnectionState.none:
-                                        return ListTile(
-                                          title: Text('Tekan Tombol Mulai'),
-                                        );
-                                      case ConnectionState.active:
-                                      case ConnectionState.waiting:
-                                      case ConnectionState.done:
-                                        if (snapshot.hasError) {
-                                          return Text(
-                                              'Error: ${snapshot.error}');
-                                        }
-
-                                        if (snapshot.data == null ||
-                                            snapshot.data == 0 ||
-                                            snapshot.data.length == null ||
-                                            snapshot.data.length == 0) {
-                                          return ListView(
-                                            children: <Widget>[
-                                              ListTile(
-                                                title: Text(
-                                                  'Tidak Ada Data',
-                                                  textAlign: TextAlign.center,
-                                                ),
-                                              )
-                                            ],
-                                          );
-                                        } else if (snapshot.data != null ||
-                                            snapshot.data != 0) {
-                                          return ListView.builder(
-                                            itemCount: snapshot.data.length,
-                                            itemBuilder: (BuildContext context,
-                                                int index) {
-                                              return Card(
-                                                child: ListTile(
-                                                  contentPadding:
-                                                      EdgeInsets.symmetric(
-                                                          horizontal: 20.0,
-                                                          vertical: 5.0),
-                                                  leading: Container(
-                                                    height:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .height *
-                                                            0.06,
-                                                    padding: EdgeInsets.only(
-                                                        right: 12),
-                                                    decoration: new BoxDecoration(
-                                                        border: new Border(
-                                                            right: new BorderSide(
-                                                                width: 1,
-                                                                color: Colors
-                                                                    .black87))),
-                                                    child: Icon(
-                                                      Icons.attach_money,
-                                                      color: Colors.black87,
-                                                    ),
-                                                  ),
-                                                  title: Text(
-                                                    snapshot.data[index].type ==
-                                                            'K'
-                                                        ? ' - ' +
-                                                            snapshot.data[index]
-                                                                .saldo
-                                                        : ' + ' +
-                                                            snapshot.data[index]
-                                                                .saldo,
-                                                    style: TextStyle(
-                                                        fontSize: 13.0,
-                                                        color: Colors.black87,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                  ),
-                                                  subtitle: Container(
-                                                    width:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .width *
-                                                            0.8,
-                                                    height:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .height *
-                                                            0.06,
-                                                    child: Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: <Widget>[
-                                                        Text(
-                                                          snapshot.data[index]
-                                                                      .tanggal !=
-                                                                  ''
-                                                              ? snapshot
-                                                                  .data[index]
-                                                                  .tanggal
-                                                              : '',
-                                                          style: TextStyle(
-                                                              fontSize: 11.0,
-                                                              color: Colors
-                                                                  .black87),
-                                                          textAlign:
-                                                              TextAlign.left,
-                                                        ),
-                                                        Text(
-                                                          snapshot.data[index]
-                                                                      .note !=
-                                                                  ''
-                                                              ? snapshot
-                                                                  .data[index]
-                                                                  .note
-                                                              : '',
-                                                          style: TextStyle(
-                                                              fontSize: 11.0,
-                                                              color: Colors
-                                                                  .black87),
-                                                          textAlign:
-                                                              TextAlign.left,
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                          );
-                                        }
-                                    }
-                                    return null;
-                                  })),
+                          width: double.infinity,
+                          child: SingleChildScrollView(
+                            child: history.length < 1 ? 
+                            ListView(
+                              children: <Widget>[
+                                ListTile(
+                                  title: Text(
+                                    'Tidak Ada Data',
+                                    textAlign: TextAlign.center,
+                                  ),
+                                )
+                              ],
+                            )
+                            : 
+                            Column(
+                              children: history.map((History f)  => Card(
+                                child: ListTile(
+                                  contentPadding:EdgeInsets.symmetric(horizontal: 20.0,vertical: 5.0),
+                                  leading: Container(
+                                    height:MediaQuery.of(context).size.height *0.06,
+                                    padding: EdgeInsets.only(right: 12),
+                                    decoration: new BoxDecoration(
+                                      border: new Border(
+                                        right: new BorderSide(width: 1,color: Colors.black87))),
+                                    child: Icon(
+                                      Icons.attach_money,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                  title: Text(
+                                    f.type =='K'? ' - ' +f.saldo: ' + ' +f.saldo,
+                                    style: TextStyle(
+                                      fontSize: 13.0,
+                                      color: Colors.black87,
+                                      fontWeight:FontWeight.bold
+                                    ),
+                                  ),
+                                  subtitle: Container(
+                                    width:MediaQuery.of(context).size.width * 0.8,
+                                    height: MediaQuery.of(context).size.height * 0.06,
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Text(
+                                          f.tanggal != '' ? f.tanggal: '',
+                                          style: TextStyle(
+                                            fontSize: 11.0,
+                                            color: Colors.black87
+                                            ),
+                                          textAlign:TextAlign.left,
+                                        ),
+                                        Text(
+                                          f.note !='' ? f.note: '',
+                                          style: TextStyle(
+                                            fontSize: 11.0,
+                                            color: Colors.black87),
+                                          textAlign:TextAlign.left,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              )).toList(),
+                            ),
+                          ),
                         ),
                       ],
                     ))
