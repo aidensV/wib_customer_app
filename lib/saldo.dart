@@ -193,7 +193,7 @@ class _Saldo extends State<Saldo> {
                         child: Column(
                       children: <Widget>[
                         Container(
-                          margin: EdgeInsets.only(top: 5),
+                          margin: EdgeInsets.only(top: 5,left: 5.0,right: 5.0),
                           padding: EdgeInsets.symmetric(vertical: 10),
                           width: MediaQuery.of(context).size.width,
                           decoration: new BoxDecoration(
@@ -281,31 +281,6 @@ class _Saldo extends State<Saldo> {
                 ),
               ),
             ),
-      // bottomNavigationBar: BottomNavigationBar(
-      //       onTap: onTabTapped,
-      //       // type: BottomNavigationBarType.shifting,
-      //       unselectedItemColor: Colors.grey,
-      //       selectedItemColor: Color(0xff31B057),
-      //       currentIndex: _currentIndex,
-      //       items: [
-      //         BottomNavigationBarItem(
-      //           icon: Icon(
-      //             Icons.home,
-      //           ),
-      //           title: new Text('Shop'),
-      //         ),
-      //         BottomNavigationBarItem(
-      //             icon: Icon(
-      //               Icons.attach_money,
-      //             ),
-      //             title: new Text('Saldo')),
-      //         BottomNavigationBarItem(
-      //             icon: Icon(
-      //               Icons.person,
-      //             ),
-      //             title: new Text('Profile'))
-      //       ],
-      //     ),
     );
   }
 }

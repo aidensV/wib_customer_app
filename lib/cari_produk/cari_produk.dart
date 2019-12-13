@@ -12,6 +12,7 @@ import 'package:http/http.dart' as http;
 import 'package:wib_customer_app/error/error.dart';
 import 'package:wib_customer_app/storage/storage.dart';
 // import 'package:wib_customer_app/utils/utils.dart';
+import 'dart:async';
 
 Produk produkState;
 List<Produk> listProduk, listProdukX;
@@ -27,6 +28,8 @@ TextEditingController cariController;
 JenisProduk selectedJenisProduk;
 
 String minHarga, maxHarga;
+Timer timer;
+int delayRequest;
 
 showInSnackBarProduk(String content) {
   _scaffoldKeyProduk.currentState.showSnackBar(
@@ -46,6 +49,20 @@ class CariProduk extends StatefulWidget {
 }
 
 class _CariProdukState extends State<CariProduk> {
+  timerDelayRequest() async {
+    timer = Timer.periodic(
+      Duration(seconds: 1),
+      (timerX) {
+        if (delayRequest < 1) {
+          getProduk();
+          timer.cancel();
+        } else {
+          delayRequest -= 1;
+        }
+      },
+    );
+  }
+
   getProduk() async {
     DataStore dataStore = DataStore();
 
@@ -112,7 +129,9 @@ class _CariProdukState extends State<CariProduk> {
       }
     } catch (e) {
       print('Error : $e');
-      showInSnackBarProduk('Error : ${e.toString()}');
+      if (mounted) {
+        showInSnackBarProduk('Error : ${e.toString()}');
+      }
       setState(() {
         isLoading = false;
         isError = true;
@@ -126,6 +145,7 @@ class _CariProdukState extends State<CariProduk> {
     isCari = false;
     isLoading = false;
     isError = false;
+    delayRequest = 0;
 
     listProduk = List();
     listProdukX = List();
@@ -141,6 +161,13 @@ class _CariProdukState extends State<CariProduk> {
 
     // FocusScope.of(context).requestFocus(_autoCompleteProdukFokus);
     super.initState();
+  }
+
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
   }
 
   @override
@@ -220,12 +247,12 @@ class _CariProdukState extends State<CariProduk> {
                   setState(() {
                     isCari = true;
                   });
-                  Future.delayed(
-                    Duration(
-                      milliseconds: 50,
-                    ),
-                    getProduk(),
-                  );
+
+                  if (delayRequest <= 2 && delayRequest != 0) {
+                    timer.cancel();
+                  }
+                  delayRequest = 2;
+                  timerDelayRequest();
                 } else {
                   setState(() {
                     isCari = false;

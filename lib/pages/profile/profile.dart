@@ -327,7 +327,7 @@ class _ProfilePage extends State<ProfilePage>{
                     children: <Widget>[
                     Container(
                       width: MediaQuery.of(context).size.width * 0.90,
-                      height: MediaQuery.of(context).size.height * 0.423,
+                      // height: MediaQuery.of(context).size.height * 0.423,
                       padding: EdgeInsets.symmetric(horizontal: 5,vertical: 5),
                       decoration: new BoxDecoration(
                         color: Colors.white.withOpacity(1),
@@ -550,21 +550,32 @@ class _ProfilePage extends State<ProfilePage>{
                           ],
                         )
                       ),
-                      
-                      Container(
-                        margin: EdgeInsets.only(top: 10),
-                        child: FlatButton(
-                          child: Text('Ubah Data'),
-                          onPressed: (){
-                            Navigator.push(
+                      Padding(
+              padding: const EdgeInsets.only(top: 20.0,bottom: 30.0),
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.90,
+                child: RaisedButton(
+                  color: Colors.white,
+                  textColor: Colors.green,
+                  disabledColor: Colors.grey,
+                  disabledTextColor: Colors.black,
+                  padding: EdgeInsets.all(15.0),
+                  splashColor: Colors.blueAccent,
+                  onPressed: () async {
+                    Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => EditProfile(),
                               ),
                             );
-                          },
-                        ),
-                      )
+                  },
+                  child: Text(
+                    "Ubah Data",
+                    style: TextStyle(fontSize: 16.0),
+                  ),
+                ),
+              ),
+            ),
                     ],
                   ),
                 ),
@@ -577,216 +588,3 @@ class _ProfilePage extends State<ProfilePage>{
     );
   }
 }
-
-/* class _ProfilePageState extends State<ProfilePage> {
-  String _username;
-  String _name;
-  String _email;
-class _ProfilePageState extends State<ProfilePage> {
-  String _username, _name, _email, imageprofile;
-
-  int _currentIndex = 2;
-  void onTabTapped(int index) {
-    _currentIndex = index;
-    if (index == 0) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => DashboardPage(),
-        ),
-      );
-    } else if (index == 1) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Saldo(),
-        ),
-      );
-    } else if (index == 2) {}
-  }
-
-  void getSharedPrefs() async {
-    DataStore dataStore = new DataStore();
-    _username = await dataStore.getDataString("username");
-    _name = await dataStore.getDataString("name");
-    _email = await dataStore.getDataString("email");
-    imageprofile = await dataStore.getDataString('image');
-
-    this.setState(() {});
-  }
-
-  void initState() {
-    getSharedPrefs();
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      // key:_scaffoldKeyprofile,
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Center(
-          child: Text(
-            "Akun Kamu",
-            style: TextStyle(color: Color(0xff31B057)),
-          ),
-        ),
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(5.0),
-        child: Column(
-          children: <Widget>[
-            Card(
-              child: Padding(
-                padding: EdgeInsets.all(10.0),
-                child: Column(
-                  children: <Widget>[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        CircleAvatar(
-                          child: ClipOval(
-                            child: Image(
-                              image: NetworkImageWithRetry(
-                                url('storage/image/member/profile/$imageprofile'),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          child: Text(
-                            "Edit foto",
-                            style: TextStyle(
-                                color: Color(0xff31B057),
-                                fontSize: 20.0,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        )
-                      ],
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
-                      child: Container(
-                        width: double.infinity,
-                        height: 1.0,
-                        color: Colors.grey[300],
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Container(
-                          child: Text(
-                            "Username",
-                            style: TextStyle(fontSize: 20.0),
-                          ),
-                        ),
-                        Container(
-                          child: Text(
-                            "$_username",
-                            style: TextStyle(fontSize: 20.0),
-                          ),
-                        )
-                      ],
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
-                      child: Container(
-                        width: double.infinity,
-                        height: 1.0,
-                        color: Colors.grey[300],
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Container(
-                          child: Text(
-                            "Nama",
-                            style: TextStyle(fontSize: 20.0),
-                          ),
-                        ),
-                        Container(
-                          child: Text(
-                            "$_name",
-                            style: TextStyle(fontSize: 20.0),
-                          ),
-                        )
-                      ],
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
-                      child: Container(
-                        width: double.infinity,
-                        height: 1.0,
-                        color: Colors.grey[300],
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Container(
-                          child: Text(
-                            "Email",
-                            style: TextStyle(fontSize: 20.0),
-                          ),
-                        ),
-                        Container(
-                          child: Text(
-                            "$_email",
-                            style: TextStyle(fontSize: 20.0),
-                          ),
-                        )
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            RaisedButton(
-              color: Colors.green[400],
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    settings: RouteSettings(name: '/settingprofile'),
-                    builder: (context) => SettingProfile(),
-                  ),
-                );
-              },
-              child: const Text('Setting',
-                  style: TextStyle(fontSize: 20, color: Colors.white)),
-            ),
-          ],
-        ),
-      ),
-      // bottomNavigationBar: BottomNavigationBar(
-      //       onTap: onTabTapped,
-      //       // type: BottomNavigationBarType.shifting,
-      //       unselectedItemColor: Colors.grey,
-      //       selectedItemColor: Color(0xff31B057),
-      //       currentIndex: _currentIndex,
-      //       items: [
-      //         BottomNavigationBarItem(
-      //           icon: Icon(
-      //             Icons.home,
-      //           ),
-      //           title: new Text('Shop'),
-      //         ),
-      //         BottomNavigationBarItem(
-      //             icon: Icon(
-      //               Icons.attach_money,
-      //             ),
-      //             title: new Text('Saldo')),
-      //         BottomNavigationBarItem(
-      //             icon: Icon(
-      //               Icons.person,
-      //             ),
-      //             title: new Text('Profile'))
-      //       ],
-      //     ),
-    );
-  } 
-} */

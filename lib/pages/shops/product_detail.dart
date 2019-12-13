@@ -1,7 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-// import 'package:wib_customer_app/pages/wishlist/wishlist.dart';
 import 'package:wib_customer_app/storage/storage.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
@@ -12,8 +11,9 @@ import 'dart:convert';
 
 var itemX, priceX, codeX, descX, diskonX, tipeX;
 String tokenType, accessToken;
-bool isLoadings;
-var _scaffoldKeyD;
+bool isLoading;
+bool isError;
+GlobalKey<ScaffoldState> _scaffoldKeyDetail;
 List<ListKeranjang> listNota = [];
 String stockiesX, wishlistX, stockX;
 Map<String, String> requestHeaders = Map();
@@ -61,7 +61,7 @@ class ProductDetailState extends State<ProductDetail> {
 
   Future<List<ListKeranjang>> listNotaAndroid() async {
     setState(() {
-      isLoadings = true;
+      isLoading = true;
     });
     try {
       final nota = await http.post(url('api/productdetail'),
@@ -85,28 +85,31 @@ class ProductDetailState extends State<ProductDetail> {
           wishlistX = wishlist;
           stockiesX = stockies;
         });
-        print('cek stockies $stockies');
         getstock();
 
-        print('listnota $listNota');
-        print('listnota length ${listNota.length}');
       } else {
-        showInSnackBar('Request failed with status: ${nota.body}');
         setState(() {
-          isLoadings = false;
+          isLoading = false;
+          isError = true;
         });
         return null;
       }
     } on TimeoutException catch (_) {
-      showInSnackBar('Timed out, Try again');
+      setState(() {
+          isLoading = false;
+          isError = true;
+        });
     } catch (e) {
+      setState(() {
+          isLoading = false;
+          isError = true;
+        });
       debugPrint('$e');
     }
     return null;
   }
 
   Future<void> getstock() async {
-    print('stockcheck {$stockiesX}');
     var storage = new DataStore();
 
     var tokenTypeStorage = await storage.getDataString('token_type');
@@ -127,23 +130,26 @@ class ProductDetailState extends State<ProductDetail> {
           var stockJson = json.decode(response.body);
           String stockvalue = stockJson['stock'].toString();
           stockX = stockvalue;
-          isLoadings = false;
-          print('stock $stockvalue');
+          isLoading = false;
+          isError = false;
         });
       } else if (response.statusCode == 401) {
-        showInSnackBar('Token telah kadaluarsa, silahkanlogin kembali');
         setState(() {
-          isLoadings = false;
+          isLoading = false;
+          isError = true;
         });
       } else {
-        showInSnackBar('Request failed with status: ${response.body}');
         setState(() {
-          isLoadings = false;
+          isLoading = false;
+          isError = true;
         });
         return null;
       }
-      return "Success!";
     } catch (e) {
+      setState(() {
+          isLoading = false;
+          isError = true;
+        });
       print('Error : $e');
     }
   }
@@ -167,7 +173,7 @@ class ProductDetailState extends State<ProductDetail> {
   }
 
   void showInSnackBar(String value) {
-    _scaffoldKeyD.currentState
+    _scaffoldKeyDetail.currentState
         .showSnackBar(new SnackBar(content: new Text(value)));
   }
 
@@ -175,7 +181,8 @@ class ProductDetailState extends State<ProductDetail> {
 
   @override
   void initState() {
-    isLoadings = true;
+    isLoading = true;
+    isError = false;
     wishlistX = null;
     isWishlist = false;
     getHeaderHTTP();
@@ -187,7 +194,7 @@ class ProductDetailState extends State<ProductDetail> {
     descX = widget.desc;
     tipeX = widget.tipe;
     diskonX = widget.diskon;
-    _scaffoldKeyD = GlobalKey<ScaffoldState>();
+    _scaffoldKeyDetail = new GlobalKey<ScaffoldState>();
     kodeposController.text = '1';
     print(requestHeaders);
     super.initState();
@@ -199,7 +206,7 @@ class ProductDetailState extends State<ProductDetail> {
         new NumberFormat.simpleCurrency(decimalDigits: 2, name: 'Rp. ');
     String finalharganormalitem = _numberFormat.format(hargaperitem);
     return Scaffold(
-      key: _scaffoldKeyD,
+      key: _scaffoldKeyDetail,
       backgroundColor: Colors.white,
       appBar: new AppBar(
         iconTheme: IconThemeData(
@@ -213,9 +220,67 @@ class ProductDetailState extends State<ProductDetail> {
         ),
         backgroundColor: Colors.white,
       ),
-      body: isLoadings == true
-          ? Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
+      body: isLoading == true
+          ? Container(
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            )
+          : isError == true
+              ? SingleChildScrollView(
+                  padding: const EdgeInsets.only(top: 20.0),
+                  child: RefreshIndicator(
+                    onRefresh: () => getHeaderHTTP(),
+                    child: Column(children: <Widget>[
+                      new Container(
+                        width: 100.0,
+                        height: 100.0,
+                        child: Image.asset("images/system-eror.png"),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          top: 30.0,
+                          left: 15.0,
+                          right: 15.0,
+                        ),
+                        child: Center(
+                          child: Text(
+                            "Gagal memuat halaman, tekan tombol muat ulang halaman untuk refresh halaman",
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey,
+                              height: 1.5,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            top: 20.0, left: 15.0, right: 15.0,bottom: 40.0),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: RaisedButton(
+                            color: Colors.white,
+                            textColor: Colors.green,
+                            disabledColor: Colors.grey,
+                            disabledTextColor: Colors.black,
+                            padding: EdgeInsets.all(15.0),
+                            splashColor: Colors.blueAccent,
+                            onPressed: () async {
+                              getHeaderHTTP();
+                            },
+                            child: Text(
+                              "Muat Ulang Halaman",
+                              style: TextStyle(fontSize: 14.0),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ]),
+                  ),
+                )
+              : RefreshIndicator(
               onRefresh: () => listNotaAndroid(),
               child: ListView(
                 // child: ListView(
@@ -342,7 +407,7 @@ class ProductDetailState extends State<ProductDetail> {
                             Padding(
                               padding: const EdgeInsets.only(left: 8.0),
                               child: Text(
-                                'Warung Islami Bogor',
+                                'Warung Botol',
                                 textAlign: TextAlign.left,
                               ),
                             ),
@@ -473,7 +538,7 @@ class ProductDetailState extends State<ProductDetail> {
                               Text(
                                 descX == null || descX == ''
                                     ? 'Tidak ada deskripsi untuk barang ini'
-                                    : descX,
+                                    : 'Tidak ada deskripsi untuk barang ini',
                               )
                             ],
                           ),
@@ -525,9 +590,12 @@ class ProductDetailState extends State<ProductDetail> {
                                   buttonColor: Color(0xff388bf2),
                                   child: FlatButton(
                                     onPressed: () async {
-                                      if (isLoadings == true) {
+                                      if (isLoading == true) {
                                         showInSnackBar(
                                             'Sedang memuat halaman mohon tunggu sebentar');
+                                      }else if(isError == true){
+                                        showInSnackBar(
+                                            'Gagal memuat halaman, mohon muat ulang');
                                       } else {
                                         var idx = codeX;
                                         try {
@@ -583,12 +651,18 @@ class ProductDetailState extends State<ProductDetail> {
                                   child: FlatButton(
                                     onPressed: () async {
                                       var location = stockiesX;
-                                      if (isLoadings == true) {
+                                      if (isLoading == true) {
                                         showInSnackBar(
                                             'Sedang memuat halaman, mohon tunggu sebentar');
+                                      }else if(isError == true){
+                                        showInSnackBar(
+                                            'Gagal memuat halaman, mohon muat ulang halaman kembali');
                                       } else if (location == null) {
                                         showInSnackBar(
                                             'Silahkan setting alamat terlebih dahulu pada pengaturan akun');
+                                      }else if(location == 'Tidak Ada Cabang Terdekat'){
+                                        showInSnackBar(
+                                            'Silahkan ubah alamat anda sesuai stockies yang ada pada cabang warung botol');
                                       } else {
                                         var idx = codeX;
                                         try {

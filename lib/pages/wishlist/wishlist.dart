@@ -12,6 +12,8 @@ var _scaffoldKeyWishlist;
 List<ListWishlist> listNota = [];
 String tokenType, accessToken;
 bool isLoading;
+bool isError;
+bool isLogout;
 Map<String, String> requestHeaders = Map();
 
 void showInSnackBar(String value) {
@@ -78,25 +80,36 @@ class _WishlistState extends State<Wishlist> {
         }
         setState(() {
           isLoading = false;
+          isLogout = false;
+          isError = false;
         });
-        print('listnota $listNota');
-        print('listnota length ${listNota.length}');
         return listNota;
+      } else if (nota.statusCode == 401) {
+        setState(() {
+          isLoading = false;
+          isLogout = true;
+          isError = false;
+        });
       } else {
         setState(() {
           isLoading = false;
+          isLogout = false;
+          isError = true;
         });
-        showInSnackBar('Request failed with status: ${nota.statusCode}');
         return null;
       }
     } on TimeoutException catch (_) {
       setState(() {
         isLoading = false;
+        isLogout = false;
+        isError = true;
       });
       showInSnackBar('Timed out, Try again');
     } catch (e) {
       setState(() {
         isLoading = false;
+        isLogout = false;
+        isError = true;
       });
       debugPrint('$e');
     }
@@ -113,7 +126,9 @@ class _WishlistState extends State<Wishlist> {
   @override
   void initState() {
     _scaffoldKeyWishlist = new GlobalKey<ScaffoldState>();
-    isLoading = false;
+    isLoading = true;
+    isError = false;
+    isLogout = false;
     getHeaderHTTP();
     print(requestHeaders);
     super.initState();
@@ -145,213 +160,333 @@ class _WishlistState extends State<Wishlist> {
                       child: CircularProgressIndicator(),
                     ),
                   )
-                : listNota.length == 0
-                    ? RefreshIndicator(
-                        onRefresh: () => listNotaAndroid(),
-                        child: Column(children: <Widget>[
-                          new Container(
-                            width: 100.0,
-                            height: 100.0,
-                            child: Image.asset("images/wishlist.png"),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 30.0),
-                            child: Center(
-                              child: Text("Barang favorit anda kosong",
-                                  style: TextStyle(fontSize: 18)),
+                : isLogout == true
+                    ? Padding(
+                        padding: const EdgeInsets.only(top: 20.0),
+                        child: RefreshIndicator(
+                          onRefresh: () => getHeaderHTTP(),
+                          child: Column(children: <Widget>[
+                            new Container(
+                              width: 100.0,
+                              height: 100.0,
+                              child: Image.asset("images/system-eror.png"),
                             ),
-                          ),
-                        ]),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                top: 30.0,
+                                left: 15.0,
+                                right: 15.0,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  "Token anda sudah expired, silahkan login ulang kembali",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey,
+                                    height: 1.5,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                          ]),
+                        ),
                       )
-                    : Expanded(
-                        child: Scrollbar(
-                          child: RefreshIndicator(
-                            onRefresh: () => listNotaAndroid(),
-                            child: ListView.builder(
-                              // scrollDirection: Axis.horizontal,
-                              padding: EdgeInsets.all(5.0),
-                              itemCount: listNota.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                double hargaperitem =
-                                    double.parse(listNota[index].harga);
-                                NumberFormat _numberFormat =
-                                    new NumberFormat.simpleCurrency(
-                                        decimalDigits: 2, name: 'Rp. ');
-                                String finalhargaperitem =
-                                    _numberFormat.format(hargaperitem);
-                                return Card(
-                                  color: Colors.white,
-                                  child: ListTile(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => ProductDetail(
-                                            item: listNota[index].item,
-                                            price: listNota[index].harga,
-                                            code: listNota[index].code,
-                                            diskon: listNota[index].hargadiskon,
-                                            desc: listNota[index].desc,
-                                            tipe: listNota[index].type,
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                    leading: new Image(
-                                      image: new NetworkImageWithRetry(
-                                        listNota[index].image != null
-                                            ? urladmin(
-                                                'storage/image/master/produk/${listNota[index].image}',
-                                              )
-                                            : url(
-                                                'assets/img/noimage.jpg',
-                                              ),
+                    : isError == true
+                        ? Padding(
+                            padding: const EdgeInsets.only(top: 20.0),
+                            child: RefreshIndicator(
+                              onRefresh: () => getHeaderHTTP(),
+                              child: Column(children: <Widget>[
+                                new Container(
+                                  width: 100.0,
+                                  height: 100.0,
+                                  child: Image.asset("images/system-eror.png"),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                    top: 30.0,
+                                    left: 15.0,
+                                    right: 15.0,
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      "Gagal memuat halaman, tekan tombol muat ulang halaman untuk refresh halaman",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.grey,
+                                        height: 1.5,
                                       ),
-                                      width: 70.0,
-                                      height: 100.0,
+                                      textAlign: TextAlign.center,
                                     ),
-
-                                    // leading: FlutterLogo(size: 72.0),
-                                    title: Padding(
-                                      padding:
-                                          const EdgeInsets.only(bottom: 20.0),
-                                      child: Text(listNota[index].item),
-                                    ),
-                                    subtitle: Column(
-                                      children: <Widget>[
-                                        listNota[index].hargadiskon == null
-                                            ? Container(
-                                                height: 23.0,
-                                              )
-                                            : Container(
-                                                height: 23.0,
-                                                child: Row(
-                                                  children: <Widget>[
-                                                    Text(
-                                                        listNota[index].harga ==
-                                                                null
-                                                            ? 'Rp. 0.00'
-                                                            : finalhargaperitem,
-                                                        style: TextStyle(
-                                                          color: Colors.black,
-                                                          decoration:
-                                                              TextDecoration
-                                                                  .lineThrough,
-                                                        )),
-                                                  ],
-                                                ),
-                                              ),
-                                        listNota[index].hargadiskon == null
-                                            ? Padding(
-                                                padding: const EdgeInsets.only(
-                                                    top: 10.0, bottom: 10.0),
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  children: <Widget>[
-                                                    Text(
-                                                        listNota[index].harga ==
-                                                                null
-                                                            ? 'Rp. 0.00'
-                                                            : finalhargaperitem,
-                                                        style: TextStyle(
-                                                            color: Colors
-                                                                .deepOrange)),
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 0.0),
-                                                      child: Text(
-                                                          listNota[index].type,
-                                                          style: TextStyle(
-                                                            color: Colors.green,
-                                                          )),
-                                                    )
-                                                  ],
-                                                ),
-                                              )
-                                            : Padding(
-                                                padding: const EdgeInsets.only(
-                                                    top: 10.0, bottom: 10.0),
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  children: <Widget>[
-                                                    Text(
-                                                        listNota[index]
-                                                                    .hargadiskon ==
-                                                                null
-                                                            ? 'Rp. 0.00'
-                                                            : _numberFormat.format(
-                                                                double.parse(listNota[
-                                                                        index]
-                                                                    .hargadiskon)),
-                                                        style: TextStyle(
-                                                            color: Colors
-                                                                .deepOrange)),
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 0.0),
-                                                      child: Text(
-                                                          listNota[index].type,
-                                                          style: TextStyle(
-                                                            color: Colors.green,
-                                                          )),
-                                                    )
-                                                  ],
-                                                ),
-                                              ),
-                                      ],
-                                    ),
-                                    // trailing: Icon(Icons.favorite, color: Colors.pink),
-                                    trailing: new FlatButton(
-                                      child: new Icon(Icons.favorite,
-                                          color: Colors.pink),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      top: 20.0, left: 15.0, right: 15.0),
+                                  child: SizedBox(
+                                    width: double.infinity,
+                                    child: RaisedButton(
                                       color: Colors.white,
+                                      textColor: Colors.green,
+                                      disabledColor: Colors.grey,
+                                      disabledTextColor: Colors.black,
+                                      padding: EdgeInsets.all(15.0),
+                                      splashColor: Colors.blueAccent,
                                       onPressed: () async {
-                                        var idX = listNota[index].id;
-                                        try {
-                                          final hapuswishlist = await http.post(
-                                              url('api/removeWishlistAndrouid'),
-                                              headers: requestHeaders,
-                                              body: {'id_wishlist': idX});
+                                        getHeaderHTTP();
+                                      },
+                                      child: Text(
+                                        "Muat Ulang Halaman",
+                                        style: TextStyle(fontSize: 14.0),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ]),
+                            ),
+                          )
+                        : listNota.length == 0
+                            ? RefreshIndicator(
+                                onRefresh: () => listNotaAndroid(),
+                                child: Column(children: <Widget>[
+                                  new Container(
+                                    width: 100.0,
+                                    height: 100.0,
+                                    child: Image.asset("images/wishlist.png"),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 30.0),
+                                    child: Center(
+                                      child: Text("Barang favorit anda kosong",
+                                          style: TextStyle(fontSize: 18)),
+                                    ),
+                                  ),
+                                ]),
+                              )
+                            : Expanded(
+                                child: Scrollbar(
+                                  child: RefreshIndicator(
+                                    onRefresh: () => listNotaAndroid(),
+                                    child: ListView.builder(
+                                      // scrollDirection: Axis.horizontal,
+                                      padding: EdgeInsets.all(5.0),
+                                      itemCount: listNota.length,
+                                      itemBuilder:
+                                          (BuildContext context, int index) {
+                                        double hargaperitem =
+                                            double.parse(listNota[index].harga);
+                                        NumberFormat _numberFormat =
+                                            new NumberFormat.simpleCurrency(
+                                                decimalDigits: 2, name: 'Rp. ');
+                                        String finalhargaperitem =
+                                            _numberFormat.format(hargaperitem);
+                                        return Card(
+                                          color: Colors.white,
+                                          child: ListTile(
+                                            onTap: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      ProductDetail(
+                                                    item: listNota[index].item,
+                                                    price:
+                                                        listNota[index].harga,
+                                                    code: listNota[index].code,
+                                                    diskon: listNota[index]
+                                                        .hargadiskon,
+                                                    desc: listNota[index].desc,
+                                                    tipe: listNota[index].type,
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                            leading: new Image(
+                                              image: new NetworkImageWithRetry(
+                                                listNota[index].image != null
+                                                    ? urladmin(
+                                                        'storage/image/master/produk/${listNota[index].image}',
+                                                      )
+                                                    : url(
+                                                        'assets/img/noimage.jpg',
+                                                      ),
+                                              ),
+                                              width: 70.0,
+                                              height: 100.0,
+                                            ),
 
-                                          if (hapuswishlist.statusCode == 200) {
-                                            var hapuswishlistJson =
-                                                json.decode(hapuswishlist.body);
-                                            if (hapuswishlistJson['status'] ==
-                                                'success') {
-                                              setState(() {
-                                                getHeaderHTTP();
-                                              });
-                                            } else if (hapuswishlistJson[
-                                                    'status'] ==
-                                                'Error') {
-                                              showInSnackBar(
-                                                  'Gagal! Hubungi pengembang software!');
-                                            }
-                                          } else {
-                                            showInSnackBar(
-                                                'Request failed with status: ${hapuswishlist.statusCode}');
-                                          }
-                                        } on TimeoutException catch (_) {
-                                          showInSnackBar(
-                                              'Timed out, Try again');
-                                        } catch (e) {
-                                          print(e);
-                                        }
+                                            // leading: FlutterLogo(size: 72.0),
+                                            title: Padding(
+                                              padding: const EdgeInsets.only(
+                                                  bottom: 20.0),
+                                              child: Text(listNota[index].item),
+                                            ),
+                                            subtitle: Column(
+                                              children: <Widget>[
+                                                listNota[index].hargadiskon ==
+                                                        null
+                                                    ? Container(
+                                                        height: 23.0,
+                                                      )
+                                                    : Container(
+                                                        height: 23.0,
+                                                        child: Row(
+                                                          children: <Widget>[
+                                                            Text(
+                                                                listNota[index]
+                                                                            .harga ==
+                                                                        null
+                                                                    ? 'Rp. 0.00'
+                                                                    : finalhargaperitem,
+                                                                style:
+                                                                    TextStyle(
+                                                                  color: Colors
+                                                                      .black,
+                                                                  decoration:
+                                                                      TextDecoration
+                                                                          .lineThrough,
+                                                                )),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                listNota[index].hargadiskon ==
+                                                        null
+                                                    ? Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .only(
+                                                                top: 10.0,
+                                                                bottom: 10.0),
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: <Widget>[
+                                                            Text(
+                                                                listNota[index]
+                                                                            .harga ==
+                                                                        null
+                                                                    ? 'Rp. 0.00'
+                                                                    : finalhargaperitem,
+                                                                style: TextStyle(
+                                                                    color: Colors
+                                                                        .deepOrange)),
+                                                            Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                          .only(
+                                                                      left:
+                                                                          0.0),
+                                                              child: Text(
+                                                                  listNota[
+                                                                          index]
+                                                                      .type,
+                                                                  style:
+                                                                      TextStyle(
+                                                                    color: Colors
+                                                                        .green,
+                                                                  )),
+                                                            )
+                                                          ],
+                                                        ),
+                                                      )
+                                                    : Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .only(
+                                                                top: 10.0,
+                                                                bottom: 10.0),
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: <Widget>[
+                                                            Text(
+                                                                listNota[index]
+                                                                            .hargadiskon ==
+                                                                        null
+                                                                    ? 'Rp. 0.00'
+                                                                    : _numberFormat.format(double.parse(
+                                                                        listNota[index]
+                                                                            .hargadiskon)),
+                                                                style: TextStyle(
+                                                                    color: Colors
+                                                                        .deepOrange)),
+                                                            Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                          .only(
+                                                                      left:
+                                                                          0.0),
+                                                              child: Text(
+                                                                  listNota[
+                                                                          index]
+                                                                      .type,
+                                                                  style:
+                                                                      TextStyle(
+                                                                    color: Colors
+                                                                        .green,
+                                                                  )),
+                                                            )
+                                                          ],
+                                                        ),
+                                                      ),
+                                              ],
+                                            ),
+                                            // trailing: Icon(Icons.favorite, color: Colors.pink),
+                                            trailing: new FlatButton(
+                                              child: new Icon(Icons.favorite,
+                                                  color: Colors.pink),
+                                              color: Colors.white,
+                                              onPressed: () async {
+                                                var idX = listNota[index].id;
+                                                try {
+                                                  final hapuswishlist =
+                                                      await http.post(
+                                                          url('api/removeWishlistAndrouid'),
+                                                          headers: requestHeaders,
+                                                          body: {
+                                                        'id_wishlist': idX
+                                                      });
+
+                                                  if (hapuswishlist
+                                                          .statusCode ==
+                                                      200) {
+                                                    var hapuswishlistJson =
+                                                        json.decode(
+                                                            hapuswishlist.body);
+                                                    if (hapuswishlistJson[
+                                                            'status'] ==
+                                                        'success') {
+                                                      setState(() {
+                                                        getHeaderHTTP();
+                                                      });
+                                                    } else if (hapuswishlistJson[
+                                                            'status'] ==
+                                                        'Error') {
+                                                      showInSnackBar(
+                                                          'Gagal! Hubungi pengembang software!');
+                                                    }
+                                                  } else {
+                                                    showInSnackBar(
+                                                        'Request failed with status: ${hapuswishlist.statusCode}');
+                                                  }
+                                                } on TimeoutException catch (_) {
+                                                  showInSnackBar(
+                                                      'Timed out, Try again');
+                                                } catch (e) {
+                                                  print(e);
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                        );
                                       },
                                     ),
                                   ),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                      ),
+                                ),
+                              ),
           ],
         ),
       ),

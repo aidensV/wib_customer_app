@@ -20,6 +20,7 @@ import 'pages/shops/bloc.dart';
 import 'pages/shops/detail.dart';
 import 'pages/profile/profile.dart';
 import 'pages/test/test.dart';
+import 'pages/cabang/cabang.dart';
 
 // This route for identifi when you use navigator
 Map<String, WidgetBuilder> routesX = <String, WidgetBuilder>{
@@ -35,6 +36,7 @@ Map<String, WidgetBuilder> routesX = <String, WidgetBuilder>{
   "/checkout": (BuildContext context) => Checkout(),
   "/details": (BuildContext context) => DetailShop(),
   '/profile': (BuildContext context) => ProfilePage(),
+  "/list_cabang" : (BuildContext context) => Cabang(),
 
   "/test": (BuildContext context) => TestCode(),
 };
@@ -57,7 +59,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<ShopBloc>(
-      builder: (context) => ShopBloc(),
+      create: (context) => ShopBloc(),
       child: MaterialApp(
         title: "Warung Islami Bogor Shop",
         home: new SplashScreen(),
@@ -96,9 +98,9 @@ ThemeData buildDarkTheme() {
     scaffoldBackgroundColor: Colors.white,
     buttonColor: Color(0xff31B057),
     hintColor: Color(0xff31B057),
-    inputDecorationTheme: InputDecorationTheme(
-      border: OutlineInputBorder(),
-      labelStyle: TextStyle(color: Color(0xff25282b), fontSize: 24.0),
-    ),
+    // inputDecorationTheme: InputDecorationTheme(
+    //   border: OutlineInputBorder(),
+    //   labelStyle: TextStyle(color: Color(0xff25282b), fontSize: 24.0),
+    // ),
   );
 }

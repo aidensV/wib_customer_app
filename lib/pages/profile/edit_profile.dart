@@ -1,17 +1,16 @@
 import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
-import 'package:wib_customer_app/env.dart';
+import 'package:wib_customer_app/env.dart' as env;
 import 'package:http/http.dart' as http;
-import 'package:async/async.dart';
-import 'package:path/path.dart';
+
 // import 'package:wib_customer_app/env.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-// import 'package:wib_customer_app/pages/checkout/checkout.dart';
+
 import 'package:wib_customer_app/pages/checkout/model.dart';
 import 'package:wib_customer_app/storage/storage.dart';
 import 'listkabupaten.dart';
@@ -19,7 +18,7 @@ import '../checkout/listkecamatan.dart';
 import '../checkout/listprovinsi.dart';
 import 'imagecropper.dart';
 
-var _khususedit_profile;
+GlobalKey<ScaffoldState> khususeditprofile;
 var datepickerfirst;
 ListProvinsi selectedProvinsi;
 ListKabupaten selectedKabupaten;
@@ -28,6 +27,8 @@ String tokenType, accessToken;
 Map<String, String> requestHeaders = Map();
 String imageprofile;
 bool loading;
+String nameX;
+var lahirX;
 File image;
 
 class EditProfile extends StatefulWidget{
@@ -38,11 +39,9 @@ class EditProfile extends StatefulWidget{
 class _EditProfile extends State<EditProfile>{
 
   void modalkeluar(String value) {
-    _khususedit_profile.currentState
+    khususeditprofile.currentState
         .showSnackBar(new SnackBar(content: new Text(value)));
   }
-
-  TextEditingController namacontroller = new TextEditingController();
   TextEditingController emailcontroller = new TextEditingController();
   TextEditingController addresscontroller = new TextEditingController();
   TextEditingController rekeningcontroller = new TextEditingController();
@@ -51,8 +50,6 @@ class _EditProfile extends State<EditProfile>{
   TextEditingController phonecontroller = new TextEditingController();
   TextEditingController tempatlahircontroller = new TextEditingController();
     bool back = false;
-    var _id;
-    var _user;
     String name;
     String gender;
     String phone;
@@ -69,6 +66,9 @@ class _EditProfile extends State<EditProfile>{
     String namaprovinsi;
     String namakota;
     String namadesa;
+    String idprovinsi;
+    String idkota;
+    String idkecamatan;
 
     void _pilihprovinsi(BuildContext context) async {
     final ListProvinsi provinsi = await Navigator.push(
@@ -78,10 +78,13 @@ class _EditProfile extends State<EditProfile>{
         ));
     setState(() {
       selectedProvinsi = provinsi;
-      namakota = 'Pilih Kabupaten';
-      namadesa = 'Pilih Kecamatan';
       selectedKabupaten = null;
+      selectedkecamatan = null;
     });
+  }
+  void showInSnackBar(String value) {
+    khususeditprofile.currentState
+        .showSnackBar(new SnackBar(content: new Text(value)));
   }
   
     void _pilihkabupaten(BuildContext context) async {
@@ -92,7 +95,6 @@ class _EditProfile extends State<EditProfile>{
         ));
     setState(() {
       selectedKabupaten = kabupaten;
-      namadesa = 'Pilih Kecamatan';
       selectedkecamatan = null;
     });
   }
@@ -146,19 +148,18 @@ class _EditProfile extends State<EditProfile>{
       province = await storage.getDataString("province") == 'Tidak ditemukan' ? '' : await storage.getDataString("province");
       city = await storage.getDataString("city") == 'Tidak ditemukan' ? '' : await storage.getDataString("city");
       district = await storage.getDataString("district") == 'Tidak ditemukan' ? '' : await storage.getDataString("district");
-      bank = await storage.getDataString("bank") == 'Tidak ditemukan' ? '' : await storage.getDataString("bank");
+      bank = await storage.getDataString("bank") == 'Tidak ditemukan' ? null : await storage.getDataString("bank");
       rekening = await storage.getDataString("nbank") == 'Tidak ditemukan' ? '' : await storage.getDataString("nbank");
       postal = await storage.getDataString("postalcode") == 'Tidak ditemukan' ? '' : await storage.getDataString("postalcode");
       tempatlahir = await storage.getDataString("tempatlahir") == 'Tidak ditemukan' ? '' : await storage.getDataString("tempatlahir");
       namaprovinsi = await storage.getDataString("namaprovinsi") == 'Tidak ditemukan' ? 'Pilih Provinsi' : await storage.getDataString("namaprovinsi");
       namakota = await storage.getDataString("namakota") == 'Tidak ditemukan' ? 'Pilih Kabupaten' : await storage.getDataString("namakota");
       namadesa = await storage.getDataString("namadesa") == 'Tidak ditemukan' ? 'Pilih Kecamatan' : await storage.getDataString("namadesa");
-      lahir = await storage.getDataString("lahir") == 'Tidak ditemukan' ? '0000-00-00 00:00:00.000' : await storage.getDataString("lahir") ;
-      _id = await storage.getDataInteger("id");
-      _user = await storage.getDataString("username");
+      idprovinsi = await storage.getDataString("idprovinsi") == 'Tidak ditemukan' ? null : await storage.getDataString("idprovinsi");
+      idkota = await storage.getDataString("idkota") == 'Tidak ditemukan' ? null : await storage.getDataString("idkota");
+      idkecamatan = await storage.getDataString("idkecamatan") == 'Tidak ditemukan' ? null : await storage.getDataString("idkecamatan");
+      lahir = await storage.getDataString("lahir") == 'Tidak ditemukan' ? null : await storage.getDataString("lahir") ;
       // imageprofile = await storage.getDataString('image');
-      
-      namacontroller = TextEditingController(text: name);
       emailcontroller = TextEditingController(text: email);
       addresscontroller = TextEditingController(text: address);
       rekeningcontroller = TextEditingController(text: rekening);
@@ -166,9 +167,6 @@ class _EditProfile extends State<EditProfile>{
       postalcodecontroller = TextEditingController(text: postal);
       phonecontroller = TextEditingController(text: phone);
       tempatlahircontroller = TextEditingController(text: tempatlahir);
-      print(gender);
-      print(bank);
-      print(lahir);
 
       var tokenTypeStorage = await storage.getDataString('token_type');
       var accessTokenStorage = await storage.getDataString('access_token');
@@ -177,8 +175,20 @@ class _EditProfile extends State<EditProfile>{
       accessToken = accessTokenStorage;
       requestHeaders['Accept'] = 'application/json';
       requestHeaders['Authorization'] = '$tokenType $accessToken';
+      print(lahir);
       setState(() {
-        
+        nameX = name;
+        lahirX = lahir;
+        selectedProvinsi = ListProvinsi(
+            id: idprovinsi,
+            nama: namaprovinsi,
+        );
+        selectedKabupaten = ListKabupaten(
+            id: idkota,
+            nama: namakota,
+          );
+          selectedkecamatan =
+              ListKecamatan(id: idkecamatan, nama: namadesa);
       });
     } on TimeoutException catch (_) {} catch (e) {
       debugPrint('$e');
@@ -198,15 +208,12 @@ class _EditProfile extends State<EditProfile>{
       
         try {
           final getUser =
-              await http.get("https://warungislamibogor-store.alamraya.site/api/getDataUser", headers: requestHeaders);
-          // print('getUser ' + getUser.body);
+              await http.get(env.url("api/getDataUser"), headers: requestHeaders);
 
           if (getUser.statusCode == 200) {
             dynamic datauser = json.decode(getUser.body);
 
             DataStore store = new DataStore();
-
-            // store.setDataInteger("user_id", int.parse(datajson['user']["u_id"]));
             store.setDataInteger("id", datauser['cm_id']);
             store.setDataString("username", datauser['cm_username']);
             store.setDataString("name", datauser['cm_name']);
@@ -226,10 +233,11 @@ class _EditProfile extends State<EditProfile>{
             store.setDataString("namaprovinsi", datauser['p_nama']);
             store.setDataString("namakota", datauser['c_nama']);
             store.setDataString("namadesa", datauser['d_nama']);
+            store.setDataString("idprovinsi", datauser['cm_province']);
+            store.setDataString("idkota", datauser['cm_city']);
+            store.setDataString("idkecamatan", datauser['cm_district']);
 
             print(datauser);
-            // print('statement else is true');
-            // print(datauser);
             setState(() {
               back = true;            
             });
@@ -258,22 +266,17 @@ class _EditProfile extends State<EditProfile>{
     requestHeaders['Authorization'] = '$tokenType $accessToken';
     Map<String, String> headers = requestHeaders;
 
-    var request = new http.MultipartRequest("POST", urlpath('api/updateprofileAndroid'));
+    var request = new http.MultipartRequest("POST", env.urlpath('api/updateprofileAndroid'));
   // print(imageFile);
     request.headers.addAll(headers);
   if(imageFile != null){
-    // var stream new http.ByteStream(DelegatingStream.typed(imageFile.openRead()));
-    // var length = await imageFile.length();
-    // var kirimfile = new http.MultipartFile("gambar", stream, length,
-    //     filename: basename(imageFile.path));
-    // request.files.add(kirimfile);
     request.fields['gambar'] = base64Encode(imageFile.readAsBytesSync());
   } 
     request.fields['email'] = emailcontroller.text ;
     request.fields['nohp'] = phonecontroller.text ;
-    // request.fields['kabupaten'] = selectedKabupaten != null ? selectedKabupaten.id.toString() : ''  ;
-    // request.fields['provinsi'] = selectedProvinsi != null ? selectedProvinsi.id.toString() : '' ;
-    // request.fields['kecamatan'] = selectedkecamatan != null ? selectedkecamatan.id.toString() : '' ;
+    request.fields['kabupaten'] = selectedKabupaten != null ? selectedKabupaten.id : null  ;
+    request.fields['provinsi'] = selectedProvinsi != null ? selectedProvinsi.id : null ;
+    request.fields['kecamatan'] = selectedkecamatan != null ? selectedkecamatan.id : null ;
     request.fields['address'] = addresscontroller.text ;
     request.fields['gender'] = gender.toString() ;
     request.fields['kodepos'] = postalcodecontroller.text ;
@@ -319,7 +322,12 @@ class _EditProfile extends State<EditProfile>{
     image = null;
     gender = '' ;
     getheader();
-    _khususedit_profile = GlobalKey<ScaffoldState>();
+    nameX = 'Nama';
+    lahirX = null;
+    selectedProvinsi = null;
+    selectedKabupaten = null;
+    selectedkecamatan = null;
+    khususeditprofile = GlobalKey<ScaffoldState>();
     datepickerfirst = FocusNode();
     loading  = false;
     super.initState();
@@ -330,7 +338,7 @@ class _EditProfile extends State<EditProfile>{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _khususedit_profile,
+      key: khususeditprofile,
       appBar: loading ? null : AppBar(
         title: Text('Ubah Profile'),
         backgroundColor: Color.fromRGBO(43, 204, 86, 1),
@@ -454,27 +462,6 @@ class _EditProfile extends State<EditProfile>{
                                   )
                               ),
                             ),
-
-                            // InkWell(
-                            //   onTap: (){
-                            //     getimagegallery();
-                            //   },
-                            //   child : Container(
-                            //     decoration: BoxDecoration(
-                            //       color: Color.fromRGBO(45, 204, 91, 1),
-                            //       borderRadius: BorderRadius.circular(20.0),
-                            //     ),
-                            //     width: MediaQuery.of(context).size.width * 0.40,
-                            //     padding: EdgeInsets.symmetric(vertical: 10.0 ,horizontal: 20.0),
-                            //       child:Text(
-                            //         'Ambil Galery',
-                            //         textAlign: TextAlign.center,
-                            //         style: TextStyle(
-                            //           color: Colors.white,
-                            //         ),
-                            //       )
-                            //   ),
-                            // ),
                           ],
                         ),
                       ),
@@ -483,13 +470,7 @@ class _EditProfile extends State<EditProfile>{
                     Card(
                       child: ListTile(
                         leading: Icon(Icons.person, color: Colors.green),
-                        title: TextField(
-                          controller: namacontroller,
-                          keyboardType: TextInputType.text,
-                          decoration: InputDecoration(
-                            labelText: 'Nama',
-                          ),
-                        ),
+                        title: Text(nameX),
                       ),
                     ),
 
@@ -536,7 +517,7 @@ class _EditProfile extends State<EditProfile>{
                                 gender = 'P';
                               }
 
-                              gender == 'L' ? print('laki - Laki') : gender == 'P' ? print('Perempuan') : '';
+                              gender == 'L' ? print('laki - Laki') : gender == 'P' ? print('Perempuan') : print('');
                             });
                           },
                           items: <String>['','Laki - Laki', 'Perempuan']
@@ -557,11 +538,11 @@ class _EditProfile extends State<EditProfile>{
                           dateOnly: true,
                           focusNode: datepickerfirst,
                           inputType: InputType.date,
-                          initialValue: lahir == null || lahir == '0000-00-00 00:00:00.000' ? null : DateTime.parse(lahir),
+                          initialValue:lahirX == null ? null :  DateTime.parse(lahirX),
                           editable: false,
                           format: DateFormat('dd-MM-y'),
                           decoration: InputDecoration(
-                            hintText:  'Tanggal Awal',
+                            hintText:  'Tanggal lahir',
                           ),
                           // resetIcon: FontAwesomeIcons.times,
                           onChanged: (ini) {
@@ -604,7 +585,7 @@ class _EditProfile extends State<EditProfile>{
                     Card(
                       child: ListTile(
                         leading: Icon(Icons.create, color: Colors.green),
-                        title: Text( selectedProvinsi != null ? selectedProvinsi.nama : namaprovinsi),
+                        title: Text(selectedProvinsi == null ? 'Pilih Provinsi' : selectedProvinsi.nama),
                         onTap: () { 
                             _pilihprovinsi(context);
                         },
@@ -614,18 +595,26 @@ class _EditProfile extends State<EditProfile>{
                     Card(
                       child: ListTile(
                         leading: Icon(Icons.create, color: Colors.green),
-                        title: Text(selectedKabupaten != null ? selectedKabupaten.nama : namakota),
+                        title: Text(selectedKabupaten == null ? 'Pilih Kabupaten' : selectedKabupaten.nama),
                         onTap: () {
-                          _pilihkabupaten(context);
+                          if(selectedProvinsi == null){
+                            showInSnackBar('Silahkan pilih provinsi terlebih dahulu');
+                          }else{
+                            _pilihkabupaten(context);
+                          }
                         },
                       ),
                     ),
                     Card(
                       child: ListTile(
                         leading: Icon(Icons.create, color: Colors.green),
-                        title: Text( selectedkecamatan != null ? selectedkecamatan.nama : namadesa),
+                        title: Text( selectedkecamatan == null ? 'Pilih Kecamatan' : selectedkecamatan.nama),
                         onTap: () {
+                          if(selectedKabupaten == null){
+                            showInSnackBar('Silahkan pilih kabupaten terlebih dahulu');
+                          }else{
                             _pilihkecamatan(context);
+                          }
                         },
                       ),
                     ),
@@ -647,7 +636,7 @@ class _EditProfile extends State<EditProfile>{
                       child: ListTile(
                         leading: Icon(FontAwesomeIcons.moneyBillAlt, color: Colors.green),
                         title: DropdownButton<String>(
-                          value: bank == null ? '' : bank,
+                          value: bank,
                           hint: Text('Pilih Bank'),
                           elevation: 16,
                           style: TextStyle(color: Colors.black),

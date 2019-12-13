@@ -25,9 +25,10 @@ import 'pages/wishlist/wishlist.dart';
 import 'pages/shopping_cart/shoppingcart.dart';
 
 bool bottom;
-String tokenType, accessToken;
+String tokenType, accessToken, rekomX;
 Map<String, String> requestHeaders = Map();
 List<ListBanner> listBannerSlider, listBannerBasic;
+List<RecomendationModel> listrecomeitem;
 bool isLoading;
 int pageSize = 6;
 
@@ -104,12 +105,61 @@ class _DashboardPageState extends State<DashboardPage>
         this.setState(() {
           category = json.decode(response.body);
         });
-      } else if (response.statusCode == 401) {}
+      } else if (response.statusCode == 401) {
+        showInSnackBarDashboard('Token Kedaluwarsa, silahkan login kembali');
+      } else {
+        showInSnackBarDashboard('Error Code : ${response.statusCode}');
+        Map responseJson = jsonDecode(response.body);
+        print('Error Code : ${response.statusCode}');
+        if (responseJson.containsKey('message')) {
+          showInSnackBarDashboard('Message ${responseJson['message']}');
+        }
+      }
 
       // print(category[1]["ity_code"]);
 
       return "Success!";
     } catch (e) {
+      print('Error : $e');
+    }
+  }
+
+  Future<void> getrekom() async {
+    var storage = new DataStore();
+
+    var tokenTypeStorage = await storage.getDataString('token_type');
+    var accessTokenStorage = await storage.getDataString('access_token');
+
+    tokenType = tokenTypeStorage;
+    accessToken = accessTokenStorage;
+    requestHeaders['Accept'] = 'application/json';
+    requestHeaders['Authorization'] = '$tokenType $accessToken';
+
+    try {
+      final response = await http.get(
+        url('api/cek_rekomendasiproduk'),
+        headers: requestHeaders,
+      );
+
+      if (response.statusCode == 200) {
+        var rekomJson = json.decode(response.body);
+        String rekomvalue = rekomJson['cekrekom'].toString();
+        setState(() {
+          rekomX = rekomvalue;
+          isLoading = false;
+        });
+      } else {
+        print('testign ${response.body}');
+        showInSnackBarProduk('Error Code : ${response.statusCode}');
+        setState(() {
+          isLoading = false;
+        });
+        return null;
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
       print('Error : $e');
     }
   }
@@ -179,6 +229,11 @@ class _DashboardPageState extends State<DashboardPage>
         });
       } else {
         showInSnackBarProduk('Error Code : ${banner.statusCode}');
+        print('Error Code : ${banner.statusCode}');
+        Map responseJson = jsonDecode(banner.body);
+        if (responseJson.containsKey('message')) {
+          showInSnackBarDashboard('Message ${responseJson['message']}');
+        }
         setState(() {
           isLoading = false;
         });
@@ -222,15 +277,14 @@ class _DashboardPageState extends State<DashboardPage>
     listBannerSlider = List();
     listBannerBasic = List();
     listBannerAndroid();
-    pagewiseLoadControllerVertical = PagewiseLoadController(
-      pageSize: pageSize,
-      pageFuture: (pageIndex) =>
-          BackendService.getDataRecom(pageIndex, pageSize),
-    );
-
     pageWiseLoadControllerHorizontal = PagewiseLoadController(
       pageSize: pageSize,
       pageFuture: (pageIndex) => BackendService.getData(pageIndex, pageSize),
+    );
+    pagewiseLoadControllerVertical = PagewiseLoadController(
+      pageSize: pageSize,
+      pageFuture: (pageIndex) =>
+          BackendService.listrecomendationitem(pageIndex, pageSize),
     );
 
     scrollController = ScrollController(initialScrollOffset: 0.0);
@@ -242,8 +296,10 @@ class _DashboardPageState extends State<DashboardPage>
     maxOffsetToColor = 0.0;
     tabController = TabController(vsync: this, length: 4);
     getCategory();
+    getrekom();
     isLoading = true;
     dataProfile();
+    rekomX = '1';
     // print(requestHeaders);
 
     notificationService = new NotificationService(context: context);
@@ -277,8 +333,8 @@ class _DashboardPageState extends State<DashboardPage>
               // Profil Drawer Here
               UserAccountsDrawerHeader(
                 // Below this my gf name :))))), jk
-                accountName: Text(
-                    namaCustomer == null ? 'Nama Lengkap' : namaCustomer),
+                accountName:
+                    Text(namaCustomer == null ? 'Nama Lengkap' : namaCustomer),
                 accountEmail:
                     Text(emailprofile == null ? 'Email Anda' : emailprofile),
                 // This how you set profil image in sidebar
@@ -289,7 +345,7 @@ class _DashboardPageState extends State<DashboardPage>
                   child: imageprofile != null
                       ? ClipOval(
                           child: Image(
-                          fit: BoxFit.cover,
+                            fit: BoxFit.cover,
                             image: NetworkImageWithRetry(
                               url('storage/image/member/profile/$imageprofile'),
                             ),
@@ -321,6 +377,20 @@ class _DashboardPageState extends State<DashboardPage>
                         leading: Icon(Icons.list),
                         onTap: () {
                           Navigator.pushNamed(context, "/tracking_list");
+                        },
+                      ),
+                      ListTile(
+                        title: Text(
+                          'Cabang Warung Botol',
+                          style: TextStyle(
+                            fontSize: 16.0,
+                            fontFamily: 'Roboto',
+                            color: Color(0xff25282b),
+                          ),
+                        ),
+                        leading: Icon(Icons.list),
+                        onTap: () {
+                          Navigator.pushNamed(context, "/list_cabang");
                         },
                       ),
                     ],
@@ -388,6 +458,7 @@ class _DashboardPageState extends State<DashboardPage>
                   children: <Widget>[
                     RefreshIndicator(
                       onRefresh: () async {
+                        getrekom();
                         listBannerAndroid();
                         pagewiseLoadControllerVertical.reset();
                         pageWiseLoadControllerHorizontal.reset();
@@ -466,33 +537,33 @@ class _DashboardPageState extends State<DashboardPage>
                                                 .toList(),
                                           ),
                                         ),
-                              listBannerBasic.length == 0
-                                  ? Container()
-                                  : Container(
-                                      margin: EdgeInsets.only(
-                                        top: 180.0,
-                                        bottom: 30.0,
-                                        left: 10.0,
-                                        right: 10.0,
-                                      ),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: listBannerBasic
-                                            .map((ListBanner f) => Container(
-                                                  padding: EdgeInsets.all(5.0),
-                                                  child: Image(
-                                                    image:
-                                                        NetworkImageWithRetry(
-                                                      urladmin(
-                                                          'storage/image/master/banner/${f.banner}'),
-                                                    ),
-                                                    height: 200.0,
-                                                  ),
-                                                ))
-                                            .toList(),
-                                      ),
-                                    ),
+                              // listBannerBasic.length == 0
+                              //     ? Container()
+                              //     : Container(
+                              //         margin: EdgeInsets.only(
+                              //           top: 180.0,
+                              //           bottom: 30.0,
+                              //           left: 10.0,
+                              //           right: 10.0,
+                              //         ),
+                              //         child: Column(
+                              //           mainAxisAlignment:
+                              //               MainAxisAlignment.center,
+                              //           children: listBannerBasic
+                              //               .map((ListBanner f) => Container(
+                              //                     padding: EdgeInsets.all(5.0),
+                              //                     child: Image(
+                              //                       image:
+                              //                           NetworkImageWithRetry(
+                              //                         urladmin(
+                              //                             'storage/image/master/banner/${f.banner}'),
+                              //                       ),
+                              //                       height: 200.0,
+                              //                     ),
+                              //                   ))
+                              //               .toList(),
+                              //         ),
+                              //       ),
                               Padding(
                                 padding:
                                     EdgeInsets.only(left: 38.0, top: 158.0),
@@ -516,56 +587,43 @@ class _DashboardPageState extends State<DashboardPage>
                               ),
                             ],
                           ),
-                          Padding(
-                            padding: EdgeInsets.only(
-                                left: 20.0, right: 20.0, top: 25.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                Text(
-                                  "Rekomendasi Produk",
-                                  style: TextStyle(
-                                      fontSize: 21.0, fontFamily: 'Roboto'),
+                          rekomX == '0'
+                              ? Container()
+                              : Padding(
+                                  padding: EdgeInsets.only(
+                                      left: 20.0, right: 20.0, top: 25.0),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: <Widget>[
+                                      Text(
+                                        "Rekomendasi Produk",
+                                        style: TextStyle(
+                                            fontSize: 21.0,
+                                            fontFamily: 'Roboto'),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                                Text(
-                                  "Lihat Semua",
-                                  style: TextStyle(
-                                      fontSize: 16.0,
-                                      fontFamily: 'Roboto',
-                                      color: Color(0xff31B057)),
-                                )
-                              ],
-                            ),
-                          ),
-                          Container(
-                            padding: EdgeInsets.only(
-                                top: 10, left: 20, bottom: 10.0),
-                            height: 225,
-                            // decoration: BoxDecoration(
-                            //   gradient: LinearGradient(
-                            //     begin: Alignment.topCenter,
-                            //     end: Alignment.bottomCenter,
-                            //     stops: [0.1, 0.4, 0.6, 0.9],
-                            //     colors: [
-                            //       Colors.white,
-                            //       Colors.white,
-                            //       Colors.white,
-                            //       Colors.grey[100]
-                            //     ],
-                            //   ),
-                            // ),
-                            width: MediaQuery.of(context).size.width,
-                            child: PagewiseListView(
-                              pageLoadController:
-                                  pagewiseLoadControllerVertical,
-                              padding: EdgeInsets.all(2.0),
-                              scrollDirection: Axis.horizontal,
-                              primary: false,
-                              itemBuilder: (BuildContext context, data, int i) {
-                                return _recItemBuilder(context, data, i);
-                              },
-                            ),
-                          ),
+                          rekomX == '0'
+                              ? Container()
+                              : Container(
+                                  padding: EdgeInsets.only(
+                                      top: 10, left: 20, bottom: 10.0),
+                                  height: 225,
+                                  width: MediaQuery.of(context).size.width,
+                                  child: PagewiseListView(
+                                    pageLoadController:
+                                        pagewiseLoadControllerVertical,
+                                    padding: EdgeInsets.all(2.0),
+                                    scrollDirection: Axis.horizontal,
+                                    primary: false,
+                                    itemBuilder:
+                                        (BuildContext context, data, int i) {
+                                      return _recItemBuilder(context, data, i);
+                                    },
+                                  ),
+                                ),
                           Container(
                             // color: Colors.grey[100],
                             child: Column(
@@ -918,7 +976,7 @@ class _DashboardPageState extends State<DashboardPage>
               child: Row(
                 children: <Widget>[
                   Text(
-                    entry.item == null ? 'Unknown Item' : entry.item,
+                    entry.item == null ? 'Nama Item' : entry.item,
                     style: TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
@@ -931,27 +989,46 @@ class _DashboardPageState extends State<DashboardPage>
 
             IntrinsicHeight(
               child: Padding(
-                padding: EdgeInsets.only(left: 5.0, right: 5.0),
+                padding: EdgeInsets.only(left: 5.0, right: 5.0, top: 10.0),
                 child: Row(
                   children: <Widget>[
+                    entry.diskon == null || entry.diskon == ''
+                        ? Expanded(
+                            flex: 5,
+                            child: Text(
+                              entry.price == null || entry.price == ''
+                                  ? 'Rp. 0.00'
+                                  : _numberFormat
+                                      .format(double.parse(entry.price)),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                  color: Colors.deepOrange),
+                              maxLines: 1,
+                              textAlign: TextAlign.left,
+                            ),
+                          )
+                        : Expanded(
+                            flex: 5,
+                            child: Text(
+                              entry.diskon == null || entry.diskon == ''
+                                  ? 'Rp. 0.00'
+                                  : _numberFormat
+                                      .format(double.parse(entry.diskon)),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                  color: Colors.deepOrange),
+                              maxLines: 1,
+                              textAlign: TextAlign.left,
+                            ),
+                          ),
                     Expanded(
                       flex: 5,
                       child: Text(
-                        entry.price == null
-                            ? 'Rp. 0.00'
-                            : _numberFormat.format(double.parse(entry.price)),
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
-                            color: Colors.deepOrange),
-                        maxLines: 1,
-                        textAlign: TextAlign.left,
-                      ),
-                    ),
-                    Expanded(
-                      flex: 5,
-                      child: Text(
-                        entry.tipe == null ? 'Unknown Tipe' : entry.tipe,
+                        entry.tipe == null || entry.tipe == ''
+                            ? 'Jenis'
+                            : entry.tipe,
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 13,
@@ -1057,7 +1134,15 @@ class _DashboardPageState extends State<DashboardPage>
                                     });
                                   }
                                 } else {
-                                  print('${hapuswishlist.body}');
+                                  print(hapuswishlist.statusCode);
+                                  Map responseJson =
+                                      jsonDecode(hapuswishlist.body);
+                                  print(
+                                      'Error Code : ${hapuswishlist.statusCode}');
+                                  if (responseJson.containsKey('message')) {
+                                    showInSnackBarDashboard(
+                                        'Message ${responseJson['message']}');
+                                  }
                                 }
                               } on TimeoutException catch (_) {} catch (e) {
                                 print(e);
@@ -1077,7 +1162,9 @@ class _DashboardPageState extends State<DashboardPage>
                         Container(
                           alignment: Alignment.topLeft,
                           child: Text(
-                            entry.item,
+                            entry.item == null || entry.item == ''
+                                ? 'Nama Item'
+                                : entry.item,
                             style: TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 16,
@@ -1100,7 +1187,7 @@ class _DashboardPageState extends State<DashboardPage>
                                   : Container(
                                       alignment: Alignment.topLeft,
                                       child: Text(
-                                        entry.price == null
+                                        entry.price == null || entry.price == ''
                                             ? 'Rp. 0.00'
                                             : _numberFormat.format(
                                                 double.parse(entry.price)),
@@ -1122,7 +1209,8 @@ class _DashboardPageState extends State<DashboardPage>
                                         Expanded(
                                           flex: 5,
                                           child: Text(
-                                            entry.price == null
+                                            entry.price == null ||
+                                                    entry.price == ''
                                                 ? 'Rp. 0.00'
                                                 : _numberFormat.format(
                                                     double.parse(entry.price)),
@@ -1136,7 +1224,10 @@ class _DashboardPageState extends State<DashboardPage>
                                         Expanded(
                                           flex: 5,
                                           child: Text(
-                                            entry.tipe,
+                                            entry.tipe == null ||
+                                                    entry.tipe == ''
+                                                ? 'Jenis'
+                                                : entry.tipe,
                                             style: TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 14,
@@ -1167,7 +1258,10 @@ class _DashboardPageState extends State<DashboardPage>
                                         Expanded(
                                           flex: 5,
                                           child: Text(
-                                            entry.tipe,
+                                            entry.tipe == null ||
+                                                    entry.tipe == ''
+                                                ? 'Jenis'
+                                                : entry.tipe,
                                             style: TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 14,
@@ -1232,7 +1326,11 @@ class BackendService {
         return null;
       } else {
         showInSnackBarDashboard('Error Code : ${responseBody.statusCode}');
+        Map responseJson = jsonDecode(responseBody.body);
         print('Error Code : ${responseBody.statusCode}');
+        if (responseJson.containsKey('message')) {
+          showInSnackBarDashboard('Message ${responseJson['message']}');
+        }
         return null;
       }
     } on TimeoutException catch (_) {
@@ -1245,7 +1343,8 @@ class BackendService {
     }
   }
 
-  static Future<List<RecomendationModel>> getDataRecom(index, limit) async {
+  static Future<List<RecomendationModel>> listrecomendationitem(
+      index, limit) async {
     var storage = new DataStore();
 
     // print('index $index');
@@ -1262,12 +1361,20 @@ class BackendService {
         var data = json.decode(responseBody.body);
         var product = data['itemslider'];
 
-        return RecomendationModel.fromJsonList(product);
+        if (product != null) {
+          return RecomendationModel.fromJsonList(product);
+        }
       } else if (responseBody.statusCode == 401) {
         showInSnackBarDashboard('Token kedaluwarsa, silahkan login kembali');
         return null;
       } else {
         showInSnackBarDashboard('Error code : ${responseBody.statusCode}');
+        Map responseJson = jsonDecode(responseBody.body);
+
+        print('Error Code : ${responseBody.statusCode}');
+        if (responseJson.containsKey('message')) {
+          showInSnackBarDashboard('Message ${responseJson['message']}');
+        }
         print('Error Code : ${responseBody.statusCode}');
         print(jsonDecode(responseBody.body));
         return null;
@@ -1278,36 +1385,8 @@ class BackendService {
     } catch (e) {
       print('Error : $e');
       showInSnackBarDashboard('Error : ${e.toString()}');
-      return null;
     }
-  }
-}
-
-class RecomendationModel {
-  String item;
-  String price;
-  String gambar;
-  String code;
-  String wishlist;
-  String desc;
-  String tipe;
-  String diskon;
-
-  RecomendationModel.fromJson(obj) {
-    this.item = obj['i_name'];
-    this.price = obj['ipr_sunitprice'];
-    this.gambar = obj['ip_path'];
-    this.code = obj['i_code'];
-    this.wishlist = obj['wl_ciproduct'];
-    this.desc = obj['itp_tagdesc'];
-    this.tipe = obj['ity_name'];
-    this.diskon = obj['gpp_sellprice'];
-  }
-
-  static List<RecomendationModel> fromJsonList(jsonList) {
-    return jsonList
-        .map<RecomendationModel>((obj) => RecomendationModel.fromJson(obj))
-        .toList();
+    return null;
   }
 }
 
@@ -1344,4 +1423,32 @@ class ListBanner {
   final String banner;
 
   ListBanner({this.idbanner, this.banner});
+}
+
+class RecomendationModel {
+  String item;
+  String price;
+  String gambar;
+  String code;
+  String wishlist;
+  String desc;
+  String tipe;
+  String diskon;
+
+  RecomendationModel.fromJson(obj) {
+    this.item = obj['i_name'];
+    this.price = obj['ipr_sunitprice'];
+    this.gambar = obj['ip_path'];
+    this.code = obj['i_code'];
+    this.wishlist = obj['wl_ciproduct'];
+    this.desc = obj['itp_tagdesc'];
+    this.tipe = obj['ity_name'];
+    this.diskon = obj['gpp_sellprice'];
+  }
+
+  static List<RecomendationModel> fromJsonList(jsonList) {
+    return jsonList
+        .map<RecomendationModel>((obj) => RecomendationModel.fromJson(obj))
+        .toList();
+  }
 }

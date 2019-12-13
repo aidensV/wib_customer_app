@@ -13,7 +13,9 @@ List<ListKabupaten> listNota = [];
 List<ListKabupaten> filteredlistNota = [];
 String tokenType, accessToken;
 bool isLoading;
-var _scaffoldKeyY;
+bool isError;
+bool isLogout;
+GlobalKey<ScaffoldState> _scaffoldKeyKabupaten;
 Map<String, String> requestHeaders = Map();
 ListProvinsi provinsi;
 
@@ -54,7 +56,7 @@ class _KabupatenState extends State<KabupatenSending> {
   }
 
   void showInSnackBar(String value) {
-    _scaffoldKeyY.currentState
+    _scaffoldKeyKabupaten.currentState
         .showSnackBar(new SnackBar(content: new Text(value)));
   }
 
@@ -81,8 +83,6 @@ class _KabupatenState extends State<KabupatenSending> {
         var notaJson = json.decode(nota.body);
         var notas = notaJson['kabupaten'];
 
-        print('notaJson $notaJson');
-
         listNota = [];
         for (var i in notas) {
           ListKabupaten notax = ListKabupaten(
@@ -92,33 +92,40 @@ class _KabupatenState extends State<KabupatenSending> {
           listNota.add(notax);
         }
 
-        print('listnota $listNota');
-        print('listnota length ${listNota.length}');
         setState(() {
           isLoading = false;
+          isLogout = false;
+          isError = false;
         });
         return listNota;
-      } else {
-        showInSnackBar('Request failed with status: ${nota.statusCode}');
+      } else if (nota.statusCode == 401) {
         setState(() {
           isLoading = false;
+          isLogout = true;
+          isError = false;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+          isLogout = false;
+          isError = true;
         });
         return null;
       }
     } on TimeoutException catch (_) {
-      showInSnackBar('Timed out, Try again');
       setState(() {
         isLoading = false;
+        isLogout = false;
+        isError = true;
       });
     } catch (e) {
       debugPrint('$e');
       setState(() {
         isLoading = false;
+        isLogout = false;
+        isError = true;
       });
     }
-    setState(() {
-      isLoading = false;
-    });
     return null;
   }
 
@@ -135,7 +142,7 @@ class _KabupatenState extends State<KabupatenSending> {
 
   @override
   void initState() {
-    _scaffoldKeyY = GlobalKey<ScaffoldState>();
+    _scaffoldKeyKabupaten = GlobalKey<ScaffoldState>();
     listNotaAndroid().then((usersFromServer) {
       setState(() {
         listNota = usersFromServer;
@@ -143,7 +150,9 @@ class _KabupatenState extends State<KabupatenSending> {
       });
     });
     getHeaderHTTP();
-    isLoading = false;
+    isLoading = true;
+    isError = false;
+    isLogout = false;
     print(requestHeaders);
     super.initState();
   }
@@ -152,14 +161,14 @@ class _KabupatenState extends State<KabupatenSending> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      key: _scaffoldKeyY,
+      key: _scaffoldKeyKabupaten,
       appBar: new AppBar(
           iconTheme: IconThemeData(
             color: Color(0xff25282b),
           ),
           title: new TextField(
             decoration: InputDecoration(
-              labelText: 'Cari Alamat Kabupaten',
+              hintText: 'Cari Alamat Kabupaten',
             ),
             onChanged: (string) {
               _debouncer.run(() {
@@ -178,73 +187,173 @@ class _KabupatenState extends State<KabupatenSending> {
         child: Column(
           children: <Widget>[
             isLoading == true
-                ? Expanded(
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  )
-                : Expanded(
-                    // child: Scrollbar(
-                    child: RefreshIndicator(
-                      onRefresh: () => listNotaAndroid(),
-                      child: filteredlistNota == null
-                          ? Container()
-                          : ListView.builder(
-                              // scrollDirection: Axis.horizontal,
-                              padding: EdgeInsets.all(5.0),
-                              itemCount: filteredlistNota.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                return Card(
-                                  child: ListTile(
-                                    leading: Icon(Icons.person_pin_circle,
-                                        color: Colors.green),
-                                    title: Text(filteredlistNota[index].nama),
-                                    onTap: () async {
-                                      var idX = listNota[index].id;
-                                      showInSnackBar(
-                                                  'Sedang mencari biaya ongkir, mohon tunggu sebentar');
-                                      try {
-                                        final tambahqty = await http.post(
-                                            url('api/get_ongkir_android'),
-                                            headers: requestHeaders,
-                                            body: {'kota': idX});
-
-                                        if (tambahqty.statusCode == 200) {
-
-                                          var ongkirJson =
-                                              json.decode(tambahqty.body);
-                                          var ongkir =
-                                              ongkirJson['total'].toString();
-                                              var textongkir = ongkirJson['textongkir'].toString();
-                                              var totalbelanja = ongkirJson['totalbelanja'].toString();
-                                          Navigator.pop(
-                                              context,
-                                              ListKabupaten(
-                                                id: filteredlistNota[index].id,
-                                                nama: filteredlistNota[index]
-                                                    .nama,
-                                                ongkir: ongkir,
-                                                textongkir: textongkir,
-                                                totalbelanja: totalbelanja,
-                                              ));
-                                        } else {
-                                          print('${tambahqty.body}');
-                                          showInSnackBar(
-                                              'Request failed with status: ${tambahqty.statusCode}');
-                                        }
-                                      } on TimeoutException catch (_) {
-                                        showInSnackBar('Timed out, Try again');
-                                      } catch (e) {
-                                        print(e);
-                                      }
-                                    },
-                                  ),
-                                );
-                              },
+                ? Container(
+                  margin: EdgeInsets.only(top: 10.0),
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            )
+                : isLogout == true
+                    ? Padding(
+                        padding: const EdgeInsets.only(top: 20.0),
+                        child: RefreshIndicator(
+                          onRefresh: () => listNotaAndroid(),
+                          child: Column(children: <Widget>[
+                            new Container(
+                              width: 100.0,
+                              height: 100.0,
+                              child: Image.asset("images/system-eror.png"),
                             ),
-                    ),
-                    // ),
-                  ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                top: 30.0,
+                                left: 15.0,
+                                right: 15.0,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  "Token anda sudah expired, silahkan login ulang kembali",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey,
+                                    height: 1.5,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                          ]),
+                        ),
+                      )
+                    : isError == true
+                        ? Padding(
+                            padding: const EdgeInsets.only(top: 20.0),
+                            child: RefreshIndicator(
+                              onRefresh: () => listNotaAndroid(),
+                              child: Column(children: <Widget>[
+                                new Container(
+                                  width: 100.0,
+                                  height: 100.0,
+                                  child: Image.asset("images/system-eror.png"),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                    top: 30.0,
+                                    left: 15.0,
+                                    right: 15.0,
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      "Gagal memuat halaman, tekan tombol muat ulang halaman untuk refresh halaman",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.grey,
+                                        height: 1.5,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      top: 20.0, left: 15.0, right: 15.0),
+                                  child: SizedBox(
+                                    width: double.infinity,
+                                    child: RaisedButton(
+                                      color: Colors.white,
+                                      textColor: Colors.green,
+                                      disabledColor: Colors.grey,
+                                      disabledTextColor: Colors.black,
+                                      padding: EdgeInsets.all(15.0),
+                                      splashColor: Colors.blueAccent,
+                                      onPressed: () async {
+                                        getHeaderHTTP();
+                                      },
+                                      child: Text(
+                                        "Muat Ulang Halaman",
+                                        style: TextStyle(fontSize: 14.0),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ]),
+                            ),
+                          )
+                        : Expanded(
+                            // child: Scrollbar(
+                            child: RefreshIndicator(
+                              onRefresh: () => listNotaAndroid(),
+                              child: filteredlistNota == null
+                                  ? Container()
+                                  : ListView.builder(
+                                      // scrollDirection: Axis.horizontal,
+                                      padding: EdgeInsets.all(5.0),
+                                      itemCount: filteredlistNota.length,
+                                      itemBuilder:
+                                          (BuildContext context, int index) {
+                                        return Card(
+                                          child: ListTile(
+                                            leading: Icon(
+                                                Icons.person_pin_circle,
+                                                color: Colors.green),
+                                            title: Text(
+                                                filteredlistNota[index].nama),
+                                            onTap: () async {
+                                              var idX = listNota[index].id;
+                                              showInSnackBar(
+                                                  'Sedang mencari biaya ongkir, mohon tunggu sebentar');
+                                              try {
+                                                final tambahqty = await http.post(
+                                                    url('api/get_ongkir_android'),
+                                                    headers: requestHeaders,
+                                                    body: {'kota': idX});
+
+                                                if (tambahqty.statusCode ==
+                                                    200) {
+                                                  var ongkirJson = json
+                                                      .decode(tambahqty.body);
+                                                  var ongkir =
+                                                      ongkirJson['total']
+                                                          .toString();
+                                                  var textongkir =
+                                                      ongkirJson['textongkir']
+                                                          .toString();
+                                                  var totalbelanja =
+                                                      ongkirJson['totalbelanja']
+                                                          .toString();
+                                                  Navigator.pop(
+                                                      context,
+                                                      ListKabupaten(
+                                                        id: filteredlistNota[
+                                                                index]
+                                                            .id,
+                                                        nama: filteredlistNota[
+                                                                index]
+                                                            .nama,
+                                                        ongkir: ongkir,
+                                                        textongkir: textongkir,
+                                                        totalbelanja:
+                                                            totalbelanja,
+                                                      ));
+                                                } else {
+                                                  print('${tambahqty.body}');
+                                                  showInSnackBar(
+                                                      'Request failed with status: ${tambahqty.statusCode}');
+                                                }
+                                              } on TimeoutException catch (_) {
+                                                showInSnackBar(
+                                                    'Timed out, Try again');
+                                              } catch (e) {
+                                                print(e);
+                                              }
+                                            },
+                                          ),
+                                        );
+                                      },
+                                    ),
+                            ),
+                            // ),
+                          ),
           ],
         ),
       ),
