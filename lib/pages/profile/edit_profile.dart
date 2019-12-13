@@ -517,7 +517,7 @@ class _EditProfile extends State<EditProfile>{
                                 gender = 'P';
                               }
 
-                              gender == 'L' ? print('laki - Laki') : gender == 'P' ? print('Perempuan') : '';
+                              gender == 'L' ? print('laki - Laki') : gender == 'P' ? print('Perempuan') : print('');
                             });
                           },
                           items: <String>['','Laki - Laki', 'Perempuan']

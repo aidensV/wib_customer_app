@@ -28,7 +28,7 @@ bool bottom;
 String tokenType, accessToken, rekomX;
 Map<String, String> requestHeaders = Map();
 List<ListBanner> listBannerSlider, listBannerBasic;
-List<RecomendationModel>listrecomeitem;
+List<RecomendationModel> listrecomeitem;
 bool isLoading;
 int pageSize = 6;
 
@@ -111,7 +111,7 @@ class _DashboardPageState extends State<DashboardPage>
         showInSnackBarDashboard('Error Code : ${response.statusCode}');
         Map responseJson = jsonDecode(response.body);
         print('Error Code : ${response.statusCode}');
-        if(responseJson.containsKey('message')){
+        if (responseJson.containsKey('message')) {
           showInSnackBarDashboard('Message ${responseJson['message']}');
         }
       }
@@ -123,6 +123,7 @@ class _DashboardPageState extends State<DashboardPage>
       print('Error : $e');
     }
   }
+
   Future<void> getrekom() async {
     var storage = new DataStore();
 
@@ -157,11 +158,12 @@ class _DashboardPageState extends State<DashboardPage>
       }
     } catch (e) {
       setState(() {
-          isLoading = false;
-        });
+        isLoading = false;
+      });
       print('Error : $e');
     }
   }
+
   Future<void> dataProfile() async {
     DataStore storage = new DataStore();
 
@@ -229,7 +231,7 @@ class _DashboardPageState extends State<DashboardPage>
         showInSnackBarProduk('Error Code : ${banner.statusCode}');
         print('Error Code : ${banner.statusCode}');
         Map responseJson = jsonDecode(banner.body);
-        if(responseJson.containsKey('message')){
+        if (responseJson.containsKey('message')) {
           showInSnackBarDashboard('Message ${responseJson['message']}');
         }
         setState(() {
@@ -281,7 +283,8 @@ class _DashboardPageState extends State<DashboardPage>
     );
     pagewiseLoadControllerVertical = PagewiseLoadController(
       pageSize: pageSize,
-      pageFuture: (pageIndex) => BackendService.listrecomendationitem(pageIndex, pageSize),
+      pageFuture: (pageIndex) =>
+          BackendService.listrecomendationitem(pageIndex, pageSize),
     );
 
     scrollController = ScrollController(initialScrollOffset: 0.0);
@@ -584,45 +587,43 @@ class _DashboardPageState extends State<DashboardPage>
                               ),
                             ],
                           ),
-                          rekomX == '0'?
-                          Container(
-                            
-                          ):
-                          Padding(
-                            padding: EdgeInsets.only(
-                                left: 20.0, right: 20.0, top: 25.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                Text(
-                                  "Rekomendasi Produk",
-                                  style: TextStyle(
-                                      fontSize: 21.0, fontFamily: 'Roboto'),
+                          rekomX == '0'
+                              ? Container()
+                              : Padding(
+                                  padding: EdgeInsets.only(
+                                      left: 20.0, right: 20.0, top: 25.0),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: <Widget>[
+                                      Text(
+                                        "Rekomendasi Produk",
+                                        style: TextStyle(
+                                            fontSize: 21.0,
+                                            fontFamily: 'Roboto'),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ],
-                            ),
-                          ),
-                          rekomX == '0'?
-                          Container(
-
-                          ):
-                          Container(
-                            padding: EdgeInsets.only(
-                                top: 10, left: 20, bottom: 10.0),
-                            height: 225,
-                            width: MediaQuery.of(context).size.width,
-                            child: PagewiseListView(
-                              pageLoadController:
-                                  pagewiseLoadControllerVertical,
-
-                              padding: EdgeInsets.all(2.0),
-                              scrollDirection: Axis.horizontal,
-                              primary: false,
-                              itemBuilder: (BuildContext context, data, int i) {
-                                return _recItemBuilder(context, data, i);
-                              },
-                            ),
-                          ),
+                          rekomX == '0'
+                              ? Container()
+                              : Container(
+                                  padding: EdgeInsets.only(
+                                      top: 10, left: 20, bottom: 10.0),
+                                  height: 225,
+                                  width: MediaQuery.of(context).size.width,
+                                  child: PagewiseListView(
+                                    pageLoadController:
+                                        pagewiseLoadControllerVertical,
+                                    padding: EdgeInsets.all(2.0),
+                                    scrollDirection: Axis.horizontal,
+                                    primary: false,
+                                    itemBuilder:
+                                        (BuildContext context, data, int i) {
+                                      return _recItemBuilder(context, data, i);
+                                    },
+                                  ),
+                                ),
                           Container(
                             // color: Colors.grey[100],
                             child: Column(
@@ -988,42 +989,46 @@ class _DashboardPageState extends State<DashboardPage>
 
             IntrinsicHeight(
               child: Padding(
-                padding: EdgeInsets.only(left: 5.0, right: 5.0,top:10.0),
+                padding: EdgeInsets.only(left: 5.0, right: 5.0, top: 10.0),
                 child: Row(
                   children: <Widget>[
-                    entry.diskon == null || entry.diskon == '' ?
+                    entry.diskon == null || entry.diskon == ''
+                        ? Expanded(
+                            flex: 5,
+                            child: Text(
+                              entry.price == null || entry.price == ''
+                                  ? 'Rp. 0.00'
+                                  : _numberFormat
+                                      .format(double.parse(entry.price)),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                  color: Colors.deepOrange),
+                              maxLines: 1,
+                              textAlign: TextAlign.left,
+                            ),
+                          )
+                        : Expanded(
+                            flex: 5,
+                            child: Text(
+                              entry.diskon == null || entry.diskon == ''
+                                  ? 'Rp. 0.00'
+                                  : _numberFormat
+                                      .format(double.parse(entry.diskon)),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                  color: Colors.deepOrange),
+                              maxLines: 1,
+                              textAlign: TextAlign.left,
+                            ),
+                          ),
                     Expanded(
                       flex: 5,
                       child: Text(
-                        entry.price == null || entry.price == ''
-                            ? 'Rp. 0.00'
-                            : _numberFormat.format(double.parse(entry.price)),
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
-                            color: Colors.deepOrange),
-                        maxLines: 1,
-                        textAlign: TextAlign.left,
-                      ),
-                    ):
-                    Expanded(
-                      flex: 5,
-                      child: Text(
-                        entry.diskon == null || entry.diskon == ''
-                            ? 'Rp. 0.00'
-                            : _numberFormat.format(double.parse(entry.diskon)),
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
-                            color: Colors.deepOrange),
-                        maxLines: 1,
-                        textAlign: TextAlign.left,
-                      ),
-                    ),
-                    Expanded(
-                      flex: 5,
-                      child: Text(
-                        entry.tipe == null || entry.tipe == '' ? 'Jenis' : entry.tipe,
+                        entry.tipe == null || entry.tipe == ''
+                            ? 'Jenis'
+                            : entry.tipe,
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 13,
@@ -1157,7 +1162,9 @@ class _DashboardPageState extends State<DashboardPage>
                         Container(
                           alignment: Alignment.topLeft,
                           child: Text(
-                            entry.item == null || entry.item == '' ? 'Nama Item' : entry.item,
+                            entry.item == null || entry.item == ''
+                                ? 'Nama Item'
+                                : entry.item,
                             style: TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 16,
@@ -1202,7 +1209,8 @@ class _DashboardPageState extends State<DashboardPage>
                                         Expanded(
                                           flex: 5,
                                           child: Text(
-                                            entry.price == null || entry.price == ''
+                                            entry.price == null ||
+                                                    entry.price == ''
                                                 ? 'Rp. 0.00'
                                                 : _numberFormat.format(
                                                     double.parse(entry.price)),
@@ -1216,7 +1224,10 @@ class _DashboardPageState extends State<DashboardPage>
                                         Expanded(
                                           flex: 5,
                                           child: Text(
-                                            entry.tipe == null || entry.tipe == '' ? 'Jenis' : entry.tipe,
+                                            entry.tipe == null ||
+                                                    entry.tipe == ''
+                                                ? 'Jenis'
+                                                : entry.tipe,
                                             style: TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 14,
@@ -1247,7 +1258,10 @@ class _DashboardPageState extends State<DashboardPage>
                                         Expanded(
                                           flex: 5,
                                           child: Text(
-                                            entry.tipe == null || entry.tipe == '' ? 'Jenis' : entry.tipe,
+                                            entry.tipe == null ||
+                                                    entry.tipe == ''
+                                                ? 'Jenis'
+                                                : entry.tipe,
                                             style: TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 14,
@@ -1328,7 +1342,9 @@ class BackendService {
       return null;
     }
   }
-   static Future<List<RecomendationModel>> listrecomendationitem(index, limit) async {
+
+  static Future<List<RecomendationModel>> listrecomendationitem(
+      index, limit) async {
     var storage = new DataStore();
 
     // print('index $index');
@@ -1345,7 +1361,7 @@ class BackendService {
         var data = json.decode(responseBody.body);
         var product = data['itemslider'];
 
-        if(product != null){
+        if (product != null) {
           return RecomendationModel.fromJsonList(product);
         }
       } else if (responseBody.statusCode == 401) {
@@ -1369,10 +1385,9 @@ class BackendService {
     } catch (e) {
       print('Error : $e');
       showInSnackBarDashboard('Error : ${e.toString()}');
-      return null;
     }
+    return null;
   }
-
 }
 
 class ProductModel {
@@ -1409,6 +1424,7 @@ class ListBanner {
 
   ListBanner({this.idbanner, this.banner});
 }
+
 class RecomendationModel {
   String item;
   String price;

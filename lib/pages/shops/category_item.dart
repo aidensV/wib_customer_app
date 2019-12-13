@@ -65,6 +65,7 @@ class _CategoryItemState extends State<CategoryItem> {
     } catch (e) {
       print('Error : $e');
     }
+    return null;
   }
 
   @override

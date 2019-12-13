@@ -129,7 +129,9 @@ class _CariProdukState extends State<CariProduk> {
       }
     } catch (e) {
       print('Error : $e');
-      showInSnackBarProduk('Error : ${e.toString()}');
+      if (mounted) {
+        showInSnackBarProduk('Error : ${e.toString()}');
+      }
       setState(() {
         isLoading = false;
         isError = true;
