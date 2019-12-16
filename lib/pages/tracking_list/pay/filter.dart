@@ -82,26 +82,26 @@ class _FilterTransaksiPayState extends State<FilterTransaksipay> {
                   flex: 5,
                   child: Padding(
                     padding: const EdgeInsets.all(3.0),
-                    child: DateTimePickerFormField(
-                      dateOnly: true,
-                      focusNode: datepickerfirst,
-                      inputType: InputType.date,
-                      initialValue: widget.tanggalawalpay == 'kosong' ? null : DateTime.parse(_tanggalawalvalue),
-                      editable: false,
-                      format: DateFormat('dd-MM-y'),
+                    child: DateTimeField(
+                      readOnly: true,
+                      format : DateFormat('dd-MM-yyy'),
+                      initialValue: widget.tanggalawalpay == 'kosong' ? DateTime.now() : DateTime.parse(_tanggalawalvalue),
                       decoration: InputDecoration(
-                        //  border: InputBorder.none,
                         hintText: 'Tanggal Awal',
                         hintStyle: TextStyle(fontSize: 13, color: Colors.black),
                       ),
-                      // resetIcon: FontAwesomeIcons.times,
-                      onChanged: (ini) {
+                      onShowPicker: (context, currentValue) {
+                        return showDatePicker(
+                          firstDate: DateTime(1900),
+                          context: context,
+                          initialDate: widget.tanggalawalpay == 'kosong' ? DateTime.now() : DateTime.parse(_tanggalawalvalue),
+                          lastDate: DateTime(2100));
+                        },
+                        onChanged: (ini) {
                         setState(() {
-                          _tanggalawal =
-                              ini == null ? 'kosong' : ini.toString();
+                          _tanggalawal =  ini == null ? 'kosong' : ini.toString();
                         });
                       },
-                      autofocus: false,
                     ),
                   ),
                 ),
@@ -109,24 +109,26 @@ class _FilterTransaksiPayState extends State<FilterTransaksipay> {
                   flex: 5,
                   child: Padding(
                     padding: const EdgeInsets.all(3.0),
-                    child: DateTimePickerFormField(
-                      inputType: InputType.date,
-                      focusNode: datepickerlast,
-                      initialValue: widget.tanggalakhirpay == 'kosong' ? null : DateTime.parse(_tanggalakhirvalue),
-                      editable: false,
-                      format: DateFormat('dd-MM-y'),
+                    child: DateTimeField(
+                      readOnly: true,
+                      format : DateFormat('dd-MM-yyy'),
+                      initialValue: widget.tanggalakhirpay == 'kosong' ? DateTime.now() : DateTime.parse(_tanggalakhirvalue),
                       decoration: InputDecoration(
                         hintText: 'Tanggal Akhir',
                         hintStyle: TextStyle(fontSize: 13, color: Colors.black),
                       ),
-                      // resetIcon: FontAwesomeIcons.times,
-                      onChanged: (ini) {
+                      onShowPicker: (context, currentValue) {
+                        return showDatePicker(
+                          firstDate: DateTime(1900),
+                          context: context,
+                          initialDate: widget.tanggalakhirpay == 'kosong' ? DateTime.now() : DateTime.parse(_tanggalakhirvalue),
+                          lastDate: DateTime(2100));
+                        },
+                        onChanged: (ini) {
                         setState(() {
-                          _tanggalakhir =
-                              ini == null ? 'kosong' : ini.toString();
+                          _tanggalakhir =  ini == null ? 'kosong' : ini.toString();
                         });
                       },
-                      autofocus: false,
                     ),
                   ),
                 ),

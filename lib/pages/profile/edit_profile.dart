@@ -534,24 +534,27 @@ class _EditProfile extends State<EditProfile>{
                     Card(
                       child: ListTile(
                         leading: Icon(Icons.calendar_today, color: Colors.green),
-                        title: DateTimePickerFormField(
-                          dateOnly: true,
-                          focusNode: datepickerfirst,
-                          inputType: InputType.date,
-                          initialValue:lahirX == null ? null :  DateTime.parse(lahirX),
-                          editable: false,
-                          format: DateFormat('dd-MM-y'),
-                          decoration: InputDecoration(
-                            hintText:  'Tanggal lahir',
-                          ),
-                          // resetIcon: FontAwesomeIcons.times,
-                          onChanged: (ini) {
-                            setState(() {
-                              lahir = ini == null ? null : ini.toString();
-                            });
-                          },
-                          autofocus: false,
-                        ),
+                        title: DateTimeField(
+                                readOnly: true,
+                                format: DateFormat('dd-MM-yyy'),
+                                  initialValue:lahirX == null ? DateTime.now() :  DateTime.parse(lahirX),
+                                  decoration: InputDecoration(
+                                    hintText: 'Tanggal Lahir',
+                                    hintStyle: TextStyle(fontSize: 13, color: Colors.black),
+                                  ),
+                                onShowPicker: (context, currentValue) {
+                                  return showDatePicker(
+                                      firstDate: DateTime(1900),
+                                      context: context,
+                                      initialDate: lahirX == null ? DateTime.now() :  DateTime.parse(lahirX),
+                                      lastDate: DateTime(2100));
+                                },
+                                onChanged: (ini) {
+                                  setState(() {
+                                          lahir = ini == null ? null : ini.toString();
+                                  });
+                                },
+                              ),
                       ),
                     ),
 

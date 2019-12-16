@@ -28,6 +28,8 @@ Map<String, String> requestHeaders = Map();
 List<ListItem> listItem = [];
 bool isLoading;
 bool isError;
+bool loadingaddcart;
+bool loadingtocheckout;
 
 class Detail extends StatefulWidget {
   final String id, nota, customer, status, total;
@@ -177,6 +179,8 @@ class _DetailState extends State<Detail> {
     listItem = [];
     isLoading = false;
     isError = false;
+    loadingaddcart = false;
+    loadingtocheckout = false;
     idX = id;
     notaX = nota;
     customerX = customer;
@@ -555,10 +559,11 @@ class _DetailState extends State<Detail> {
                                                     ButtonTheme(
                                                       minWidth: 0,
                                                       height: 20.0,
-                                                      buttonColor:
-                                                          Color(0xff388bf2),
                                                       child: FlatButton(
-                                                        onPressed: () async {
+                                                        onPressed:  () async {
+                                                          setState(() {
+                                                            loadingaddcart = true;
+                                                          });
                                                           if (stockiesX ==
                                                                   null ||
                                                               stockiesX ==
@@ -566,10 +571,16 @@ class _DetailState extends State<Detail> {
                                                               stockiesX == '') {
                                                             showInSnackBar(
                                                                 'Silahkan setting alamat dulu pada pengaturan akun');
+                                                                setState(() {
+                                                                  loadingaddcart = false;
+                                                                });
                                                           } else if (stockiesX ==
                                                               'Tidak Ada Cabang Terdekat') {
                                                             showInSnackBar(
                                                                 'Silahkan ubah alamat anda sesuai stockies yang ada pada cabang warung botol');
+                                                                setState(() {
+                                                                  loadingaddcart = false;
+                                                                });
                                                           } else {
                                                             try {
                                                               final adcart =
@@ -599,43 +610,66 @@ class _DetailState extends State<Detail> {
                                                                     'done') {
                                                                   showInSnackBar(
                                                                       '${item.nama} berhasil dimasukkan ke keranjang');
+                                                                      setState(() {
+                                                                        loadingaddcart = false;
+                                                                      });
                                                                 } else if (addcartJson[
                                                                         'status'] ==
                                                                     'minbeli') {
                                                                   showInSnackBar(
                                                                       '${addcartJson['minbuy']}');
+                                                                      setState(() {
+                                                                        loadingaddcart = false;
+                                                                      });
                                                                 } else if (addcartJson[
                                                                         'status'] ==
                                                                     'stockkurangminbeli') {
                                                                   showInSnackBar(
                                                                       '${addcartJson['message']}');
+                                                                      setState(() {
+                                                                        loadingaddcart = false;
+                                                                      });
                                                                 } else if (addcartJson[
                                                                         'status'] ==
                                                                     'maxstock') {
                                                                   showInSnackBar(
                                                                       '${addcartJson['messagestock']}');
+                                                                      setState(() {
+                                                                        loadingaddcart = false;
+                                                                      });
                                                                 } else if (addcartJson[
                                                                         'error'] ==
                                                                     'error') {
                                                                   showInSnackBar(
                                                                       '${item.nama} sudah ada dikeranjang');
+                                                                      setState(() {
+                                                                        loadingaddcart = false;
+                                                                      });
                                                                 } else if (addcartJson[
                                                                         'error'] ==
                                                                     'Berat Barang Belum Di Set') {
                                                                   showInSnackBar(
                                                                       'Mohon Maaf, berat barang belum disetting');
+                                                                      setState(() {
+                                                                        loadingaddcart = false;
+                                                                      });
                                                                 }
                                                               } else {
                                                                 print(
                                                                     '${adcart.body}');
+                                                                    setState(() {
+                                                                      loadingaddcart = false;
+                                                                    });
                                                               }
                                                             } on TimeoutException catch (_) {} catch (e) {
                                                               print(e);
+                                                              setState(() {
+                                                                  loadingaddcart = false;
+                                                              });
                                                             }
                                                           }
                                                         },
-                                                        child: new Text(
-                                                          'Beli Lagi',
+                                                        child: new Text(loadingaddcart == true ? 'Loading...' : 'Beli Lagi',
                                                           style: TextStyle(
                                                               color:
                                                                   Colors.white),
@@ -997,29 +1031,41 @@ class _DetailState extends State<Detail> {
                           height: 40.0,
                           width: 80.0,
                           child: RaisedButton(
-                            onPressed: () async {
+                            onPressed: loadingtocheckout == true ? null : () async {
+                              Navigator.pop(context);
+                              showInSnackBar(
+                                    'Sedang memproses permintaan anda, mohon tunggu sebentar');
+                              setState(() {
+                                loadingtocheckout = true;
+                              });
                               if (stockiesX == null ||
                                   stockiesX == 'null' ||
                                   stockiesX == '') {
                                 showInSnackBar(
                                     'Silahkan setting alamat dulu pada pengaturan akun');
+                                    setState(() {
+                                      loadingtocheckout = false;
+                                    });
                               } else if (stockiesX ==
                                   'Tidak Ada Cabang Terdekat') {
                                 showInSnackBar(
                                     'Silahkan ubah alamat anda sesuai stockies yang ada pada cabang warung botol');
+                                    setState(() {
+                                      loadingtocheckout = false;
+                                    });
                               } else {
                                 formSerialize = Map<String, dynamic>();
                                 formSerialize['cabang'] = null;
                                 formSerialize['item'] = List();
                                 formSerialize['qty'] = List();
-                                formSerialize['beratproduk'] = List();
+                                formSerialize['berat'] = List();
                                 formSerialize['namabarang'] = List();
 
                                 formSerialize['cabang'] = stockiesX;
                                 for (int i = 0; i < listItem.length; i++) {
                                   formSerialize['item'].add(listItem[i].code);
                                   formSerialize['qty'].add(listItem[i].qty);
-                                  formSerialize['beratproduk']
+                                  formSerialize['berat']
                                       .add(listItem[i].berat);
                                   formSerialize['namabarang']
                                       .add(listItem[i].nama);
@@ -1048,7 +1094,6 @@ class _DetailState extends State<Detail> {
                                         jsonDecode(response.body);
                                     if (responseJson['status'] == 'success') {
                                       Navigator.pop(context);
-                                      Navigator.pop(context);
                                       Navigator.pushReplacement(
                                           context,
                                           MaterialPageRoute(
@@ -1056,13 +1101,17 @@ class _DetailState extends State<Detail> {
                                           ));
                                     } else if (responseJson['status'] ==
                                         'erorstock') {
-                                      Navigator.pop(context);
                                       showInSnackBar(responseJson['error']);
+                                      setState(() {
+                                        loadingtocheckout = false;
+                                      });
                                     } else {
-                                      Navigator.pop(context);
                                       showInSnackBar(
                                           'Hubungi Pengembang Software');
                                       print('${response.body}');
+                                      setState(() {
+                                        loadingtocheckout = false;
+                                    });
                                     }
                                     print('response decoded $responseJson');
                                   } else {
@@ -1070,17 +1119,26 @@ class _DetailState extends State<Detail> {
                                     print('${response.body}');
                                     showInSnackBar(
                                         'Request failed with status: ${response.statusCode}');
+                                    setState(() {
+                                      loadingtocheckout = false;
+                                    });
                                   }
                                 } on TimeoutException catch (_) {
                                   Navigator.pop(context);
                                   showInSnackBar('Timed out, Try again');
+                                  setState(() {
+                                      loadingtocheckout = false;
+                                  });
                                 } catch (e) {
                                   print(e);
+                                  setState(() {
+                                      loadingtocheckout = false;
+                                  });
                                 }
                               }
                             },
                             color: Color(0xff31B057),
-                            child: Text("Ya",
+                            child: Text(loadingtocheckout == true ? 'Proses...' : "Ya",
                                 style: TextStyle(
                                     fontFamily: 'TitilliumWeb',
                                     fontSize: 16.0,

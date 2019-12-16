@@ -957,21 +957,15 @@ class _CheckoutState extends State<Checkout> {
                                     } else {
                                       showInSnackBar(
                                           'Sedang memproses permintaan anda, mohon tunggu sebentar');
-                                          setState(() {
-                                            loadingtransaksi = false;
-                                          });
                                       _checkoutSekarang();
                                     }
                                   } else {
                                     showInSnackBar(
                                         'Sedang memproses permintaan anda, mohon tunggu sebentar');
-                                        setState(() {
-                                            loadingtransaksi = false;
-                                          });
                                     _checkoutSekarang();
                                   }
                                 },
-                                child: Text(loadingtransaksi == true ? 'Tunggu Sebentar' : "Checkout Sekarang",
+                                child: Text( loadingtransaksi == true ? 'Tunggu Sebentar' : "Checkout Sekarang",
                                   style: TextStyle(fontSize: 14.0),
                                 ),
                               ),
@@ -996,7 +990,7 @@ class _CheckoutState extends State<Checkout> {
                                   _backtocart();
                                 },
                                 child: Text(
-                                  "Batal checkout / kembali ke keranjang",
+                                  loadingtocart == true ? 'Tunggu Sebentar' : "Batal checkout / kembali ke keranjang",
                                   style: TextStyle(fontSize: 14.0),
                                 ),
                               ),

@@ -960,20 +960,33 @@ class _DashboardPageState extends State<DashboardPage>
           children: <Widget>[
             ClipRRect(
               borderRadius: BorderRadius.circular(0),
-              child: Image(
-                image: NetworkImageWithRetry(
-                  entry.gambar != null
+              child: FadeInImage.assetNetwork(
+                            placeholder: 'images/noimage.jpg',
+                            image: entry.gambar != null
                       ? urladmin(
                           'storage/image/master/produk/${entry.gambar}',
                         )
                       : url(
                           'assets/img/noimage.jpg',
                         ),
-                ),
-                fit: BoxFit.cover,
+                          fit: BoxFit.cover,
                 height: 130.0,
                 width: MediaQuery.of(context).size.width,
               ),
+              // child: Image(
+              //   image: NetworkImageWithRetry(
+              //     entry.gambar != null
+              //         ? urladmin(
+              //             'storage/image/master/produk/${entry.gambar}',
+              //           )
+              //         : url(
+              //             'assets/img/noimage.jpg',
+              //           ),
+              //   ),
+              //   fit: BoxFit.cover,
+              //   height: 130.0,
+              //   width: MediaQuery.of(context).size.width,
+              // ),
             ),
             // SizedBox(height: 7),
             Padding(
@@ -1082,20 +1095,33 @@ class _DashboardPageState extends State<DashboardPage>
                   children: <Widget>[
                     ClipRRect(
                       borderRadius: BorderRadius.circular(0.0),
-                      child: Image(
-                        image: NetworkImageWithRetry(
-                          entry.gambar != null
+                      child: FadeInImage.assetNetwork(
+                            placeholder: 'images/noimage.jpg',
+                            image: entry.gambar != null
                               ? urladmin(
                                   'storage/image/master/produk/${entry.gambar}',
                                 )
                               : url(
                                   'assets/img/noimage.jpg',
                                 ),
-                        ),
-                        fit: BoxFit.cover,
+                          fit: BoxFit.cover,
                         height: 150.0,
                         width: MediaQuery.of(context).size.width,
-                      ),
+              ),
+                      // child: Image(
+                      //   image: NetworkImageWithRetry(
+                      //     entry.gambar != null
+                      //         ? urladmin(
+                      //             'storage/image/master/produk/${entry.gambar}',
+                      //           )
+                      //         : url(
+                      //             'assets/img/noimage.jpg',
+                      //           ),
+                      //   ),
+                      //   fit: BoxFit.cover,
+                      //   height: 150.0,
+                      //   width: MediaQuery.of(context).size.width,
+                      // ),
                     ),
                     Positioned(
                         top: 5.0,
@@ -1317,8 +1343,6 @@ class BackendService {
     requestHeaders['Accept'] = 'application/json';
     requestHeaders['Authorization'] = '$tokenTypeStorage $accessTokenStorage';
     var hitung = index;
-    // print(hitung);
-    // print(limit);
     try {
       final responseBody = await http.get(
         url('api/produk_beranda_android?_limit=$limit&count=$hitung'),
@@ -1344,7 +1368,6 @@ class BackendService {
           );
         }
         return listProduct;
-        // return ProductModel.fromJsonList(product);
       } else if (responseBody.statusCode == 401) {
         showInSnackBarDashboard('Token kedaluwarsa, silahkan login kembali');
         return null;
@@ -1407,10 +1430,6 @@ class BackendService {
         }
 
         return listRecommend;
-
-        // if (product != null) {
-        //   return RecomendationModel.fromJsonList(product);
-        // }
       } else if (responseBody.statusCode == 401) {
         showInSnackBarDashboard('Token kedaluwarsa, silahkan login kembali');
         return null;

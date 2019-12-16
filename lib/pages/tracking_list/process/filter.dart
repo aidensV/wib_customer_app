@@ -82,26 +82,26 @@ class _FilterTransaksiprocessState extends State<FilterTransaksiprocess> {
                   flex: 5,
                   child: Padding(
                     padding: const EdgeInsets.all(3.0),
-                    child: DateTimePickerFormField(
-                      initialValue: widget.tanggalawalprocess == 'kosong' ? null : DateTime.parse(_tanggalawalvalue),
-                      dateOnly: true,
-                      focusNode: datepickerfirst,
-                      inputType: InputType.date,
-                      editable: false,
-                      format: DateFormat('dd-MM-y'),
+                    child: DateTimeField(
+                      readOnly: true,
+                      format : DateFormat('dd-MM-yyy'),
+                      initialValue: widget.tanggalawalprocess == 'kosong' ? DateTime.now() : DateTime.parse(_tanggalawalvalue),
                       decoration: InputDecoration(
-                        //  border: InputBorder.none,
                         hintText: 'Tanggal Awal',
                         hintStyle: TextStyle(fontSize: 13, color: Colors.black),
                       ),
-                      // resetIcon: FontAwesomeIcons.times,
-                      onChanged: (ini) {
+                      onShowPicker: (context, currentValue) {
+                        return showDatePicker(
+                          firstDate: DateTime(1900),
+                          context: context,
+                          initialDate: widget.tanggalawalprocess == 'kosong' ? DateTime.now() : DateTime.parse(_tanggalawalvalue),
+                          lastDate: DateTime(2100));
+                        },
+                        onChanged: (ini) {
                         setState(() {
-                          _tanggalawal =
-                              ini == null ? 'kosong' : ini.toString();
+                          _tanggalawal =  ini == null ? 'kosong' : ini.toString();
                         });
                       },
-                      autofocus: false,
                     ),
                   ),
                 ),
@@ -109,24 +109,26 @@ class _FilterTransaksiprocessState extends State<FilterTransaksiprocess> {
                   flex: 5,
                   child: Padding(
                     padding: const EdgeInsets.all(3.0),
-                    child: DateTimePickerFormField(
-                      inputType: InputType.date,
-                      focusNode: datepickerlast,
-                      initialValue: widget.tanggalakhirprocess == 'kosong' ? null : DateTime.parse(_tanggalakhirvalue),
-                      editable: false,
-                      format: DateFormat('dd-MM-y'),
+                    child: DateTimeField(
+                      readOnly: true,
+                      format : DateFormat('dd-MM-yyy'),
+                      initialValue: widget.tanggalakhirprocess == 'kosong' ? DateTime.now() : DateTime.parse(_tanggalakhirvalue),
                       decoration: InputDecoration(
                         hintText: 'Tanggal Akhir',
                         hintStyle: TextStyle(fontSize: 13, color: Colors.black),
                       ),
-                      // resetIcon: FontAwesomeIcons.times,
-                      onChanged: (ini) {
+                      onShowPicker: (context, currentValue) {
+                        return showDatePicker(
+                          firstDate: DateTime(1900),
+                          context: context,
+                          initialDate: widget.tanggalakhirprocess == 'kosong' ? DateTime.now() : DateTime.parse(_tanggalakhirvalue),
+                          lastDate: DateTime(2100));
+                        },
+                        onChanged: (ini) {
                         setState(() {
-                          _tanggalakhir =
-                              ini == null ? 'kosong' : ini.toString();
+                          _tanggalakhir =  ini == null ? 'kosong' : ini.toString();
                         });
                       },
-                      autofocus: false,
                     ),
                   ),
                 ),

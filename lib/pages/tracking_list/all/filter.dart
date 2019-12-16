@@ -83,24 +83,27 @@ class _FilterTransaksiAllState extends State<FilterTransaksiAll> {
                   flex: 5,
                   child: Padding(
                     padding: const EdgeInsets.all(3.0),
-                    child: DateTimePickerFormField(
-                      dateOnly: true,
+                    child: DateTimeField(
+                      readOnly: true,
+                      format : DateFormat('dd-MM-yyy'),
                       focusNode: datepickerfirst,
-                      inputType: InputType.date,
-                      initialValue: widget.tanggalawalall == 'kosong' ? null : DateTime.parse(_tanggalawalvalue),
-                      editable: false,
-                      format: DateFormat('dd-MM-y'),
+                      initialValue: widget.tanggalawalall == 'kosong' ? DateTime.now() : DateTime.parse(_tanggalawalvalue),
                       decoration: InputDecoration(
-                        hintText:  'Tanggal Awal',
+                        hintText: 'Tanggal Awal',
                         hintStyle: TextStyle(fontSize: 13, color: Colors.black),
                       ),
-                      // resetIcon: FontAwesomeIcons.times,
-                      onChanged: (ini) {
+                      onShowPicker: (context, currentValue) {
+                        return showDatePicker(
+                          firstDate: DateTime(1900),
+                          context: context,
+                          initialDate: widget.tanggalawalall == 'kosong' ? DateTime.now() : DateTime.parse(_tanggalawalvalue),
+                          lastDate: DateTime(2100));
+                        },
+                        onChanged: (ini) {
                         setState(() {
-                          _tanggalawal = ini == null ? 'kosong' : ini.toString();
+                          _tanggalawal =  ini == null ? 'kosong' : ini.toString();
                         });
                       },
-                      autofocus: false,
                     ),
                   ),
                 ),
@@ -109,26 +112,48 @@ class _FilterTransaksiAllState extends State<FilterTransaksiAll> {
                   flex: 5,
                   child: Padding(
                     padding: const EdgeInsets.all(3.0),
-                    child: DateTimePickerFormField(
-                      inputType: InputType.date,
+                    child: DateTimeField(
+                      readOnly: true,
+                      format : DateFormat('dd-MM-yyy'),
                       focusNode: datepickerlast,
-                      initialValue: widget.tanggalakhirall == 'kosong' ? null : DateTime.parse(_tanggalakhirvalue),
-                      // controller: _tanggalakhirController,
-                      editable: false,
-                      format: DateFormat('dd-MM-yyyy'),
-                      decoration: InputDecoration(
-                        // border: InputBorder.none,
+                      initialValue: widget.tanggalakhirall == 'kosong' ? DateTime.now() : DateTime.parse(_tanggalakhirvalue),
+                        decoration: InputDecoration(
                         hintText: 'Tanggal Akhir',
                         hintStyle: TextStyle(fontSize: 13, color: Colors.black),
                       ),
-                      // resetIcon: FontAwesomeIcons.times,
-                      onChanged: (ini) {
+                      onShowPicker: (context, currentValue) {
+                        return showDatePicker(
+                          firstDate: DateTime(1900),
+                          context: context,
+                          initialDate: widget.tanggalakhirall == 'kosong' ? DateTime.now() : DateTime.parse(_tanggalakhirvalue),
+                          lastDate: DateTime(2100));
+                        },
+                        onChanged: (ini) {
                         setState(() {
                           _tanggalakhir =  ini == null ? 'kosong' : ini.toString();
                         });
                       },
-                      autofocus: false,
                     ),
+                    // child: DateTimePickerFormField(
+                    //   inputType: InputType.date,
+                    //   focusNode: datepickerlast,
+                    //   initialValue: widget.tanggalakhirall == 'kosong' ? null : DateTime.parse(_tanggalakhirvalue),
+                    //   // controller: _tanggalakhirController,
+                    //   editable: false,
+                    //   format: DateFormat('dd-MM-yyyy'),
+                    //   decoration: InputDecoration(
+                    //     // border: InputBorder.none,
+                    //     hintText: 'Tanggal Akhir',
+                    //     hintStyle: TextStyle(fontSize: 13, color: Colors.black),
+                    //   ),
+                    //   // resetIcon: FontAwesomeIcons.times,
+                    //   onChanged: (ini) {
+                    //     setState(() {
+                    //       _tanggalakhir =  ini == null ? 'kosong' : ini.toString();
+                    //     });
+                    //   },
+                    //   autofocus: false,
+                    // ),
                   ),
                 ),
               ],
