@@ -43,6 +43,9 @@ NotificationService notificationService;
 PagewiseLoadController pagewiseLoadControllerVertical,
     pageWiseLoadControllerHorizontal;
 
+List<RecomendationModel> listRecommend;
+List<ProductModel> listProduct;
+
 showInSnackBarDashboard(String content) {
   _scaffoldKeyDashboard.currentState.showSnackBar(
     SnackBar(
@@ -276,6 +279,9 @@ class _DashboardPageState extends State<DashboardPage>
     _scaffoldKeyDashboard = GlobalKey<ScaffoldState>();
     listBannerSlider = List();
     listBannerBasic = List();
+    listRecommend = List();
+    listProduct = List();
+
     listBannerAndroid();
     pageWiseLoadControllerHorizontal = PagewiseLoadController(
       pageSize: pageSize,
@@ -344,11 +350,10 @@ class _DashboardPageState extends State<DashboardPage>
                   height: 30,
                   child: imageprofile != null
                       ? ClipOval(
-                          child: Image(
-                            fit: BoxFit.cover,
-                            image: NetworkImageWithRetry(
-                              url('storage/image/member/profile/$imageprofile'),
-                            ),
+                          child: FadeInImage.assetNetwork(
+                            placeholder: 'images/noimage.jpg',
+                            image: url(
+                                'storage/image/member/profile/$imageprofile'),
                           ),
                         )
                       : Image.asset('images/jisoocu.jpg'),
@@ -1308,19 +1313,38 @@ class BackendService {
 
     var tokenTypeStorage = await storage.getDataString('token_type');
     var accessTokenStorage = await storage.getDataString('access_token');
+
+    requestHeaders['Accept'] = 'application/json';
+    requestHeaders['Authorization'] = '$tokenTypeStorage $accessTokenStorage';
     var hitung = index;
     // print(hitung);
     // print(limit);
     try {
       final responseBody = await http.get(
-          url('api/produk_beranda_android?_limit=$limit&count=$hitung'),
-          headers: {"Authorization": "$tokenTypeStorage $accessTokenStorage"});
+        url('api/produk_beranda_android?_limit=$limit&count=$hitung'),
+        headers: requestHeaders,
+      );
 
       if (responseBody.statusCode == 200) {
         var data = json.decode(responseBody.body);
         var product = data['semuaitem'];
-
-        return ProductModel.fromJsonList(product);
+        listProduct = List();
+        for (data in product) {
+          listProduct.add(
+            ProductModel(
+              item: data['i_name'],
+              price: data['ipr_sunitprice'],
+              gambar: data['ip_path'],
+              code: data['i_code'],
+              wishlist: data['wl_ciproduct'],
+              desc: data['itp_tagdesc'],
+              tipe: data['ity_name'],
+              diskon: data['gpp_sellprice'],
+            ),
+          );
+        }
+        return listProduct;
+        // return ProductModel.fromJsonList(product);
       } else if (responseBody.statusCode == 401) {
         showInSnackBarDashboard('Token kedaluwarsa, silahkan login kembali');
         return null;
@@ -1352,18 +1376,41 @@ class BackendService {
     var tokenTypeStorage = await storage.getDataString('token_type');
     var accessTokenStorage = await storage.getDataString('access_token');
 
+    requestHeaders['Accept'] = 'application/json';
+    requestHeaders['Authorization'] = '$tokenTypeStorage $accessTokenStorage';
+
     try {
       final responseBody = await http.get(
-          url('api/produk_beranda_android?_limit=0&_recLimit=$limit'),
-          headers: {"Authorization": "$tokenTypeStorage $accessTokenStorage"});
+        url('api/produk_beranda_android?_limit=0&_recLimit=$limit'),
+        headers: requestHeaders,
+      );
 
       if (responseBody.statusCode == 200) {
         var data = json.decode(responseBody.body);
         var product = data['itemslider'];
 
-        if (product != null) {
-          return RecomendationModel.fromJsonList(product);
+        listRecommend = List();
+
+        for (data in product) {
+          listRecommend.add(
+            RecomendationModel(
+              item: data['i_name'],
+              price: data['ipr_sunitprice'],
+              gambar: data['ip_path'],
+              code: data['i_code'],
+              wishlist: data['wl_ciproduct'],
+              desc: data['itp_tagdesc'],
+              tipe: data['ity_name'],
+              diskon: data['gpp_sellprice'],
+            ),
+          );
         }
+
+        return listRecommend;
+
+        // if (product != null) {
+        //   return RecomendationModel.fromJsonList(product);
+        // }
       } else if (responseBody.statusCode == 401) {
         showInSnackBarDashboard('Token kedaluwarsa, silahkan login kembali');
         return null;
@@ -1384,7 +1431,6 @@ class BackendService {
       return null;
     } catch (e) {
       print('Error : $e');
-      showInSnackBarDashboard('Error : ${e.toString()}');
     }
     return null;
   }
@@ -1399,6 +1445,17 @@ class ProductModel {
   String desc;
   String tipe;
   String diskon;
+
+  ProductModel({
+    this.code,
+    this.desc,
+    this.diskon,
+    this.gambar,
+    this.item,
+    this.price,
+    this.tipe,
+    this.wishlist,
+  });
 
   ProductModel.fromJson(obj) {
     this.item = obj['i_name'];
@@ -1434,6 +1491,17 @@ class RecomendationModel {
   String desc;
   String tipe;
   String diskon;
+
+  RecomendationModel({
+    this.item,
+    this.code,
+    this.desc,
+    this.diskon,
+    this.gambar,
+    this.price,
+    this.tipe,
+    this.wishlist,
+  });
 
   RecomendationModel.fromJson(obj) {
     this.item = obj['i_name'];
