@@ -15,6 +15,7 @@ String tokenType, accessToken, totalhargaX;
 bool isLoading;
 bool isLogout;
 bool isError;
+bool loadingtocheckout;
 Map<String, String> requestHeaders = Map();
 
 class Keranjang extends StatefulWidget {
@@ -163,6 +164,7 @@ class _KeranjangState extends State<Keranjang> {
     totalhargaX = null;
     isLoading = true;
     isLogout = false;
+    loadingtocheckout = false;
     isError = false;
     print(requestHeaders);
     super.initState();
@@ -981,11 +983,14 @@ class _KeranjangState extends State<Keranjang> {
                     child: RaisedButton(
                   color: Colors.green,
                   textColor: Colors.white,
-                  disabledColor: Colors.grey,
-                  disabledTextColor: Colors.black,
+                  disabledColor: Colors.green[400],
+                  disabledTextColor: Colors.white,
                   padding: EdgeInsets.all(15.0),
                   splashColor: Colors.blueAccent,
-                  onPressed: () async {
+                  onPressed: loadingtocheckout == true ? null : () async {
+                    setState(() {
+                      loadingtocheckout = true;
+                    });
                     try {
                       final tambahqty = await http.post(
                         url('api/gocheckkeranjangAndroid'),
@@ -996,32 +1001,35 @@ class _KeranjangState extends State<Keranjang> {
                         var tambahqtyJson = json.decode(tambahqty.body);
                         if (tambahqtyJson['status'] == 'Success') {
                           Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Checkout()));
-                          // Navigator.push(
-                          //     context,
-                          //     MaterialPageRoute(
-                          //       builder: (context) => Checkout(),
-                          //     ));
 
                         } else if (tambahqtyJson['status'] == 'failed') {
 
                           for (int i = 0; i < tambahqtyJson['namaproduk'].length; i++) {
                             showInSnackBar('${tambahqtyJson['namaproduk'][i]} Jumlahnya 0');  
                           }
+                          setState(() {
+                            loadingtocheckout = false;
+                          });
                           
                         }
                       } else {
                         showInSnackBar(
                             'Request failed with status: ${tambahqty.statusCode}');
+                        setState(() {
+                            loadingtocheckout = false;
+                          });
                         print('${tambahqty.body}');
                       }
                     } on TimeoutException catch (_) {
                       showInSnackBar('Timed out, Try again');
+                      setState(() {
+                            loadingtocheckout = false;
+                      });
                     } catch (e) {
                       print(e);
                     }
                   },
-                  child: Text(
-                    "Bayar Semua Barang",
+                  child: Text(loadingtocheckout == true ? "Tunggu sebentar" : "Bayar Semua Barang",
                     style: TextStyle(fontSize: 18.0),
                   ),
                 ),
