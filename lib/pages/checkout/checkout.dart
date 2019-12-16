@@ -28,6 +28,8 @@ Map<String, String> requestHeaders = Map();
 bool isLoading;
 bool isError;
 bool isLogout;
+bool loadingtocart;
+bool loadingtransaksi;
 Map<String, dynamic> formSerialize;
 ListProvinsi selectedProvinsi;
 ListKabupaten selectedKabupaten;
@@ -260,6 +262,8 @@ class _CheckoutState extends State<Checkout> {
     isLoading = true;
     isError = false;
     isLogout = false;
+    loadingtocart = false;
+    loadingtransaksi  = false;
     checkboxnoongkir = 'aktif';
     checkboxongkirsaldo = 'aktif';
     checkboxtotalsaldo = 'aktif';
@@ -907,44 +911,67 @@ class _CheckoutState extends State<Checkout> {
                               child: RaisedButton(
                                 color: Colors.green,
                                 textColor: Colors.white,
-                                disabledColor: Colors.grey,
-                                disabledTextColor: Colors.black,
+                                disabledColor: Colors.green[400],
+                                disabledTextColor: Colors.white,
                                 padding: EdgeInsets.all(15.0),
                                 splashColor: Colors.blueAccent,
-                                onPressed: () async {
+                                onPressed: loadingtransaksi == true ? null : () async {
+                                  setState(() {
+                                    loadingtransaksi = true;
+                                  });
                                   if (_value2 == false) {
                                     if (selectedProvinsi == null) {
                                       showInSnackBar(
                                           'Silahkan pilih provinsi terlebih dahulu');
+                                          setState(() {
+                                            loadingtransaksi = false;
+                                          });
                                     } else if (selectedKabupaten == null) {
                                       showInSnackBar(
                                           'Silahkan pilih kabupaten/kota terlebih dahulu');
+                                          setState(() {
+                                            loadingtransaksi = false;
+                                          });
                                     } else if (selectedkecamatan == null) {
                                       showInSnackBar(
                                           'Silahkan pilih kecamatan terlebih dahulu');
+                                          setState(() {
+                                            loadingtransaksi = false;
+                                          });
                                     } else if (kodeposController.text.length ==
                                             0 ||
                                         kodeposController.text == null) {
                                       showInSnackBar(
                                           'Silahkan masukkan kodepos terlebih dahulu');
+                                          setState(() {
+                                            loadingtransaksi = false;
+                                          });
                                     } else if (alamatController.text.length ==
                                             0 ||
                                         alamatController.text == null) {
                                       showInSnackBar(
                                           'Silahkan masukkan alamat lengkap terlebih dahulu');
+                                          setState(() {
+                                            loadingtransaksi = false;
+                                          });
                                     } else {
                                       showInSnackBar(
                                           'Sedang memproses permintaan anda, mohon tunggu sebentar');
+                                          setState(() {
+                                            loadingtransaksi = false;
+                                          });
                                       _checkoutSekarang();
                                     }
                                   } else {
                                     showInSnackBar(
                                         'Sedang memproses permintaan anda, mohon tunggu sebentar');
+                                        setState(() {
+                                            loadingtransaksi = false;
+                                          });
                                     _checkoutSekarang();
                                   }
                                 },
-                                child: Text(
-                                  "Checkout Sekarang",
+                                child: Text(loadingtransaksi == true ? 'Tunggu Sebentar' : "Checkout Sekarang",
                                   style: TextStyle(fontSize: 14.0),
                                 ),
                               ),
@@ -958,11 +985,14 @@ class _CheckoutState extends State<Checkout> {
                               child: RaisedButton(
                                 color: Colors.white,
                                 textColor: Colors.green,
-                                disabledColor: Colors.grey,
-                                disabledTextColor: Colors.black,
+                                disabledColor: Colors.white,
+                                disabledTextColor: Colors.green[400],
                                 padding: EdgeInsets.all(15.0),
                                 splashColor: Colors.blueAccent,
-                                onPressed: () async {
+                                onPressed: loadingtocart == true ? null : () async {
+                                  setState(() {
+                                    loadingtocart = true;
+                                  });
                                   _backtocart();
                                 },
                                 child: Text(
@@ -1101,10 +1131,19 @@ class _CheckoutState extends State<Checkout> {
               context, MaterialPageRoute(builder: (context) => TrackingList()));
         } else if (responseJson['status'] == 'erorstock') {
           showInSnackBar('Eror Stock, ${responseJson['error']}');
+          setState(() {
+            loadingtransaksi = false;
+          });
         } else if (responseJson['status'] == 'saldokurang') {
           showInSnackBar('Saldo anda tidak mencukupi');
+          setState(() {
+            loadingtransaksi = false;
+          });
         } else if (responseJson['error'] == 'Saldo Anda Tidak Cukup') {
           showInSnackBar('Saldo anda tidak mencukupi');
+          setState(() {
+            loadingtransaksi = false;
+          });
         } else if (responseJson['status'] == 'kosong') {
           showInSnackBar('Anda tidak memiliki item untuk checkout');
           Navigator.pushReplacement(context,
@@ -1114,9 +1153,15 @@ class _CheckoutState extends State<Checkout> {
       } else {
         print('${response.body}');
         showInSnackBar('Request failed with status: ${response.statusCode}');
+        setState(() {
+            loadingtransaksi = false;
+          });
       }
     } on TimeoutException catch (_) {
       showInSnackBar('Timed out, Try again');
+      setState(() {
+            loadingtransaksi = false;
+          });
     } catch (e) {
       print(e);
     }
@@ -1153,14 +1198,23 @@ class _CheckoutState extends State<Checkout> {
           Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (context) => Keranjang()));
         } else if (responseJson['status'] == 'gagal') {
-          showInSnackBar('Hubungi Pengembang Software');
+          showInSnackBar('gagal, silahkan coba lagi');
+          setState(() {
+            loadingtocart = false;
+          });
         }
       } else {
         print('${response.body}');
         showInSnackBar('Request failed with status: ${response.statusCode}');
+        setState(() {
+            loadingtocart = false;
+          });
       }
     } on TimeoutException catch (_) {
       showInSnackBar('Timed out, Try again');
+      setState(() {
+        loadingtocart = false;
+      });
     } catch (e) {
       print(e);
     }
