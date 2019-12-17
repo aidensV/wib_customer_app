@@ -302,16 +302,17 @@ class _WishlistState extends State<Wishlist> {
                                                 ),
                                               );
                                             },
-                                            leading: new Image(
-                                              image: new NetworkImageWithRetry(
-                                                listNota[index].image != null
-                                                    ? urladmin(
-                                                        'storage/image/master/produk/${listNota[index].image}',
-                                                      )
-                                                    : url(
-                                                        'assets/img/noimage.jpg',
-                                                      ),
-                                              ),
+                                            leading:
+                                                new FadeInImage.assetNetwork(
+                                              placeholder: 'images/noimage.jpg',
+                                              image:
+                                                  listNota[index].image != null
+                                                      ? urladmin(
+                                                          'storage/image/master/produk/${listNota[index].image}',
+                                                        )
+                                                      : url(
+                                                          'assets/img/noimage.jpg',
+                                                        ),
                                               width: 70.0,
                                               height: 100.0,
                                             ),

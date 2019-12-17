@@ -173,7 +173,6 @@ class _DetailState extends State<Detail> {
     return null;
   }
 
-
   @override
   void initState() {
     listItem = [];
@@ -560,9 +559,10 @@ class _DetailState extends State<Detail> {
                                                       minWidth: 0,
                                                       height: 20.0,
                                                       child: FlatButton(
-                                                        onPressed:  () async {
+                                                        onPressed: () async {
                                                           setState(() {
-                                                            loadingaddcart = true;
+                                                            loadingaddcart =
+                                                                true;
                                                           });
                                                           if (stockiesX ==
                                                                   null ||
@@ -571,16 +571,18 @@ class _DetailState extends State<Detail> {
                                                               stockiesX == '') {
                                                             showInSnackBar(
                                                                 'Silahkan setting alamat dulu pada pengaturan akun');
-                                                                setState(() {
-                                                                  loadingaddcart = false;
-                                                                });
+                                                            setState(() {
+                                                              loadingaddcart =
+                                                                  false;
+                                                            });
                                                           } else if (stockiesX ==
                                                               'Tidak Ada Cabang Terdekat') {
                                                             showInSnackBar(
                                                                 'Silahkan ubah alamat anda sesuai stockies yang ada pada cabang warung botol');
-                                                                setState(() {
-                                                                  loadingaddcart = false;
-                                                                });
+                                                            setState(() {
+                                                              loadingaddcart =
+                                                                  false;
+                                                            });
                                                           } else {
                                                             try {
                                                               final adcart =
@@ -610,66 +612,77 @@ class _DetailState extends State<Detail> {
                                                                     'done') {
                                                                   showInSnackBar(
                                                                       '${item.nama} berhasil dimasukkan ke keranjang');
-                                                                      setState(() {
-                                                                        loadingaddcart = false;
-                                                                      });
+                                                                  setState(() {
+                                                                    loadingaddcart =
+                                                                        false;
+                                                                  });
                                                                 } else if (addcartJson[
                                                                         'status'] ==
                                                                     'minbeli') {
                                                                   showInSnackBar(
                                                                       '${addcartJson['minbuy']}');
-                                                                      setState(() {
-                                                                        loadingaddcart = false;
-                                                                      });
+                                                                  setState(() {
+                                                                    loadingaddcart =
+                                                                        false;
+                                                                  });
                                                                 } else if (addcartJson[
                                                                         'status'] ==
                                                                     'stockkurangminbeli') {
                                                                   showInSnackBar(
                                                                       '${addcartJson['message']}');
-                                                                      setState(() {
-                                                                        loadingaddcart = false;
-                                                                      });
+                                                                  setState(() {
+                                                                    loadingaddcart =
+                                                                        false;
+                                                                  });
                                                                 } else if (addcartJson[
                                                                         'status'] ==
                                                                     'maxstock') {
                                                                   showInSnackBar(
                                                                       '${addcartJson['messagestock']}');
-                                                                      setState(() {
-                                                                        loadingaddcart = false;
-                                                                      });
+                                                                  setState(() {
+                                                                    loadingaddcart =
+                                                                        false;
+                                                                  });
                                                                 } else if (addcartJson[
                                                                         'error'] ==
                                                                     'error') {
                                                                   showInSnackBar(
                                                                       '${item.nama} sudah ada dikeranjang');
-                                                                      setState(() {
-                                                                        loadingaddcart = false;
-                                                                      });
+                                                                  setState(() {
+                                                                    loadingaddcart =
+                                                                        false;
+                                                                  });
                                                                 } else if (addcartJson[
                                                                         'error'] ==
                                                                     'Berat Barang Belum Di Set') {
                                                                   showInSnackBar(
                                                                       'Mohon Maaf, berat barang belum disetting');
-                                                                      setState(() {
-                                                                        loadingaddcart = false;
-                                                                      });
+                                                                  setState(() {
+                                                                    loadingaddcart =
+                                                                        false;
+                                                                  });
                                                                 }
                                                               } else {
                                                                 print(
                                                                     '${adcart.body}');
-                                                                    setState(() {
-                                                                      loadingaddcart = false;
-                                                                    });
+                                                                setState(() {
+                                                                  loadingaddcart =
+                                                                      false;
+                                                                });
                                                               }
                                                             } on TimeoutException catch (_) {} catch (e) {
                                                               print(e);
                                                               setState(() {
-                                                                  loadingaddcart = false;
+                                                                loadingaddcart =
+                                                                    false;
                                                               });
                                                             }
                                                           }
                                                         },
-                                                        child: new Text(loadingaddcart == true ? 'Loading...' : 'Beli Lagi',
+                                                        child: new Text(
+                                                          loadingaddcart == true
+                                                              ? 'Loading...'
+                                                              : 'Beli Lagi',
                                                           style: TextStyle(
                                                               color:
                                                                   Colors.white),
@@ -695,8 +708,10 @@ class _DetailState extends State<Detail> {
                                             children: <Widget>[
                                               Expanded(
                                                 flex: 4,
-                                                child: Image.network(
-                                                  item.image != null
+                                                child: FadeInImage.assetNetwork(
+                                                  placeholder:
+                                                      'images/noimage.jpg',
+                                                  image: item.image != null
                                                       ? urladmin(
                                                           'storage/image/master/produk/${item.image}',
                                                         )
@@ -1031,114 +1046,125 @@ class _DetailState extends State<Detail> {
                           height: 40.0,
                           width: 80.0,
                           child: RaisedButton(
-                            onPressed: loadingtocheckout == true ? null : () async {
-                              Navigator.pop(context);
-                              showInSnackBar(
-                                    'Sedang memproses permintaan anda, mohon tunggu sebentar');
-                              setState(() {
-                                loadingtocheckout = true;
-                              });
-                              if (stockiesX == null ||
-                                  stockiesX == 'null' ||
-                                  stockiesX == '') {
-                                showInSnackBar(
-                                    'Silahkan setting alamat dulu pada pengaturan akun');
+                            onPressed: loadingtocheckout == true
+                                ? null
+                                : () async {
+                                    Navigator.pop(context);
+                                    showInSnackBar(
+                                        'Sedang memproses permintaan anda, mohon tunggu sebentar');
                                     setState(() {
-                                      loadingtocheckout = false;
+                                      loadingtocheckout = true;
                                     });
-                              } else if (stockiesX ==
-                                  'Tidak Ada Cabang Terdekat') {
-                                showInSnackBar(
-                                    'Silahkan ubah alamat anda sesuai stockies yang ada pada cabang warung botol');
-                                    setState(() {
-                                      loadingtocheckout = false;
-                                    });
-                              } else {
-                                formSerialize = Map<String, dynamic>();
-                                formSerialize['cabang'] = null;
-                                formSerialize['item'] = List();
-                                formSerialize['qty'] = List();
-                                formSerialize['berat'] = List();
-                                formSerialize['namabarang'] = List();
-
-                                formSerialize['cabang'] = stockiesX;
-                                for (int i = 0; i < listItem.length; i++) {
-                                  formSerialize['item'].add(listItem[i].code);
-                                  formSerialize['qty'].add(listItem[i].qty);
-                                  formSerialize['berat']
-                                      .add(listItem[i].berat);
-                                  formSerialize['namabarang']
-                                      .add(listItem[i].nama);
-                                }
-
-                                print(formSerialize);
-
-                                Map<String, dynamic> requestHeadersX =
-                                    requestHeaders;
-
-                                requestHeadersX['Content-Type'] =
-                                    "application/x-www-form-urlencoded";
-                                try {
-                                  final response = await http.post(
-                                    url('api/checkout_repeat_order_android'),
-                                    headers: requestHeadersX,
-                                    body: {
-                                      'type_platform': 'android',
-                                      'data': jsonEncode(formSerialize),
-                                    },
-                                    encoding: Encoding.getByName("utf-8"),
-                                  );
-
-                                  if (response.statusCode == 200) {
-                                    dynamic responseJson =
-                                        jsonDecode(response.body);
-                                    if (responseJson['status'] == 'success') {
-                                      Navigator.pop(context);
-                                      Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => Checkout(),
-                                          ));
-                                    } else if (responseJson['status'] ==
-                                        'erorstock') {
-                                      showInSnackBar(responseJson['error']);
+                                    if (stockiesX == null ||
+                                        stockiesX == 'null' ||
+                                        stockiesX == '') {
+                                      showInSnackBar(
+                                          'Silahkan setting alamat dulu pada pengaturan akun');
+                                      setState(() {
+                                        loadingtocheckout = false;
+                                      });
+                                    } else if (stockiesX ==
+                                        'Tidak Ada Cabang Terdekat') {
+                                      showInSnackBar(
+                                          'Silahkan ubah alamat anda sesuai stockies yang ada pada cabang warung botol');
                                       setState(() {
                                         loadingtocheckout = false;
                                       });
                                     } else {
-                                      showInSnackBar(
-                                          'Hubungi Pengembang Software');
-                                      print('${response.body}');
-                                      setState(() {
-                                        loadingtocheckout = false;
-                                    });
+                                      formSerialize = Map<String, dynamic>();
+                                      formSerialize['cabang'] = null;
+                                      formSerialize['item'] = List();
+                                      formSerialize['qty'] = List();
+                                      formSerialize['berat'] = List();
+                                      formSerialize['namabarang'] = List();
+
+                                      formSerialize['cabang'] = stockiesX;
+                                      for (int i = 0;
+                                          i < listItem.length;
+                                          i++) {
+                                        formSerialize['item']
+                                            .add(listItem[i].code);
+                                        formSerialize['qty']
+                                            .add(listItem[i].qty);
+                                        formSerialize['berat']
+                                            .add(listItem[i].berat);
+                                        formSerialize['namabarang']
+                                            .add(listItem[i].nama);
+                                      }
+
+                                      print(formSerialize);
+
+                                      Map<String, dynamic> requestHeadersX =
+                                          requestHeaders;
+
+                                      requestHeadersX['Content-Type'] =
+                                          "application/x-www-form-urlencoded";
+                                      try {
+                                        final response = await http.post(
+                                          url('api/checkout_repeat_order_android'),
+                                          headers: requestHeadersX,
+                                          body: {
+                                            'type_platform': 'android',
+                                            'data': jsonEncode(formSerialize),
+                                          },
+                                          encoding: Encoding.getByName("utf-8"),
+                                        );
+
+                                        if (response.statusCode == 200) {
+                                          dynamic responseJson =
+                                              jsonDecode(response.body);
+                                          if (responseJson['status'] ==
+                                              'success') {
+                                            Navigator.pop(context);
+                                            Navigator.pushReplacement(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      Checkout(),
+                                                ));
+                                          } else if (responseJson['status'] ==
+                                              'erorstock') {
+                                            showInSnackBar(
+                                                responseJson['error']);
+                                            setState(() {
+                                              loadingtocheckout = false;
+                                            });
+                                          } else {
+                                            showInSnackBar(
+                                                'Hubungi Pengembang Software');
+                                            print('${response.body}');
+                                            setState(() {
+                                              loadingtocheckout = false;
+                                            });
+                                          }
+                                          print(
+                                              'response decoded $responseJson');
+                                        } else {
+                                          Navigator.pop(context);
+                                          print('${response.body}');
+                                          showInSnackBar(
+                                              'Request failed with status: ${response.statusCode}');
+                                          setState(() {
+                                            loadingtocheckout = false;
+                                          });
+                                        }
+                                      } on TimeoutException catch (_) {
+                                        Navigator.pop(context);
+                                        showInSnackBar('Timed out, Try again');
+                                        setState(() {
+                                          loadingtocheckout = false;
+                                        });
+                                      } catch (e) {
+                                        print(e);
+                                        setState(() {
+                                          loadingtocheckout = false;
+                                        });
+                                      }
                                     }
-                                    print('response decoded $responseJson');
-                                  } else {
-                                    Navigator.pop(context);
-                                    print('${response.body}');
-                                    showInSnackBar(
-                                        'Request failed with status: ${response.statusCode}');
-                                    setState(() {
-                                      loadingtocheckout = false;
-                                    });
-                                  }
-                                } on TimeoutException catch (_) {
-                                  Navigator.pop(context);
-                                  showInSnackBar('Timed out, Try again');
-                                  setState(() {
-                                      loadingtocheckout = false;
-                                  });
-                                } catch (e) {
-                                  print(e);
-                                  setState(() {
-                                      loadingtocheckout = false;
-                                  });
-                                }
-                              }
-                            },
+                                  },
                             color: Color(0xff31B057),
-                            child: Text(loadingtocheckout == true ? 'Proses...' : "Ya",
+                            child: Text(
+                                loadingtocheckout == true ? 'Proses...' : "Ya",
                                 style: TextStyle(
                                     fontFamily: 'TitilliumWeb',
                                     fontSize: 16.0,

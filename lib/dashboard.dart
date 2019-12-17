@@ -961,15 +961,15 @@ class _DashboardPageState extends State<DashboardPage>
             ClipRRect(
               borderRadius: BorderRadius.circular(0),
               child: FadeInImage.assetNetwork(
-                            placeholder: 'images/noimage.jpg',
-                            image: entry.gambar != null
-                      ? urladmin(
-                          'storage/image/master/produk/${entry.gambar}',
-                        )
-                      : url(
-                          'assets/img/noimage.jpg',
-                        ),
-                          fit: BoxFit.cover,
+                placeholder: 'images/noimage.jpg',
+                image: entry.gambar != null
+                    ? urladmin(
+                        'storage/image/master/produk/${entry.gambar}',
+                      )
+                    : url(
+                        'assets/img/noimage.jpg',
+                      ),
+                fit: BoxFit.cover,
                 height: 130.0,
                 width: MediaQuery.of(context).size.width,
               ),
@@ -1096,18 +1096,18 @@ class _DashboardPageState extends State<DashboardPage>
                     ClipRRect(
                       borderRadius: BorderRadius.circular(0.0),
                       child: FadeInImage.assetNetwork(
-                            placeholder: 'images/noimage.jpg',
-                            image: entry.gambar != null
-                              ? urladmin(
-                                  'storage/image/master/produk/${entry.gambar}',
-                                )
-                              : url(
-                                  'assets/img/noimage.jpg',
-                                ),
-                          fit: BoxFit.cover,
+                        placeholder: 'images/noimage.jpg',
+                        image: entry.gambar != null
+                            ? urladmin(
+                                'storage/image/master/produk/${entry.gambar}',
+                              )
+                            : url(
+                                'assets/img/noimage.jpg',
+                              ),
+                        fit: BoxFit.cover,
                         height: 150.0,
                         width: MediaQuery.of(context).size.width,
-              ),
+                      ),
                       // child: Image(
                       //   image: NetworkImageWithRetry(
                       //     entry.gambar != null

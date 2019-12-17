@@ -465,9 +465,9 @@ class _KeranjangState extends State<Keranjang> {
                                           children: <Widget>[
                                             Expanded(
                                               flex: 5,
-                                              child: new Image(
-                                                image:
-                                                    new NetworkImageWithRetry(
+                                              child: new FadeInImage.assetNetwork(
+                                              placeholder: 'images/noimage.jpg',
+                                              image:
                                                   listNota[index].image != null
                                                       ? urladmin(
                                                           'storage/image/master/produk/${listNota[index].image}',
@@ -475,10 +475,9 @@ class _KeranjangState extends State<Keranjang> {
                                                       : url(
                                                           'assets/img/noimage.jpg',
                                                         ),
-                                                ),
-                                                width: 100.0,
-                                                height: 100.0,
-                                              ),
+                                              width: 100.0,
+                                              height: 100.0,
+                                            ),
                                             ),
                                             Expanded(
                                               flex: 5,
