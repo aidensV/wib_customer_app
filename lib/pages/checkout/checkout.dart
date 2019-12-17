@@ -263,7 +263,7 @@ class _CheckoutState extends State<Checkout> {
     isError = false;
     isLogout = false;
     loadingtocart = false;
-    loadingtransaksi  = false;
+    loadingtransaksi = false;
     checkboxnoongkir = 'aktif';
     checkboxongkirsaldo = 'aktif';
     checkboxtotalsaldo = 'aktif';
@@ -678,7 +678,7 @@ class _CheckoutState extends State<Checkout> {
                           Container(
                             margin: EdgeInsets.only(
                               bottom: 30.0,
-                              top:20.0,
+                              top: 20.0,
                               left: 10.0,
                               right: 10.0,
                             ),
@@ -760,17 +760,18 @@ class _CheckoutState extends State<Checkout> {
                                                     children: <Widget>[
                                                       Expanded(
                                                         flex: 5,
-                                                        child: new Image(
+                                                        child: new FadeInImage
+                                                            .assetNetwork(
+                                                          placeholder:
+                                                              'images/noimage.jpg',
                                                           image:
-                                                              new NetworkImageWithRetry(
-                                                                  item.image !=
-                                                                          null
-                                                                      ? urladmin(
-                                                                          'storage/image/master/produk/${item.image}',
-                                                                        )
-                                                                      : url(
-                                                                          'assets/img/noimage.jpg',
-                                                                        )),
+                                                              item.image != null
+                                                                  ? urladmin(
+                                                                      'storage/image/master/produk/${item.image}',
+                                                                    )
+                                                                  : url(
+                                                                      'assets/img/noimage.jpg',
+                                                                    ),
                                                           width: 80.0,
                                                           height: 80.0,
                                                         ),
@@ -915,57 +916,66 @@ class _CheckoutState extends State<Checkout> {
                                 disabledTextColor: Colors.white,
                                 padding: EdgeInsets.all(15.0),
                                 splashColor: Colors.blueAccent,
-                                onPressed: loadingtransaksi == true ? null : () async {
-                                  setState(() {
-                                    loadingtransaksi = true;
-                                  });
-                                  if (_value2 == false) {
-                                    if (selectedProvinsi == null) {
-                                      showInSnackBar(
-                                          'Silahkan pilih provinsi terlebih dahulu');
-                                          setState(() {
-                                            loadingtransaksi = false;
-                                          });
-                                    } else if (selectedKabupaten == null) {
-                                      showInSnackBar(
-                                          'Silahkan pilih kabupaten/kota terlebih dahulu');
-                                          setState(() {
-                                            loadingtransaksi = false;
-                                          });
-                                    } else if (selectedkecamatan == null) {
-                                      showInSnackBar(
-                                          'Silahkan pilih kecamatan terlebih dahulu');
-                                          setState(() {
-                                            loadingtransaksi = false;
-                                          });
-                                    } else if (kodeposController.text.length ==
-                                            0 ||
-                                        kodeposController.text == null) {
-                                      showInSnackBar(
-                                          'Silahkan masukkan kodepos terlebih dahulu');
-                                          setState(() {
-                                            loadingtransaksi = false;
-                                          });
-                                    } else if (alamatController.text.length ==
-                                            0 ||
-                                        alamatController.text == null) {
-                                      showInSnackBar(
-                                          'Silahkan masukkan alamat lengkap terlebih dahulu');
-                                          setState(() {
-                                            loadingtransaksi = false;
-                                          });
-                                    } else {
-                                      showInSnackBar(
-                                          'Sedang memproses permintaan anda, mohon tunggu sebentar');
-                                      _checkoutSekarang();
-                                    }
-                                  } else {
-                                    showInSnackBar(
-                                        'Sedang memproses permintaan anda, mohon tunggu sebentar');
-                                    _checkoutSekarang();
-                                  }
-                                },
-                                child: Text( loadingtransaksi == true ? 'Tunggu Sebentar' : "Checkout Sekarang",
+                                onPressed: loadingtransaksi == true
+                                    ? null
+                                    : () async {
+                                        setState(() {
+                                          loadingtransaksi = true;
+                                        });
+                                        if (_value2 == false) {
+                                          if (selectedProvinsi == null) {
+                                            showInSnackBar(
+                                                'Silahkan pilih provinsi terlebih dahulu');
+                                            setState(() {
+                                              loadingtransaksi = false;
+                                            });
+                                          } else if (selectedKabupaten ==
+                                              null) {
+                                            showInSnackBar(
+                                                'Silahkan pilih kabupaten/kota terlebih dahulu');
+                                            setState(() {
+                                              loadingtransaksi = false;
+                                            });
+                                          } else if (selectedkecamatan ==
+                                              null) {
+                                            showInSnackBar(
+                                                'Silahkan pilih kecamatan terlebih dahulu');
+                                            setState(() {
+                                              loadingtransaksi = false;
+                                            });
+                                          } else if (kodeposController
+                                                      .text.length ==
+                                                  0 ||
+                                              kodeposController.text == null) {
+                                            showInSnackBar(
+                                                'Silahkan masukkan kodepos terlebih dahulu');
+                                            setState(() {
+                                              loadingtransaksi = false;
+                                            });
+                                          } else if (alamatController
+                                                      .text.length ==
+                                                  0 ||
+                                              alamatController.text == null) {
+                                            showInSnackBar(
+                                                'Silahkan masukkan alamat lengkap terlebih dahulu');
+                                            setState(() {
+                                              loadingtransaksi = false;
+                                            });
+                                          } else {
+                                            showInSnackBar(
+                                                'Sedang memproses permintaan anda, mohon tunggu sebentar');
+                                            _checkoutSekarang();
+                                          }
+                                        } else {
+                                          showInSnackBar(
+                                              'Sedang memproses permintaan anda, mohon tunggu sebentar');
+                                          _checkoutSekarang();
+                                        }
+                                      },
+                                child: Text(
+                                  loadingtransaksi == true
+                                      ? 'Tunggu Sebentar'
+                                      : "Checkout Sekarang",
                                   style: TextStyle(fontSize: 14.0),
                                 ),
                               ),
@@ -973,7 +983,10 @@ class _CheckoutState extends State<Checkout> {
                           ),
                           Padding(
                             padding: const EdgeInsets.only(
-                                left: 10.0,top:20.0, right: 10.0,bottom: 20.0),
+                                left: 10.0,
+                                top: 20.0,
+                                right: 10.0,
+                                bottom: 20.0),
                             child: SizedBox(
                               width: double.infinity,
                               child: RaisedButton(
@@ -983,14 +996,18 @@ class _CheckoutState extends State<Checkout> {
                                 disabledTextColor: Colors.green[400],
                                 padding: EdgeInsets.all(15.0),
                                 splashColor: Colors.blueAccent,
-                                onPressed: loadingtocart == true ? null : () async {
-                                  setState(() {
-                                    loadingtocart = true;
-                                  });
-                                  _backtocart();
-                                },
+                                onPressed: loadingtocart == true
+                                    ? null
+                                    : () async {
+                                        setState(() {
+                                          loadingtocart = true;
+                                        });
+                                        _backtocart();
+                                      },
                                 child: Text(
-                                  loadingtocart == true ? 'Tunggu Sebentar' : "Batal checkout / kembali ke keranjang",
+                                  loadingtocart == true
+                                      ? 'Tunggu Sebentar'
+                                      : "Batal checkout / kembali ke keranjang",
                                   style: TextStyle(fontSize: 14.0),
                                 ),
                               ),
@@ -1148,14 +1165,14 @@ class _CheckoutState extends State<Checkout> {
         print('${response.body}');
         showInSnackBar('Request failed with status: ${response.statusCode}');
         setState(() {
-            loadingtransaksi = false;
-          });
+          loadingtransaksi = false;
+        });
       }
     } on TimeoutException catch (_) {
       showInSnackBar('Timed out, Try again');
       setState(() {
-            loadingtransaksi = false;
-          });
+        loadingtransaksi = false;
+      });
     } catch (e) {
       print(e);
     }
@@ -1201,8 +1218,8 @@ class _CheckoutState extends State<Checkout> {
         print('${response.body}');
         showInSnackBar('Request failed with status: ${response.statusCode}');
         setState(() {
-            loadingtocart = false;
-          });
+          loadingtocart = false;
+        });
       }
     } on TimeoutException catch (_) {
       showInSnackBar('Timed out, Try again');

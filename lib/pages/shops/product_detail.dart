@@ -333,19 +333,18 @@ class ProductDetailState extends State<ProductDetail> {
                                                   .width,
                                               margin: EdgeInsets.symmetric(
                                                   horizontal: 5.0),
-                                              decoration: BoxDecoration(
-                                                image: DecorationImage(
-                                                  image: NetworkImageWithRetry(
-                                                      urladmin(
-                                                          'storage/image/master/produk/${listNota[i].item}')),
-                                                  fit: BoxFit.fitHeight,
-                                                ),
+                                              child: FadeInImage.assetNetwork(
+                                                placeholder:
+                                                    'images/noimage.jpg',
+                                                image: urladmin(
+                                                    'storage/image/master/produk/${listNota[i].item}'),
+                                                fit: BoxFit.fitHeight,
                                               ),
                                             ),
                                         ],
                                       ),
                                       Positioned(
-                                          bottom: -10.0,
+                                          bottom: -5.0,
                                           left: 0.0,
                                           right: 0.0,
                                           child: Row(

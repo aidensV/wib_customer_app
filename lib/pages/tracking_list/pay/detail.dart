@@ -765,8 +765,11 @@ class _DetailState extends State<Detail> {
                                                 children: <Widget>[
                                                   Expanded(
                                                     flex: 4,
-                                                    child: Image.network(
-                                                      item.image != null
+                                                    child: FadeInImage
+                                                        .assetNetwork(
+                                                      placeholder:
+                                                          'images/noimage.jpg',
+                                                      image: item.image != null
                                                           ? urladmin(
                                                               'storage/image/master/produk/${item.image}',
                                                             )

@@ -149,8 +149,9 @@ class _CategoryItemState extends State<CategoryItem> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(0.0),
                     clipBehavior: Clip.antiAlias,
-                    child: Image.network(
-                      entry.gambar != null
+                    child: FadeInImage.assetNetwork(
+                      placeholder: 'images/noimage.jpg',
+                      image: entry.gambar != null
                           ? urladmin(
                               'storage/image/master/produkthumbnail/${entry.gambar}',
                             )
