@@ -308,7 +308,7 @@ class _WishlistState extends State<Wishlist> {
                                               image:
                                                   listNota[index].image != null
                                                       ? urladmin(
-                                                          'storage/image/master/produk/${listNota[index].image}',
+                                                          'storage/image/master/produkthumbnail/${listNota[index].image}',
                                                         )
                                                       : url(
                                                           'assets/img/noimage.jpg',

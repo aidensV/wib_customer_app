@@ -337,7 +337,7 @@ class ProductDetailState extends State<ProductDetail> {
                                                 placeholder:
                                                     'images/noimage.jpg',
                                                 image: urladmin(
-                                                    'storage/image/master/produk/${listNota[i].item}'),
+                                                    'storage/image/master/produkthumbnail/${listNota[i].item}'),
                                                 fit: BoxFit.fitHeight,
                                               ),
                                             ),

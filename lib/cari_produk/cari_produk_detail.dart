@@ -118,7 +118,7 @@ class _CariProdukLebihDetailState extends State<CariProdukLebihDetail> {
                       child: Image.network(
                         produk.gambar != null
                             ? urladmin(
-                                'storage/image/master/produkthumbnailthumbnail/${produk.gambar}',
+                                'storage/image/master/produkthumbnailthumbnailthumbnail/${produk.gambar}',
                               )
                             : url(
                                 'assets/img/noimage.jpg',

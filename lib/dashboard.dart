@@ -964,7 +964,7 @@ class _DashboardPageState extends State<DashboardPage>
                 placeholder: 'images/noimage.jpg',
                 image: entry.gambar != null
                     ? urladmin(
-                        'storage/image/master/produk/${entry.gambar}',
+                        'storage/image/master/produkthumbnail/${entry.gambar}',
                       )
                     : url(
                         'assets/img/noimage.jpg',
@@ -977,7 +977,7 @@ class _DashboardPageState extends State<DashboardPage>
               //   image: NetworkImageWithRetry(
               //     entry.gambar != null
               //         ? urladmin(
-              //             'storage/image/master/produk/${entry.gambar}',
+              //             'storage/image/master/produkthumbnail/${entry.gambar}',
               //           )
               //         : url(
               //             'assets/img/noimage.jpg',
@@ -1099,7 +1099,7 @@ class _DashboardPageState extends State<DashboardPage>
                         placeholder: 'images/noimage.jpg',
                         image: entry.gambar != null
                             ? urladmin(
-                                'storage/image/master/produk/${entry.gambar}',
+                                'storage/image/master/produkthumbnail/${entry.gambar}',
                               )
                             : url(
                                 'assets/img/noimage.jpg',
@@ -1112,7 +1112,7 @@ class _DashboardPageState extends State<DashboardPage>
                       //   image: NetworkImageWithRetry(
                       //     entry.gambar != null
                       //         ? urladmin(
-                      //             'storage/image/master/produk/${entry.gambar}',
+                      //             'storage/image/master/produkthumbnail/${entry.gambar}',
                       //           )
                       //         : url(
                       //             'assets/img/noimage.jpg',

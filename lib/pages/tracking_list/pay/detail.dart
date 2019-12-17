@@ -771,7 +771,7 @@ class _DetailState extends State<Detail> {
                                                           'images/noimage.jpg',
                                                       image: item.image != null
                                                           ? urladmin(
-                                                              'storage/image/master/produk/${item.image}',
+                                                              'storage/image/master/produkthumbnail/${item.image}',
                                                             )
                                                           : prefix0.url(
                                                               'assets/img/noimage.jpg',

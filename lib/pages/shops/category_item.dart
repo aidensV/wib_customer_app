@@ -153,7 +153,7 @@ class _CategoryItemState extends State<CategoryItem> {
                       placeholder: 'images/noimage.jpg',
                       image: entry.gambar != null
                           ? urladmin(
-                              'storage/image/master/produkthumbnail/${entry.gambar}',
+                              'storage/image/master/produkthumbnailthumbnail/${entry.gambar}',
                             )
                           : url(
                               'assets/img/noimage.jpg',

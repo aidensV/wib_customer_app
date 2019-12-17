@@ -767,7 +767,7 @@ class _CheckoutState extends State<Checkout> {
                                                           image:
                                                               item.image != null
                                                                   ? urladmin(
-                                                                      'storage/image/master/produk/${item.image}',
+                                                                      'storage/image/master/produkthumbnail/${item.image}',
                                                                     )
                                                                   : url(
                                                                       'assets/img/noimage.jpg',

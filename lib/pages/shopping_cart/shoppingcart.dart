@@ -470,7 +470,7 @@ class _KeranjangState extends State<Keranjang> {
                                               image:
                                                   listNota[index].image != null
                                                       ? urladmin(
-                                                          'storage/image/master/produkthumbnail/${listNota[index].image}',
+                                                          'storage/image/master/produkthumbnailthumbnail/${listNota[index].image}',
                                                         )
                                                       : url(
                                                           'assets/img/noimage.jpg',
