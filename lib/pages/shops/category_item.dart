@@ -152,7 +152,7 @@ class _CategoryItemState extends State<CategoryItem> {
                     child: Image.network(
                       entry.gambar != null
                           ? urladmin(
-                              'storage/image/master/produk/${entry.gambar}',
+                              'storage/image/master/produkthumbnail/${entry.gambar}',
                             )
                           : url(
                               'assets/img/noimage.jpg',

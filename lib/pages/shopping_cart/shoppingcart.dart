@@ -470,7 +470,7 @@ class _KeranjangState extends State<Keranjang> {
                                                     new NetworkImageWithRetry(
                                                   listNota[index].image != null
                                                       ? urladmin(
-                                                          'storage/image/master/produk/${listNota[index].image}',
+                                                          'storage/image/master/produkthumbnail/${listNota[index].image}',
                                                         )
                                                       : url(
                                                           'assets/img/noimage.jpg',
