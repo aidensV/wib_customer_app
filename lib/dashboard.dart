@@ -954,9 +954,7 @@ class _DashboardPageState extends State<DashboardPage>
                                 top: 10, left: 20, bottom: 10.0),
                             height: 225,
                             width: MediaQuery.of(context).size.width,
-                            child: PagewiseListView(noItemsFoundBuilder: (BuildContext context) {
-                              return Container();
-                            },
+                            child: PagewiseListView(
                               showRetry: true,
                               pageLoadController:
                                   pagewiseLoadControllerVertical,
