@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:wib_customer_app/dashboard_model.dart';
 import 'package:wib_customer_app/pages/profile/profile.dart';
 import 'dashboard.dart';
 import 'env.dart';

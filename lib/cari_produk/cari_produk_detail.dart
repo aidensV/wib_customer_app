@@ -20,6 +20,7 @@ NumberFormat numberFormat;
 
 Map<String, String> requestHeaders = Map<String, String>();
 String tokenType, accessToken;
+PagewiseLoadController pagewiseCariProdukController;
 
 showInSnackbarCariProdukDetail(String content) {
   _scaffoldKeyCariProdukDetail.currentState.showSnackBar(
@@ -115,16 +116,17 @@ class _CariProdukLebihDetailState extends State<CariProdukLebihDetail> {
                   children: <Widget>[
                     ClipRRect(
                       borderRadius: BorderRadius.circular(0.0),
-                      child: Image.network(
-                        produk.gambar != null
+                      child: FadeInImage.assetNetwork(
+                        placeholder: 'images/noimage.jpg',
+                        image: produk.gambar != null
                             ? urladmin(
-                                'storage/image/master/produkthumbnailthumbnailthumbnail/${produk.gambar}',
+                                'storage/image/master/produkthumbnail/${produk.gambar}',
                               )
                             : url(
                                 'assets/img/noimage.jpg',
                               ),
                         fit: BoxFit.cover,
-                        height: 150.0,
+                        height: 130.0,
                         width: MediaQuery.of(context).size.width,
                       ),
                     ),
@@ -183,8 +185,7 @@ class _CariProdukLebihDetailState extends State<CariProdukLebihDetail> {
                 // SizedBox(width: 15),
                 Expanded(
                   child: Container(
-                    margin:
-                        EdgeInsets.all(10.0),
+                    margin: EdgeInsets.all(10.0),
                     child: Stack(
                       children: <Widget>[
                         Container(
@@ -325,6 +326,10 @@ class _CariProdukLebihDetailState extends State<CariProdukLebihDetail> {
     );
   }
 
+  void refreshPagewise() {
+    pagewiseCariProdukController.reset();
+  }
+
   @override
   void initState() {
     _scaffoldKeyCariProdukDetail = GlobalKey<ScaffoldState>();
@@ -332,12 +337,21 @@ class _CariProdukLebihDetailState extends State<CariProdukLebihDetail> {
     // isLoading = true;
 
     // isError = false;
-    pageSize = 6;
+    pageSize = 12;
     numberFormat = NumberFormat.simpleCurrency(decimalDigits: 2, name: 'Rp. ');
-    cariProduk(
-      namaProduk: widget.namaProduk,
-      index: 0,
+    pagewiseCariProdukController = PagewiseLoadController(
+      pageSize: pageSize,
+      pageFuture: (int i) {
+        return cariProduk(
+          index: i,
+          namaProduk: widget.namaProduk,
+        );
+      },
     );
+    // cariProduk(
+    //   namaProduk: widget.namaProduk,
+    //   index: 0,
+    // );
     super.initState();
   }
 
@@ -400,43 +414,47 @@ class _CariProdukLebihDetailState extends State<CariProdukLebihDetail> {
       body: Scrollbar(
         child: Padding(
           padding: const EdgeInsets.all(15.0),
-          child: PagewiseGridView.count(
-            pageSize: pageSize,
-            primary: false,
-            // physics: NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            crossAxisCount:
-                MediaQuery.of(context).orientation == Orientation.landscape
-                    ? 3
-                    : 2,
-            // mainAxisSpacing: 10.0,
-            crossAxisSpacing: 5.0,
-            childAspectRatio: 0.6,
-            itemBuilder: (BuildContext context, Produk produk, int i) {
-              return produkCard(produk);
+          child: RefreshIndicator(
+            onRefresh: () async {
+              refreshPagewise();
+              await Future.value({});
             },
-            loadingBuilder: (BuildContext context) => Center(
-              child: CircularProgressIndicator(),
+            child: PagewiseGridView.count(
+              pageLoadController: pagewiseCariProdukController,
+              primary: false,
+              // physics: NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              crossAxisCount:
+                  MediaQuery.of(context).orientation == Orientation.landscape
+                      ? 3
+                      : 2,
+              // mainAxisSpacing: 10.0,
+              crossAxisSpacing: 5.0,
+              childAspectRatio: 0.6,
+              itemBuilder: (BuildContext context, dynamic produk, int i) {
+                return produkCard(produk);
+              },
+              loadingBuilder: (BuildContext context) => Center(
+                child: CircularProgressIndicator(),
+              ),
+              retryBuilder: (BuildContext context, Function onPress) {
+                return ErrorCobalLagi(
+                  onPress: onPress(),
+                );
+              },
+              noItemsFoundBuilder: (BuildContext context) {
+                return ListView(
+                  children: [
+                    ListTile(
+                      title: Text(
+                        'Produk tidak ditemukan',
+                        textAlign: TextAlign.center,
+                      ),
+                    )
+                  ],
+                );
+              },
             ),
-            retryBuilder: (BuildContext context, Function onPress) {
-              return ErrorCobalLagi(
-                onPress: onPress(),
-              );
-            },
-            noItemsFoundBuilder: (BuildContext context) {
-              return ListTile(
-                title: Text(
-                  'Produk tidak ditemukan',
-                  textAlign: TextAlign.center,
-                ),
-              );
-            },
-            pageFuture: (pageIndex) {
-              return cariProduk(
-                namaProduk: widget.namaProduk,
-                index: pageIndex,
-              );
-            },
           ),
         ),
       ),

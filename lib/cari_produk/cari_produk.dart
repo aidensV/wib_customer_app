@@ -171,6 +171,19 @@ class _CariProdukState extends State<CariProduk> {
   }
 
   @override
+  void deactivate() {
+    timer.cancel();
+    
+    super.deactivate();
+  }
+
+  @override
+  void dispose() {
+    timer.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
