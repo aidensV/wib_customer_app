@@ -87,7 +87,7 @@ class _FilterTransaksiAllState extends State<FilterTransaksiAll> {
                       readOnly: true,
                       format : DateFormat('dd-MM-yyy'),
                       focusNode: datepickerfirst,
-                      initialValue: widget.tanggalawalall == 'kosong' ? DateTime.now() : DateTime.parse(_tanggalawalvalue),
+                      initialValue: widget.tanggalawalall == 'kosong' ? null : DateTime.parse(_tanggalawalvalue),
                       decoration: InputDecoration(
                         hintText: 'Tanggal Awal',
                         hintStyle: TextStyle(fontSize: 13, color: Colors.black),
@@ -116,7 +116,7 @@ class _FilterTransaksiAllState extends State<FilterTransaksiAll> {
                       readOnly: true,
                       format : DateFormat('dd-MM-yyy'),
                       focusNode: datepickerlast,
-                      initialValue: widget.tanggalakhirall == 'kosong' ? DateTime.now() : DateTime.parse(_tanggalakhirvalue),
+                      initialValue: widget.tanggalakhirall == 'kosong' ? null : DateTime.parse(_tanggalakhirvalue),
                         decoration: InputDecoration(
                         hintText: 'Tanggal Akhir',
                         hintStyle: TextStyle(fontSize: 13, color: Colors.black),

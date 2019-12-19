@@ -85,7 +85,7 @@ class _FilterTransaksiprocessState extends State<FilterTransaksiprocess> {
                     child: DateTimeField(
                       readOnly: true,
                       format : DateFormat('dd-MM-yyy'),
-                      initialValue: widget.tanggalawalprocess == 'kosong' ? DateTime.now() : DateTime.parse(_tanggalawalvalue),
+                      initialValue: widget.tanggalawalprocess == 'kosong' ? null : DateTime.parse(_tanggalawalvalue),
                       decoration: InputDecoration(
                         hintText: 'Tanggal Awal',
                         hintStyle: TextStyle(fontSize: 13, color: Colors.black),
@@ -112,7 +112,7 @@ class _FilterTransaksiprocessState extends State<FilterTransaksiprocess> {
                     child: DateTimeField(
                       readOnly: true,
                       format : DateFormat('dd-MM-yyy'),
-                      initialValue: widget.tanggalakhirprocess == 'kosong' ? DateTime.now() : DateTime.parse(_tanggalakhirvalue),
+                      initialValue: widget.tanggalakhirprocess == 'kosong' ? null : DateTime.parse(_tanggalakhirvalue),
                       decoration: InputDecoration(
                         hintText: 'Tanggal Akhir',
                         hintStyle: TextStyle(fontSize: 13, color: Colors.black),

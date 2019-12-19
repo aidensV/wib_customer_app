@@ -1,18 +1,16 @@
 class ListCabang {
-  final String id;
-  final String nama;
-  final String telepon;
-  final String owner;
+  final String id, nama, telepon, owner, alamat;
 
-
-  ListCabang(
-      {this.id,
-      this.nama,
-      this.telepon,
-      this.owner
-      });
+  ListCabang({
+    this.id,
+    this.nama,
+    this.telepon,
+    this.owner,
+    this.alamat,
+  });
 }
-class ListStockies{
+
+class ListStockies {
   final String kabupaten;
   final String provinsi;
 

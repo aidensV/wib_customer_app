@@ -71,6 +71,7 @@ class _CabangState extends State<Cabang> {
             nama: i['b_name'],
             telepon: i['b_nphone'].toString(),
             owner: i['ed_nemployee'],
+            alamat: i['b_address'],
           );
           listCabang.add(cabangx);
         }
@@ -288,11 +289,10 @@ class _CabangState extends State<Cabang> {
                                       itemBuilder:
                                           (BuildContext context, int index) {
                                         return Card(
-                                          color: Colors.white,
                                           child: ListTile(
                                             leading: new Container(
                                               child: new Image.asset(
-                                                  'images/wib-logo.png',
+                                                'images/wib-logo.png',
                                               ),
                                               width: 70.0,
                                               height: 100.0,
@@ -307,76 +307,72 @@ class _CabangState extends State<Cabang> {
                                             ),
                                             subtitle: Column(
                                               children: <Widget>[
-                                                Padding(
+                                                Container(
                                                   padding: EdgeInsets.only(
-                                                      top: 10.0),
+                                                    top: 10.0,
+                                                  ),
                                                   child: Row(
                                                     children: <Widget>[
-                                                      Padding(
-                                                        padding:
-                                                            EdgeInsets.only(
-                                                                right: 10.0),
+                                                      Container(
+                                                        width: 20.0,
                                                         child: Icon(
-                                                            Icons.person,
-                                                            size: 14,
-                                                            color:
-                                                                Colors.green),
+                                                          Icons.home,
+                                                          size: 14,
+                                                          color: Colors.green,
+                                                        ),
                                                       ),
-                                                      Padding(
-                                                        padding:
-                                                            EdgeInsets.only(
-                                                                right: 10.0),
+                                                      Expanded(
                                                         child: Text(
+                                                          // 'Jl Ngagel Dadi 1 no.32 Wonokromo 60245 Surabaya, Jawa Timur',
                                                           listCabang[index]
-                                                              .owner,
+                                                              .alamat,
                                                           style: TextStyle(
-                                                              color:
-                                                                  Colors.grey,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .normal),
+                                                            color: Colors.grey,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .normal,
+                                                          ),
                                                         ),
                                                       ),
                                                     ],
                                                   ),
                                                 ),
-                                                Padding(
+                                                Container(
                                                   padding: EdgeInsets.only(
                                                       top: 10.0),
                                                   child: Row(
                                                     children: <Widget>[
-                                                      Padding(
-                                                        padding:
-                                                            EdgeInsets.only(
-                                                                right: 10.0),
+                                                      Container(
+                                                        width: 20.0,
                                                         child: Icon(
-                                                            Icons.local_phone,
-                                                            size: 14,
-                                                            color:
-                                                                Colors.green),
+                                                          Icons.local_phone,
+                                                          size: 14,
+                                                          color: Colors.green,
+                                                        ),
                                                       ),
-                                                      Padding(
-                                                        padding:
-                                                            EdgeInsets.only(
-                                                                right: 10.0),
+                                                      Expanded(
                                                         child: Text(
                                                           listCabang[index]
                                                               .telepon,
                                                           style: TextStyle(
-                                                              color:
-                                                                  Colors.grey,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .normal),
+                                                            color: Colors.grey,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .normal,
+                                                          ),
                                                         ),
                                                       ),
                                                     ],
                                                   ),
                                                 ),
                                                 Padding(
-                                                  padding: const EdgeInsets.only(top:20.0,bottom: 10.0),
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          top: 20.0,
+                                                          bottom: 10.0),
                                                   child: SizedBox(
-                                                    width: MediaQuery.of(context)
+                                                    width: MediaQuery.of(
+                                                            context)
                                                         .size
                                                         .width, // specific value
                                                     child: FlatButton(
@@ -384,7 +380,8 @@ class _CabangState extends State<Cabang> {
                                                           'Lihat Stockies Cabang'),
                                                       color: Colors.green[400],
                                                       textColor: Colors.white,
-                                                      disabledColor: Colors.grey,
+                                                      disabledColor:
+                                                          Colors.grey,
                                                       onPressed: () async {
                                                         Navigator.push(
                                                           context,

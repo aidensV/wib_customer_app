@@ -20,6 +20,13 @@ class _SideBarState extends State<SideBar> {
     namaCustomer = await storage.getDataString("name");
     emailprofile = await storage.getDataString('email');
     imageprofile = await storage.getDataString('image');
+
+    setState(() {
+      usernameprofile = usernameprofile;
+      namaCustomer = namaCustomer;
+      emailprofile = emailprofile;
+      imageprofile = imageprofile;
+    });
   }
 
   Future<Null> removeSharedPrefs() async {
@@ -29,6 +36,7 @@ class _SideBarState extends State<SideBar> {
 
   @override
   void initState() {
+    dataProfile();
     super.initState();
   }
 
