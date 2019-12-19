@@ -6,6 +6,7 @@ import 'package:wib_customer_app/_sidebar.dart';
 // import 'package:provider/provider.dart';
 import 'package:wib_customer_app/cari_produk/cari_produk.dart';
 import 'package:wib_customer_app/dashboard_model.dart';
+import 'package:wib_customer_app/error/error.dart';
 import 'package:wib_customer_app/notification_service/notification_service.dart';
 import 'package:wib_customer_app/pages/profile/profile.dart';
 import 'package:wib_customer_app/pusher/pusher_service.dart';
@@ -61,7 +62,7 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   TabController tabController;
 
   PageController pageController;
@@ -1047,6 +1048,14 @@ class _DashboardPageState extends State<DashboardPage>
                                   pageLoadController:
                                       pageWiseLoadControllerHorizontal,
                                   primary: false, showRetry: true,
+                                  retryBuilder:
+                                      (BuildContext context, setState) {
+                                    return ErrorCobalLagi(
+                                      onPress: () {
+                                        pageWiseLoadControllerHorizontal.reset();
+                                      },
+                                    );
+                                  },
                                   physics: NeverScrollableScrollPhysics(),
                                   shrinkWrap: true,
                                   crossAxisCount:

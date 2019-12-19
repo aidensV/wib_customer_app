@@ -6,8 +6,8 @@
    String clientSecret = '0zxvmtgG2PkVw0NfQ0HwxjKYHVbhoaFBZyDlmJEp';
 
 // local Ari
-// String host = 'http://192.168.87.2/git/warungislamibogor_shop/';
-// String hostadmin = 'http://192.168.87.2/git/warungislamibogor/';
+// String host = 'http://192.168.100.6/git/warungislamibogor_shop/';
+// String hostadmin = 'http://192.168.100.6/git/warungislamibogor/';
 // String clientSecret = '0zxvmtgG2PkVw0NfQ0HwxjKYHVbhoaFBZyDlmJEp';
 
 // local bakhrul

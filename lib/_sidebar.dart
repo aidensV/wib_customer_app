@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:wib_customer_app/env.dart';
+import 'package:wib_customer_app/pages/tracking_list/tracking.dart';
 import 'package:wib_customer_app/storage/storage.dart';
+import 'pages/cabang/cabang.dart';
 
 // String _username;
 String usernameprofile, emailprofile, imageprofile, namaCustomer;
@@ -87,7 +89,13 @@ class _SideBarState extends State<SideBar> {
                     ),
                     leading: Icon(Icons.list),
                     onTap: () {
-                      Navigator.pushNamed(context, "/tracking_list");
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          settings: RouteSettings(name: '/tracking_list'),
+                          builder: (BuildContext context) => TrackingList(),
+                        ),
+                      );
                     },
                   ),
                   ListTile(
@@ -101,7 +109,13 @@ class _SideBarState extends State<SideBar> {
                     ),
                     leading: Icon(Icons.list),
                     onTap: () {
-                      Navigator.pushNamed(context, "/list_cabang");
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          settings: RouteSettings(name: '/list_cabang'),
+                          builder: (BuildContext context) => Cabang(),
+                        ),
+                      );
                     },
                   ),
                 ],
