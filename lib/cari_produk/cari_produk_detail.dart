@@ -32,8 +32,14 @@ showInSnackbarCariProdukDetail(String content) {
 }
 
 class CariProdukLebihDetail extends StatefulWidget {
-  final String namaProduk;
-  CariProdukLebihDetail({this.namaProduk});
+  final String namaProduk,  minHarga, maxHarga;
+  JenisProduk jenisProduk;
+  CariProdukLebihDetail({
+    this.namaProduk,
+    this.jenisProduk,
+    this.maxHarga,
+    this.minHarga,
+  });
 
   @override
   _CariProdukLebihDetailState createState() => _CariProdukLebihDetailState();
@@ -69,15 +75,24 @@ class _CariProdukLebihDetailState extends State<CariProdukLebihDetail> {
 
     requestHeaders['Accept'] = 'application/json';
     requestHeaders['Authorization'] = '$tokenType $accessToken';
+    Map requestBody = Map();
+    requestBody['size'] = pageSize.toString();
+    requestBody['lengthX'] = index.toString();
+    requestBody['namaProduk'] = widget.namaProduk;
+    if (widget.jenisProduk != null) {
+      requestBody['jenisProduk'] = widget.jenisProduk.idJenis;
+    }
+    if(widget.minHarga != null){
+      requestBody['minHarga'] = widget.minHarga;
+    }
+    if(widget.maxHarga != null){
+      requestBody['maxHarga'] = widget.maxHarga;
+    }
     try {
       final response = await http.post(
         url('api/cariBarang'),
         headers: requestHeaders,
-        body: {
-          'namaProduk': widget.namaProduk,
-          'size': pageSize.toString(),
-          'lengthX': index.toString(),
-        },
+        body: requestBody,
       );
       if (response.statusCode == 200) {
         dynamic responseJson = jsonDecode(response.body);
@@ -189,11 +204,13 @@ class _CariProdukLebihDetailState extends State<CariProdukLebihDetail> {
                                       });
                                     }
                                   } else {
-                                    print('Error Code : ${hapuswishlist.statusCode}');
+                                    print(
+                                        'Error Code : ${hapuswishlist.statusCode}');
                                     print(jsonDecode(hapuswishlist.body));
                                   }
                                 } on TimeoutException catch (_) {
-                                  showInSnackbarCariProdukDetail('Request timeout, try again');
+                                  showInSnackbarCariProdukDetail(
+                                      'Request timeout, try again');
                                 } catch (e) {
                                   print(e);
                                 }

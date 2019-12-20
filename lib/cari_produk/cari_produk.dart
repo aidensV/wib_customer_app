@@ -173,7 +173,7 @@ class _CariProdukState extends State<CariProduk> {
   @override
   void deactivate() {
     timer.cancel();
-    
+
     super.deactivate();
   }
 
@@ -242,6 +242,9 @@ class _CariProdukState extends State<CariProduk> {
                       settings: RouteSettings(name: '/cari_produk_detail'),
                       builder: (BuildContext context) => CariProdukLebihDetail(
                         namaProduk: cariController.text,
+                        jenisProduk: selectedJenisProduk,
+                        minHarga: minHarga,
+                        maxHarga: maxHarga,
                       ),
                     ),
                   );
@@ -298,6 +301,9 @@ class _CariProdukState extends State<CariProduk> {
                       settings: RouteSettings(name: '/cari_produk_detail'),
                       builder: (BuildContext context) => CariProdukLebihDetail(
                         namaProduk: cariController.text,
+                        jenisProduk: selectedJenisProduk,
+                        minHarga: minHarga,
+                        maxHarga: maxHarga,
                       ),
                     ),
                   );
@@ -352,6 +358,9 @@ class _CariProdukState extends State<CariProduk> {
                                         builder: (BuildContext context) =>
                                             CariProdukLebihDetail(
                                           namaProduk: listProduk[i].namaProduk,
+                                          jenisProduk: selectedJenisProduk,
+                                          minHarga: minHarga,
+                                          maxHarga: maxHarga,
                                         ),
                                       ),
                                     );

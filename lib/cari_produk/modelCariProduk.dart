@@ -9,7 +9,9 @@ class Produk {
       namaTipe,
       hargaProduk,
       gambar,
-      hargaDiskon;
+      hargaDiskon,
+      minHarga,
+      maxHarga;
 
   Produk({
     this.deskripsiProduk,
@@ -23,6 +25,8 @@ class Produk {
     this.kodeProduk,
     this.linkProduk,
     this.namaTipe,
+    this.minHarga,
+    this.maxHarga,
   });
 }
 
