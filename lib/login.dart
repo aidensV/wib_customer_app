@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:wib_customer_app/dashboard.dart';
 import 'dart:convert';
 import 'dart:io';
 
-import 'utils/Navigator.dart';
 import 'storage/storage.dart';
 import 'env.dart';
 
@@ -16,7 +16,6 @@ final focusNode = FocusNode();
 Map<String, String> requestHeaders = Map();
 
 class _LoginPageState extends State<LoginPage> {
-
   TextEditingController user = new TextEditingController();
   TextEditingController pass = new TextEditingController();
   final userFocus = FocusNode();
@@ -78,7 +77,8 @@ class _LoginPageState extends State<LoginPage> {
             _isLoading = false;
           });
         } else if (getTokenDecode['token_type'] == 'Bearer') {
-          DataStore().setDataString('access_token', getTokenDecode['access_token']);
+          DataStore()
+              .setDataString('access_token', getTokenDecode['access_token']);
           DataStore().setDataString('token_type', getTokenDecode['token_type']);
         }
         dynamic tokenType = getTokenDecode['token_type'];
@@ -121,7 +121,13 @@ class _LoginPageState extends State<LoginPage> {
 
             print(datauser);
 
-            Navigator.pushReplacementNamed(context, "/dashboard");
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                settings: RouteSettings(name: '/dashboard'),
+                builder: (BuildContext context) => DashboardPage(),
+              ),
+            );
             // print('statement else is true');
             // print(datauser);
             setState(() {
@@ -292,41 +298,6 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
     // Bottom Section Here
-    final adsSection = Material(
-      color: Colors.white,
-      child: Column(
-        children: <Widget>[
-          Text(
-            "Belum Menggunakan Alamraya Software+ ?",
-            style: TextStyle(
-              color: Colors.grey[500],
-              fontFamily: 'Roboto',
-              fontSize: 13.0,
-            ),
-          ),
-          OutlineButton(
-            padding: EdgeInsets.fromLTRB(20.0, 1.0, 20.0, 1.0),
-            onPressed: () {
-              MyNavigator.goToDashboard(context);
-            },
-            child: Text(
-              "Hubungi Kami Segera",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontFamily: 'TitilliumWeb',
-                fontSize: 14.0,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-    final footer = Text(
-      "Powered by Alamraya Software v.1.0 © 2019",
-      style:
-          TextStyle(color: Colors.grey, fontFamily: 'Roboto', fontSize: 12.0),
-    );
 
     return Scaffold(
       key: _scaffoldKey,
@@ -378,11 +349,11 @@ class _LoginPageState extends State<LoginPage> {
                     SizedBox(
                       height: 8.0,
                     ),
-                    adsSection,
+
                     SizedBox(
                       height: 10.0,
                     ),
-                    footer,
+
                     SizedBox(
                       height: 1.0,
                     )

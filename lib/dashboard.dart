@@ -2,11 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_image/network.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:wib_customer_app/_sidebar.dart';
 // import 'package:provider/provider.dart';
 import 'package:wib_customer_app/cari_produk/cari_produk.dart';
 import 'package:wib_customer_app/dashboard_model.dart';
 import 'package:wib_customer_app/error/error.dart';
+import 'package:wib_customer_app/login.dart';
 import 'package:wib_customer_app/notification_service/notification_service.dart';
 import 'package:wib_customer_app/pages/profile/profile.dart';
 import 'package:wib_customer_app/pusher/pusher_service.dart';
@@ -31,30 +33,19 @@ String tokenType, accessToken;
 Map<String, String> requestHeaders = Map();
 List<ListBanner> listBannerSlider, listBannerBasic;
 List<RecomendationModel> listrecomeitem;
-bool isLoading;
 int pageSize;
+bool isLoading, isLoadingCekLogin;
 
-ScrollController scrollController = ScrollController(initialScrollOffset: 0.0);
-
-bool isScrolled;
+bool isScrolled, isLogin;
 int red, green, blue;
 double opacity, maxOffsetToColor;
 
-GlobalKey<ScaffoldState> _scaffoldKeyDashboard;
 NotificationService notificationService;
 PagewiseLoadController pagewiseLoadControllerVertical,
     pageWiseLoadControllerHorizontal;
 
 List<RecomendationModel> listRecommend;
 List<ProductModel> listProduct;
-
-showInSnackBarDashboard(String content) {
-  _scaffoldKeyDashboard.currentState.showSnackBar(
-    SnackBar(
-      content: Text(content),
-    ),
-  );
-}
 
 class DashboardPage extends StatefulWidget {
   @override
@@ -63,6 +54,20 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage>
     with TickerProviderStateMixin {
+  ScrollController scrollController =
+      ScrollController(initialScrollOffset: 0.0);
+      
+  final GlobalKey<ScaffoldState> _scaffoldKeyDashboard =
+      GlobalKey<ScaffoldState>();
+
+  showInSnackBarDashboard(String content) {
+    _scaffoldKeyDashboard.currentState.showSnackBar(
+      SnackBar(
+        content: Text(content),
+      ),
+    );
+  }
+
   TabController tabController;
 
   PageController pageController;
@@ -223,7 +228,7 @@ class _DashboardPageState extends State<DashboardPage>
     });
   }
 
-  static Future<List<ProductModel>> getData(index, limit) async {
+  Future<List<ProductModel>> getData(index, limit) async {
     var storage = new DataStore();
 
     var tokenTypeStorage = await storage.getDataString('token_type');
@@ -279,8 +284,7 @@ class _DashboardPageState extends State<DashboardPage>
     }
   }
 
-  static Future<List<RecomendationModel>> listrecomendationitem(
-      index, limit) async {
+  Future<List<RecomendationModel>> listrecomendationitem(index, limit) async {
     var storage = new DataStore();
 
     // print('index $index');
@@ -556,39 +560,44 @@ class _DashboardPageState extends State<DashboardPage>
                             onPressed: () async {
                               var idX = entry.code;
                               // var color = entry.color;
-                              try {
-                                final hapuswishlist = await http.post(
-                                    url('api/ActionWishlistAndroid'),
-                                    headers: requestHeaders,
-                                    body: {'produk': idX});
+                              if (isLogin) {
+                                try {
+                                  final hapuswishlist = await http.post(
+                                      url('api/ActionWishlistAndroid'),
+                                      headers: requestHeaders,
+                                      body: {'produk': idX});
 
-                                if (hapuswishlist.statusCode == 200) {
-                                  var hapuswishlistJson =
-                                      json.decode(hapuswishlist.body);
-                                  if (hapuswishlistJson['status'] ==
-                                      'tambahwishlist') {
-                                    setState(() {
-                                      entry.wishlist = entry.code;
-                                    });
-                                  } else if (hapuswishlistJson['status'] ==
-                                      'hapuswishlist') {
-                                    setState(() {
-                                      entry.wishlist = null;
-                                    });
+                                  if (hapuswishlist.statusCode == 200) {
+                                    var hapuswishlistJson =
+                                        json.decode(hapuswishlist.body);
+                                    if (hapuswishlistJson['status'] ==
+                                        'tambahwishlist') {
+                                      setState(() {
+                                        entry.wishlist = entry.code;
+                                      });
+                                    } else if (hapuswishlistJson['status'] ==
+                                        'hapuswishlist') {
+                                      setState(() {
+                                        entry.wishlist = null;
+                                      });
+                                    }
+                                  } else {
+                                    print(hapuswishlist.statusCode);
+                                    Map responseJson =
+                                        jsonDecode(hapuswishlist.body);
+                                    print(
+                                        'Error Code : ${hapuswishlist.statusCode}');
+                                    if (responseJson.containsKey('message')) {
+                                      showInSnackBarDashboard(
+                                          'Message ${responseJson['message']}');
+                                    }
                                   }
-                                } else {
-                                  print(hapuswishlist.statusCode);
-                                  Map responseJson =
-                                      jsonDecode(hapuswishlist.body);
-                                  print(
-                                      'Error Code : ${hapuswishlist.statusCode}');
-                                  if (responseJson.containsKey('message')) {
-                                    showInSnackBarDashboard(
-                                        'Message ${responseJson['message']}');
-                                  }
+                                } on TimeoutException catch (_) {} catch (e) {
+                                  print(e);
                                 }
-                              } on TimeoutException catch (_) {} catch (e) {
-                                print(e);
+                              } else {
+                                showInSnackBarDashboard(
+                                    'Silahkan login terlebih dahulu');
                               }
                             },
                           ),
@@ -744,9 +753,31 @@ class _DashboardPageState extends State<DashboardPage>
     );
   }
 
+  navbarActionRight() async {
+    setState(() {
+      isLoadingCekLogin = true;
+    });
+
+    DataStore dataStore = new DataStore();
+    String _username = await dataStore.getDataString("username");
+
+    if (_username == 'Tidak ditemukan') {
+      setState(() {
+        isLogin = false;
+        isLoadingCekLogin = false;
+      });
+    } else {
+      setState(() {
+        isLogin = true;
+        isLoadingCekLogin = false;
+      });
+    }
+  }
+
   @override
   void initState() {
-    _scaffoldKeyDashboard = GlobalKey<ScaffoldState>();
+    isLogin = false;
+    navbarActionRight();
     listBannerSlider = List();
     listBannerBasic = List();
     listRecommend = List();
@@ -788,9 +819,10 @@ class _DashboardPageState extends State<DashboardPage>
   }
 
   @override
-  void dispose() {
+  void deactivate() {
     scrollController.dispose();
-    super.dispose();
+
+    super.deactivate();
   }
 
   @override
@@ -800,7 +832,7 @@ class _DashboardPageState extends State<DashboardPage>
       home: Scaffold(
         backgroundColor: Colors.white,
         key: _scaffoldKeyDashboard,
-        drawer: SideBar(),
+        drawer: isLogin ? SideBar() : null,
         // Body Section Here
         body: _currentIndex == 0
             ? SafeArea(
@@ -1052,7 +1084,8 @@ class _DashboardPageState extends State<DashboardPage>
                                       (BuildContext context, setState) {
                                     return ErrorCobalLagi(
                                       onPress: () {
-                                        pageWiseLoadControllerHorizontal.reset();
+                                        pageWiseLoadControllerHorizontal
+                                            .reset();
                                       },
                                     );
                                   },
@@ -1210,34 +1243,75 @@ class _DashboardPageState extends State<DashboardPage>
                                 ),
                               ),
                               elevation: 0.0,
-                              actions: <Widget>[
-                                IconButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          settings:
-                                              RouteSettings(name: '/wishlist'),
-                                          builder: (context) => Wishlist(),
-                                        ));
-                                  },
-                                  icon: Icon(Icons.favorite),
-                                  // color: Colors.white,
-                                ),
-                                IconButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          settings: RouteSettings(
-                                              name: '/keranjangbelanja'),
-                                          builder: (context) => Keranjang(),
-                                        ));
-                                  },
-                                  icon: Icon(Icons.shopping_cart),
-                                  // color: Colors.white,
-                                ),
-                              ],
+                              actions: isLogin
+                                  ? <Widget>[
+                                      IconButton(
+                                        onPressed: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                settings: RouteSettings(
+                                                    name: '/wishlist'),
+                                                builder: (context) =>
+                                                    Wishlist(),
+                                              ));
+                                        },
+                                        icon: Icon(Icons.favorite),
+                                        // color: Colors.white,
+                                      ),
+                                      IconButton(
+                                        onPressed: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                settings: RouteSettings(
+                                                    name: '/keranjangbelanja'),
+                                                builder: (context) =>
+                                                    Keranjang(),
+                                              ));
+                                        },
+                                        icon: Icon(Icons.shopping_cart),
+                                        // color: Colors.white,
+                                      ),
+                                    ]
+                                  : <Widget>[
+                                      FlatButton(
+                                        onPressed: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                settings: RouteSettings(
+                                                    name: '/login'),
+                                                builder: (context) =>
+                                                    LoginPage(),
+                                              ));
+                                        },
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceAround,
+                                          children: <Widget>[
+                                            Icon(
+                                              FontAwesomeIcons.signInAlt,
+                                              color: Color.fromRGBO(
+                                                  red, green, blue, 1),
+                                            ),
+                                            Container(
+                                                padding: EdgeInsets.only(
+                                                  left: 5.0,
+                                                ),
+                                                child: Text(
+                                                  'Login',
+                                                  style: TextStyle(
+                                                    color: Color.fromRGBO(
+                                                        red, green, blue, 1),
+                                                  ),
+                                                )),
+                                          ],
+                                        ),
+                                        // color: Colors.white,
+                                      )
+                                    ],
                             ),
                           );
                         },
@@ -1247,31 +1321,33 @@ class _DashboardPageState extends State<DashboardPage>
                 ),
               )
             : _children[_currentIndex],
-        bottomNavigationBar: BottomNavigationBar(
-          onTap: onTabTapped,
-          // type: BottomNavigationBarType.shifting,
-          unselectedItemColor: Colors.grey,
-          selectedItemColor: Color(0xff31B057),
-          currentIndex: _currentIndex,
-          items: [
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.home,
-              ),
-              title: new Text('Shop'),
-            ),
-            BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.attach_money,
-                ),
-                title: new Text('Saldo')),
-            BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.person,
-                ),
-                title: new Text('Profile'))
-          ],
-        ),
+        bottomNavigationBar: isLogin
+            ? BottomNavigationBar(
+                onTap: onTabTapped,
+                // type: BottomNavigationBarType.shifting,
+                unselectedItemColor: Colors.grey,
+                selectedItemColor: Color(0xff31B057),
+                currentIndex: _currentIndex,
+                items: [
+                  BottomNavigationBarItem(
+                    icon: Icon(
+                      Icons.home,
+                    ),
+                    title: new Text('Shop'),
+                  ),
+                  BottomNavigationBarItem(
+                      icon: Icon(
+                        Icons.attach_money,
+                      ),
+                      title: new Text('Saldo')),
+                  BottomNavigationBarItem(
+                      icon: Icon(
+                        Icons.person,
+                      ),
+                      title: new Text('Profile'))
+                ],
+              )
+            : null,
       ),
     );
   }

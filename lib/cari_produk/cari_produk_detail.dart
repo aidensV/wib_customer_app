@@ -17,6 +17,7 @@ bool isLoading, isError;
 List<Produk> listProduk;
 int pageSize;
 NumberFormat numberFormat;
+bool isLogin;
 
 Map<String, String> requestHeaders = Map<String, String>();
 String tokenType, accessToken;
@@ -39,6 +40,21 @@ class CariProdukLebihDetail extends StatefulWidget {
 }
 
 class _CariProdukLebihDetailState extends State<CariProdukLebihDetail> {
+  navbarActionRight() async {
+    DataStore dataStore = new DataStore();
+    String _username = await dataStore.getDataString("username");
+
+    if (_username == 'Tidak ditemukan') {
+      setState(() {
+        isLogin = false;
+      });
+    } else {
+      setState(() {
+        isLogin = true;
+      });
+    }
+  }
+
   Future<List<Produk>> cariProduk({
     @required String namaProduk,
     @required int index,
@@ -151,31 +167,39 @@ class _CariProdukLebihDetailState extends State<CariProdukLebihDetail> {
                             onPressed: () async {
                               var idX = produk.kodeProduk;
                               // var color = produk.color;
-                              try {
-                                final hapuswishlist = await http.post(
-                                    url('api/ActionWishlistAndroid'),
-                                    headers: requestHeaders,
-                                    body: {'produk': idX});
+                              if (isLogin) {
+                                try {
+                                  final hapuswishlist = await http.post(
+                                      url('api/ActionWishlistAndroid'),
+                                      headers: requestHeaders,
+                                      body: {'produk': idX});
 
-                                if (hapuswishlist.statusCode == 200) {
-                                  var hapuswishlistJson =
-                                      json.decode(hapuswishlist.body);
-                                  if (hapuswishlistJson['status'] ==
-                                      'tambahwishlist') {
-                                    setState(() {
-                                      produk.wishlist = produk.kodeProduk;
-                                    });
-                                  } else if (hapuswishlistJson['status'] ==
-                                      'hapuswishlist') {
-                                    setState(() {
-                                      produk.wishlist = null;
-                                    });
+                                  if (hapuswishlist.statusCode == 200) {
+                                    var hapuswishlistJson =
+                                        json.decode(hapuswishlist.body);
+                                    if (hapuswishlistJson['status'] ==
+                                        'tambahwishlist') {
+                                      setState(() {
+                                        produk.wishlist = produk.kodeProduk;
+                                      });
+                                    } else if (hapuswishlistJson['status'] ==
+                                        'hapuswishlist') {
+                                      setState(() {
+                                        produk.wishlist = null;
+                                      });
+                                    }
+                                  } else {
+                                    print('Error Code : ${hapuswishlist.statusCode}');
+                                    print(jsonDecode(hapuswishlist.body));
                                   }
-                                } else {
-                                  print('${hapuswishlist.body}');
+                                } on TimeoutException catch (_) {
+                                  showInSnackbarCariProdukDetail('Request timeout, try again');
+                                } catch (e) {
+                                  print(e);
                                 }
-                              } on TimeoutException catch (_) {} catch (e) {
-                                print(e);
+                              } else {
+                                showInSnackbarCariProdukDetail(
+                                    'Silahkan login terlebih dahulu');
                               }
                             },
                           ),
@@ -334,6 +358,7 @@ class _CariProdukLebihDetailState extends State<CariProdukLebihDetail> {
   void initState() {
     _scaffoldKeyCariProdukDetail = GlobalKey<ScaffoldState>();
     listProduk = List<Produk>();
+    isLogin = false;
     // isLoading = true;
 
     // isError = false;

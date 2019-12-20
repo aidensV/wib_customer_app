@@ -1,5 +1,6 @@
 // import 'package:background_fetch/background_fetch.dart';
 import 'package:flutter/material.dart';
+import 'package:wib_customer_app/dashboard.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:flutter/services.dart';
 // import 'dart:convert';
@@ -8,9 +9,8 @@ import 'package:flutter/material.dart';
 // import 'package:wib_customer_app/pusher/pusher_service.dart';
 // import 'utils/Navigator.dart';
 // import 'dashboard_view.dart';
-import 'storage/storage.dart';
+// import 'storage/storage.dart';
 import 'dart:async';
-
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -21,20 +21,29 @@ class _SplashScreenState extends State<SplashScreen> {
   String _username;
 
   Future<Null> getSharedPrefs() async {
-    DataStore dataStore = new DataStore();
-    _username = await dataStore.getDataString("username");
+    // DataStore dataStore = new DataStore();
+    // _username = await dataStore.getDataString("username");
 
-    if (_username == 'Tidak ditemukan') {
-      Timer(Duration(seconds: 2),
-          () => Navigator.pushReplacementNamed(context, "/login"));
-    } else {
-      Timer(Duration(seconds: 2),
-          () => Navigator.pushReplacementNamed(context, "/dashboard"));
-    }
+    // if (_username == 'Tidak ditemukan') {
+    //   Timer(Duration(seconds: 2),
+    //       () => Navigator.pushReplacementNamed(context, "/login"));
+    // } else {
+    //   Timer(Duration(seconds: 2),
+    //       () => Navigator.pushReplacementNamed(context, "/dashboard"));
+    // }
+    Timer(
+      Duration(seconds: 2),
+      () => Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          settings: RouteSettings(name: '/dashboard'),
+          builder: (BuildContext context) => DashboardPage(),
+        ),
+      ),
+    );
   }
 
   // Future<void> initPlatformState() async {
-    
 
   //   // Configure BackgroundFetch.
   //   BackgroundFetch.configure(
@@ -51,15 +60,15 @@ class _SplashScreenState extends State<SplashScreen> {
   //           _onBackgroundFetch)
   //       .then((int status) {
   //     print('[BackgroundFetch] configure success: $status');
-      
+
   //   }).catchError((e) {
   //     print('[BackgroundFetch] configure ERROR: $e');
-      
+
   //   });
 
   //   // Optionally query the current BackgroundFetch status.
   //   int status = await BackgroundFetch.status;
-    
+
   //   print(status);
 
   //   // If the widget was removed from the tree while the asynchronous platform
@@ -83,7 +92,6 @@ class _SplashScreenState extends State<SplashScreen> {
   //   pusherService = PusherService(notificationService: notificationService);
   //   pusherService.firePusher();
 
-
   //   // IMPORTANT:  You must signal completion of your fetch task or the OS can punish your app
   //   // for taking too long in the background.
   //   BackgroundFetch.finish();
@@ -92,9 +100,8 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     // initPlatformState();
-    
-    getSharedPrefs();
 
+    getSharedPrefs();
 
     super.initState();
   }

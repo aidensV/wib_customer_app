@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wib_customer_app/dashboard.dart';
 import 'package:wib_customer_app/env.dart';
 import 'package:wib_customer_app/pages/tracking_list/tracking.dart';
 import 'package:wib_customer_app/storage/storage.dart';
@@ -172,7 +173,14 @@ class _SideBarState extends State<SideBar> {
                         ),
                         onPressed: () {
                           removeSharedPrefs();
-                          Navigator.pushReplacementNamed(context, "/login");
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              settings: RouteSettings(name: '/dashboard'),
+                              builder: (BuildContext context) =>
+                                  DashboardPage(),
+                            ),
+                          );
                         },
                       )
                     ],
