@@ -57,7 +57,7 @@ class _Saldo extends State<Saldo> {
   Future<Null> getsaldo() async {
     try {
       var storage = new DataStore();
-      _id = await storage.getDataInteger("id");
+      _id = await storage.getDataString("id");
       _user = await storage.getDataString("username");
       var tokenTypeStorage = await storage.getDataString('token_type');
       var accessTokenStorage = await storage.getDataString('access_token');
@@ -95,7 +95,7 @@ class _Saldo extends State<Saldo> {
   Future<List<History>> historyAndroid() async {
     try {
       var storage = new DataStore();
-      _id = await storage.getDataInteger("id");
+      _id = await storage.getDataString("id");
       _user = await storage.getDataString("username");
       imageprofile = await storage.getDataString('image');
 

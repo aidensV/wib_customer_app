@@ -59,7 +59,7 @@ class PusherService {
     // penjualanChannelOn = await Pusher.subscribe('penjualan-channel');
     DataStore store = DataStore();
 
-    int userId = await store.getDataInteger('id');
+    String userId = await store.getDataString('id');
 
     penjualanChannel =
         await Pusher.subscribe('penjualan-channel-${userId.toString()}');
