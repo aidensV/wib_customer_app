@@ -79,16 +79,27 @@ class ProductDetailState extends State<ProductDetail> {
     setState(() {
       isLoading = true;
     });
+    DataStore dataStore = new DataStore();
+    String _username = await dataStore.getDataString("username");
+    String urldetail;
+    if (_username == 'Tidak ditemukan') {
+      urldetail = 'api/productdetail_belumlogin'; 
+    } else {
+      urldetail = 'api/productdetail';
+    }
     try {
-      final nota = await http.post(url('api/productdetail'),
+      final nota = await http.post(url(urldetail),
           headers: requestHeaders, body: {'produk': widget.code});
 
       if (nota.statusCode == 200) {
         // return nota;
         var notaJson = json.decode(nota.body);
+        print(notaJson);
         var notas = notaJson['gambar'];
         String stockies = notaJson['stockies'];
         String wishlist = notaJson['wishlist'].toString();
+        print ('wishlist $wishlist');
+        print(stockies);
         listNota = [];
         for (var i in notas) {
           ListKeranjang notax = ListKeranjang(
@@ -103,6 +114,7 @@ class ProductDetailState extends State<ProductDetail> {
         });
         getstock();
       } else {
+        print(nota.body);
         setState(() {
           isLoading = false;
           isError = true;
@@ -122,8 +134,8 @@ class ProductDetailState extends State<ProductDetail> {
       debugPrint('$e');
     }
     return null;
+    
   }
-
   Future<void> getstock() async {
     var storage = new DataStore();
 
@@ -135,8 +147,17 @@ class ProductDetailState extends State<ProductDetail> {
     requestHeaders['Accept'] = 'application/json';
     requestHeaders['Authorization'] = '$tokenType $accessToken';
 
+    DataStore dataStore = new DataStore();
+    String _username = await dataStore.getDataString("username");
+    String urlcekstock;
+    if (_username == 'Tidak ditemukan') {
+      urlcekstock = 'api/stock_check_belumlogin'; 
+    } else {
+      urlcekstock = 'api/stock_check';
+    }
+
     try {
-      final response = await http.post(url('api/stock_check'),
+      final response = await http.post(url(urlcekstock),
           headers: requestHeaders,
           body: {'produk': widget.code, 'cabang': stockiesX});
 
@@ -144,6 +165,7 @@ class ProductDetailState extends State<ProductDetail> {
         setState(() {
           var stockJson = json.decode(response.body);
           String stockvalue = stockJson['stock'].toString();
+          print(stockvalue);
           stockX = stockvalue;
           isLoading = false;
           isError = false;
@@ -154,6 +176,7 @@ class ProductDetailState extends State<ProductDetail> {
           isError = true;
         });
       } else {
+        print(response.body);
         setState(() {
           isLoading = false;
           isError = true;
@@ -435,9 +458,9 @@ class ProductDetailState extends State<ProductDetail> {
                                 Padding(
                                   padding: const EdgeInsets.only(left: 8.0),
                                   child: Text(
-                                    stockiesX == 'Tidak Ada Cabang Terdekat'
+                                    isLogin  == false ? 'Silahkan Login Terlebih Dahulu' : stockiesX == 'Tidak Ada Cabang Terdekat'
                                         ? 'Tidak ada Cabang Terdekat'
-                                        : stockX == '0' || stockX == null
+                                        :  stockX == '0' || stockX == null
                                             ? 'Stock tersisa : 0'
                                             : 'Stock tersisa : $stockX',
                                     textAlign: TextAlign.left,

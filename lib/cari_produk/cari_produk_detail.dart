@@ -33,7 +33,7 @@ showInSnackbarCariProdukDetail(String content) {
 
 class CariProdukLebihDetail extends StatefulWidget {
   final String namaProduk,  minHarga, maxHarga;
-  JenisProduk jenisProduk;
+  final JenisProduk jenisProduk;
   CariProdukLebihDetail({
     this.namaProduk,
     this.jenisProduk,
@@ -89,8 +89,16 @@ class _CariProdukLebihDetailState extends State<CariProdukLebihDetail> {
       requestBody['maxHarga'] = widget.maxHarga;
     }
     try {
+      DataStore dataStore = new DataStore();
+      String _username = await dataStore.getDataString("username");
+      String produk;
+      if (_username == 'Tidak ditemukan') {
+        produk = 'api/cariBarang_belumlogin'; 
+      } else {
+        produk = 'api/cariBarang';
+      }
       final response = await http.post(
-        url('api/cariBarang'),
+        url(produk),
         headers: requestHeaders,
         body: requestBody,
       );

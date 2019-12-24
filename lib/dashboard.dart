@@ -237,9 +237,17 @@ class _DashboardPageState extends State<DashboardPage>
     requestHeaders['Accept'] = 'application/json';
     requestHeaders['Authorization'] = '$tokenTypeStorage $accessTokenStorage';
     var hitung = index;
+    DataStore dataStore = new DataStore();
+    String _username = await dataStore.getDataString("username");
+    String urldashboard;
+    if (_username == 'Tidak ditemukan') {
+      urldashboard = 'api/produk_beranda_android_belumlogin?_limit=$limit&count=$hitung';
+    } else {
+      urldashboard = 'api/produk_beranda_android?_limit=$limit&count=$hitung';
+    }
     try {
       final responseBody = await http.get(
-        url('api/produk_beranda_android?_limit=$limit&count=$hitung'),
+        url(urldashboard),
         headers: requestHeaders,
       );
 
@@ -295,9 +303,18 @@ class _DashboardPageState extends State<DashboardPage>
     requestHeaders['Accept'] = 'application/json';
     requestHeaders['Authorization'] = '$tokenTypeStorage $accessTokenStorage';
 
+    DataStore dataStore = new DataStore();
+    String _username = await dataStore.getDataString("username");
+    String urldashboard;
+
+    if (_username == 'Tidak ditemukan') {
+      urldashboard = 'api/produk_beranda_android_belumlogin?index=$index&_recLimit=$limit';
+    } else {
+      urldashboard = 'api/produk_beranda_android?index=$index&_recLimit=$limit';
+    }
     try {
       final responseBody = await http.get(
-        url('api/produk_beranda_android?index=$index&_recLimit=$limit'),
+        url(urldashboard),
         headers: requestHeaders,
       );
 
