@@ -96,7 +96,7 @@ class _LoginPageState extends State<LoginPage> {
             DataStore store = new DataStore();
 
             // store.setDataInteger("user_id", int.parse(datajson['user']["u_id"]));
-            store.setDataInteger("id", datauser['cm_id']);
+            store.setDataString("id", datauser['cm_id'].toString());
             store.setDataString("username", datauser['cm_username']);
             store.setDataString("name", datauser['cm_name']);
             store.setDataString("email", datauser['cm_email']);
