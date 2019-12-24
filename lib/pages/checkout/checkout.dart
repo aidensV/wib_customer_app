@@ -98,7 +98,7 @@ class _CheckoutState extends State<Checkout> {
         // return nota;
         var notaJson = json.decode(nota.body);
         var notas = notaJson['item'];
-        var totalharga = notaJson['totalharga'];
+        var totalharga = notaJson['totalharga'].toString();
         var idprovinsi = notaJson['idprovinsi'].toString();
         var namaprovinsi = notaJson['namaprovinsi'];
         var idkabupaten = notaJson['idkabupaten'].toString();
@@ -518,9 +518,9 @@ class _CheckoutState extends State<Checkout> {
                                 Expanded(
                                   flex: 5,
                                   child: Text(
-                                      hargatotalX == null
+                                      hargatotalX.toString() == null
                                           ? 'Rp. 0'
-                                          : 'Rp. ' + hargatotalX,
+                                          : _numberFormat.format(double.parse(hargatotalX.toString())),
                                       textAlign: TextAlign.end,
                                       style: TextStyle(color: Colors.green)),
                                 ),
@@ -598,21 +598,43 @@ class _CheckoutState extends State<Checkout> {
                               ],
                             ),
                           ),
-                          new CheckboxListTile(
-                            value: _bayartempo,
-                            controlAffinity: ListTileControlAffinity.leading,
-                            title: new Text('Pembayaran Tempo'),
-                            onChanged: checkboxbayartempo == 'pasif'
-                                ? null
-                                : (value) {
-                                    setState(() {
-                                      _bayartempo = value;
-                                      _value1 = value == true ? false : false;
-                                      checkboxtotalsaldo =
-                                          value == true ? 'pasif' : 'aktif';
-                                    });
-                                  },
+                          Padding(
+                            padding: const EdgeInsets.only(
+                                top: 5.0, bottom: 5.0, left: 10.0, right: 10.0),
+                            child: Row(
+                              children: <Widget>[
+                                Expanded(
+                                  flex: 5,
+                                  child: Text('PPN'),
+                                ),
+                                Expanded(
+                                  flex: 5,
+                                  child: Text(
+                                      hargatotalX == null
+                                          ? 'Rp. 0'
+                                          :  _numberFormat.format(10 / 110 * double.parse(hargatotalX.toString()))
+                                                                    ,
+                                      textAlign: TextAlign.end,
+                                      style: TextStyle(color: Colors.green)),
+                                ),
+                              ],
+                            ),
                           ),
+                          // new CheckboxListTile(
+                          //   value: _bayartempo,
+                          //   controlAffinity: ListTileControlAffinity.leading,
+                          //   title: new Text('Pembayaran Tempo'),
+                          //   onChanged: checkboxbayartempo == 'pasif'
+                          //       ? null
+                          //       : (value) {
+                          //           setState(() {
+                          //             _bayartempo = value;
+                          //             _value1 = value == true ? false : false;
+                          //             checkboxtotalsaldo =
+                          //                 value == true ? 'pasif' : 'aktif';
+                          //           });
+                          //         },
+                          // ),
                           new CheckboxListTile(
                             value: _value1,
                             controlAffinity: ListTileControlAffinity.leading,
