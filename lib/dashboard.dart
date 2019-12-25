@@ -54,7 +54,7 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage>
     with TickerProviderStateMixin {
-  ScrollController scrollController =
+  final ScrollController scrollController =
       ScrollController(initialScrollOffset: 0.0);
       
   final GlobalKey<ScaffoldState> _scaffoldKeyDashboard =
@@ -811,7 +811,6 @@ class _DashboardPageState extends State<DashboardPage>
       pageFuture: (pageIndex) => listrecomendationitem(pageIndex, pageSize),
     );
 
-    scrollController = ScrollController(initialScrollOffset: 0.0);
     isScrolled = false;
     red = 255;
     green = 255;
@@ -835,12 +834,6 @@ class _DashboardPageState extends State<DashboardPage>
     super.initState();
   }
 
-  @override
-  void deactivate() {
-    scrollController.dispose();
-
-    super.deactivate();
-  }
 
   @override
   Widget build(BuildContext context) {
